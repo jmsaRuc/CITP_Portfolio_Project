@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  postgres:
+    container_name: OMGDB-pg
+    image: postgres
+    hostname: localhost
+    ports:
+      - "5532:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${OMGDB_POSTGRES_PASSWORD}
+      POSTGRES_DB:  OMGDB_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: OMGDB-pgadmin
+    image: dpage/pgadmin4:8.12.0
+    depends_on:
+      - postgres
+    ports:
+      - "5550:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@OMGDB.com
+      PGADMIN_DEFAULT_PASSWORD: ${OMGDB_PGADMIN_DEFAULT_PASSWORD}
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
