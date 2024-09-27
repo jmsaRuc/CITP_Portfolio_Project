@@ -1,5 +1,15 @@
-version: '3.8'
+
 services:
+  web_api:
+    container_name: OMGDB-web_api
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ConnectionStrings_DefaultConnection: ${ASPNETCORE_ConnectionStrings_DefaultConnection}  
+    depends_on:
+      - "postgres"
+
   postgres:
     container_name: OMGDB-pg
     image: postgres
@@ -9,9 +19,9 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: ${OMGDB_POSTGRES_PASSWORD}
-      POSTGRES_DB:  OMGDB_db
+      POSTGRES_DB: OMGDB_db
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data-OMGDB:/var/lib/postgresql/data
     restart: unless-stopped
 
   pgadmin:
@@ -27,4 +37,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres-data:
+  postgres-data-OMGDB:

@@ -1,2 +1,3 @@
 OMGDB_POSTGRES_PASSWORD=*****
 OMGDB_PGADMIN_DEFAULT_PASSWORD=*****
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=OMGDB_db;Username=admin;Password=*****'

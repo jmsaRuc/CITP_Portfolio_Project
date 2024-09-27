@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\CITP_Portfolio_Project.props" />
-</Project>
