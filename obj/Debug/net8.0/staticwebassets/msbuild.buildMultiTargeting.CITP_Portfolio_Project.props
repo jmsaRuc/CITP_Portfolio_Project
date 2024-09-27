@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\CITP_Portfolio_Project.props" />
+</Project>
