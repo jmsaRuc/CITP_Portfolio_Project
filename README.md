@@ -27,9 +27,14 @@ OMGdbApi is a .NET 8.0 web API project that uses PostgreSQL as its database. Thi
 │   ├── appsettings.Development.json
 │   └── appsettings.json
 ├── OMGdbApi.sln
+├── README.md
 ├── blueprint
 │   └── excalidraw
 │       └── main_excali.excalidraw
+├── db
+│   ├── import_backup
+│   └── script
+│       └── create_db.sql
 ├── docker-compose.yml
 └── env_eksambel
 ```
@@ -80,7 +85,11 @@ To apply the latest migrations, run the following command:
 ```sh
 dotnet ef database update
 ```
+### PSql backup import
 
+```sh
+psql -h 127.0.0.1 -p 5532 -d import_for_portf_1 -U admin -W -a -f db/import_backup/imdb.backup
+```
 ## Project Configuration
 
 - **Dockerfile:** Defines the Docker image for the project.
