@@ -21,7 +21,7 @@ services:
       POSTGRES_PASSWORD: ${OMGDB_POSTGRES_PASSWORD}
       POSTGRES_DB: OMGDB_db
     volumes:
-      - postgres-data-OMGDB:/var/lib/postgresql/data
+      - citp_portfolio_project_postgres-data-OMGDB:/var/lib/postgresql/data
     restart: unless-stopped
 
   pgadmin:
@@ -34,7 +34,12 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@OMGDB.com
       PGADMIN_DEFAULT_PASSWORD: ${OMGDB_PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - f2eeebaad83afb9c13152f407eb12ed40738fe9517018482bb7a4392e87fe442:/var/lib/pgadmin  
     restart: unless-stopped
 
 volumes:
-  postgres-data-OMGDB:
+  citp_portfolio_project_postgres-data-OMGDB:
+    external: true
+  f2eeebaad83afb9c13152f407eb12ed40738fe9517018482bb7a4392e87fe442:
+    external: true
