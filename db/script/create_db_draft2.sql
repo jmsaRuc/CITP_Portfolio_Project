@@ -32,6 +32,15 @@ CREATE TABLE IF NOT EXISTS public.user_interaction
     PRIMARY KEY (user_id, movie_id, series_id, episode_id) 
 );
 
+CREATE TABLE if NOT EXISTS Public.language
+(   
+    language character varying(200) NOT NULL,
+    movie_id character varying(10),
+    series_id character varying(10),
+    episode_id character varying(10),
+    PRIMARY KEY (language, movie_id, series_id, episode_id)
+);
+
 CREATE TABLE IF NOT EXISTS public.is_in
 (
     person_id character varying(10) NOT NULL,
@@ -314,4 +323,25 @@ ALTER TABLE IF EXISTS public.recent_view
     ON DELETE CASCADE
     NOT VALID;
 
+ALTER TABLE IF EXISTS public.language
+    ADD FOREIGN KEY (movie_id)
+    REFERENCES public.movie (movie_id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+
+ALTER TABLE IF EXISTS public.language
+    ADD FOREIGN KEY (series_id)
+    REFERENCES public.series (series_id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+
+ALTER TABLE IF EXISTS public.language
+    ADD FOREIGN KEY (episode_id)
+    REFERENCES public.episode (episode_id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
+               
 END;
