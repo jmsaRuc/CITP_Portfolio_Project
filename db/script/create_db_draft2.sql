@@ -1,4 +1,4 @@
--- Active: 1727253378954@@127.0.0.1@5532@import_for_portf_1@public
+-- Active: 1727253378954@@127.0.0.1@5532@portf_1
 BEGIN;
 
 
@@ -102,12 +102,12 @@ CREATE TABLE IF NOT EXISTS public.episode
 
 CREATE TABLE IF NOT EXISTS public.episode_series
 (
-    series_id character varying(10) NOT NULL,
+    series_id character varying(10),
     episode_id character varying(10),
     season_number integer,
     CONSTRAINT season_number_check CHECK ((season_number > (0)::integer)),
     episode_number integer,
-    CONSTRAINT episode_number_check CHECK ((episode_number > (0)::integer)),
+    CONSTRAINT episode_number_check CHECK ((episode_number >= (0)::integer)),
     PRIMARY KEY (series_id, episode_id)
 );
 
