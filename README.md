@@ -3,6 +3,9 @@
 
 OMGdbApi is a .NET 8.0 web API project that uses PostgreSQL as its database. This project includes Docker support for easy deployment and development.
 
+
+titletype change: movie = movie, short = movie, tvEpisode = episode, tvMiniSeries = series, tvMovie = movie, tvSeries = series, tvShort = movie, tvSpecial = movie, video = movie, videoGame = are not used in the database, they are used for different types of media.
+
 ## Project Structure
 
 ```
