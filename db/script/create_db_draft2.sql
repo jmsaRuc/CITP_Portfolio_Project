@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS public.movie
     run_time character varying(80),
     poster character varying(180),
     plot text,
-    language character varying(200),
     release_date date,
     imdb_rating numeric(5, 1),
 	CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
@@ -93,7 +92,6 @@ CREATE TABLE IF NOT EXISTS public.episode
     re_year character varying(4),
     run_time character varying(80),
     plot text,
-    language character varying(200),
     relese_date date,
     imdb_rating numeric(5, 1),
     CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
@@ -121,7 +119,6 @@ CREATE TABLE IF NOT EXISTS public.series
     end_year character varying(4),
     poster character varying(180),
     plot text,
-    language character varying(200),
     imdb_rating numeric(5, 1),
     CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
     popularity integer,
@@ -343,5 +340,5 @@ ALTER TABLE IF EXISTS public.language
     ON UPDATE CASCADE
     ON DELETE CASCADE
     NOT VALID;
-               
+
 END;
