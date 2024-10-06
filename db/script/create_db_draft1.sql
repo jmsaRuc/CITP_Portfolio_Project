@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS public.user_interaction
     series_id character varying(10),
     episode_id character varying(10),
     rating smallint,
+    CONSTRAINT rating_check CHECK (rating BETWEEN 1 AND 10),
     whatchlist integer,
     PRIMARY KEY (user_id, movie_id, series_id, episode_id) 
 );
