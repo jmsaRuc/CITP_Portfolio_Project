@@ -26,7 +26,6 @@ FROM isa_a_seris, is_a_tvshort
 WHERE
     seris = tvshort;
 
--- movie import part 1
 INSERT INTO
     movie (movie_id, title, re_year)
 SELECT tconst, primarytitle, startyear
@@ -378,12 +377,16 @@ with
         WHERE
             titletype != 'tvEpisode'
             AND titletype != 'tvMiniSeries'
-            AND titletype != 'tvSeries'
+            AND titletype != 'tvSeries' 
             AND titletype != 'videoGame'
     )
-SELECT string_to_table(language, ','), titletype.tconst
-FROM omdb_data, titletype_movie
-WHERE titletype.tconst = omdb_data.tconst;
+SELECT string_to_table(language, ','), tconst
+FROM omdb_data NATURAL JOIN titletype_movie
+WHERE tconst != 'tt3795628';
+
+INSERT INTO
+    movie_language (language, movie_id)
+VALUES ('English', 'tt3795628');    
 -- series_language
 INSERT INTO
     series_language (language, series_id)
@@ -395,9 +398,9 @@ with
             titletype = 'tvMiniSeries'
             or titletype = 'tvSeries'
     )
-SELECT string_to_table(language, ','), titletype.tconst
+SELECT string_to_table(language, ','), omdb_data.tconst
 FROM omdb_data, titletype_series
-WHERE titletype.tconst = omdb_data.tconst;
+WHERE  omdb_data.tconst = titletype_series.tconst;
 
 -- episode_language
 INSERT INTO
@@ -409,9 +412,9 @@ with
         WHERE
             titletype = 'tvEpisode'
     )
-SELECT string_to_table(language, ','), titletype.tconst
+SELECT string_to_table(language, ','), omdb_data.tconst
 FROM omdb_data, titletype_episode
-WHERE titletype.tconst = omdb_data.tconst;
+WHERE omdb_data.tconst= titletype_episode.tconst;
 -- import type
 
 ##
@@ -440,5 +443,3 @@ WHERE
 INSERT INTO public.type (type_id, title_type)
 SELECT person_id, 'person' 
 FROM person
-
-   
