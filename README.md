@@ -36,8 +36,18 @@ titletype change: movie = movie, short = movie, tvEpisode = episode, tvMiniSerie
 │       └── main_excali.excalidraw
 ├── db
 │   ├── import_backup
-│   └── script
-│       └── create_db.sql
+│   ├── script
+│   │   ├── create-triggers
+│   │   │   └── type-triggers.sql
+│   │   ├── create_db
+│   │   │   ├── create_db_draft1.sql
+│   │   │   ├── create_db_draft2.sql
+│   │   │   ├── create_db_final.sql
+│   │   │   └── import_script.sql
+│   │   └── user_functionality
+│   │       └── user_function.sql
+│   └── test
+│       └── test_users.sql
 ├── docker-compose.yml
 └── env_eksambel
 ```

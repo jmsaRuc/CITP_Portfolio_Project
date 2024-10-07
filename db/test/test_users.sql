@@ -127,6 +127,7 @@ HAVING
 SELECT * FROM omdb_data WHERE tconst = 'tt3795628';
 
 -- test movie type trigger
+
 INSERT INTO
     movie (
         movie_id,
@@ -151,9 +152,14 @@ VALUES (
 RETURNING
     *;
 
+
 SELECT * FROM type WHERE type_id = 'tt32459823';
 
-DELETE FROM movie WHERE movie_id = 'tt32459823';
+
+SELECT * FROM movie WHERE movie_id = 'tt32459823';
+
+-- DELETE FROM movie WHERE movie_id = 'tt32459823';
+
 
 
 -- test series type trigger
@@ -168,7 +174,7 @@ INSERT INTO
         imdb_rating
     )
 VALUES (
-        'tt32459824',
+        'tt0903747',
         'Breaking Bad',
         2008,
         2013,
@@ -177,11 +183,36 @@ VALUES (
         9.5
     )
 
-SELECT * FROM type WHERE type_id = 'tt32459824';
+SELECT * FROM type WHERE type_id = 'tt0903747';
 
-DELETE FROM series WHERE series_id = 'tt32459824';
+SELECT * FROM series WHERE series_id = 'tt0903747';
 
-SELECT * FROM episode_series WHERE series_id = 'tt32459824';
+-- delete from series where series_id = 'tt0903747';
+INSERT INTO
+    series (
+        series_id,
+        title,
+        start_year,
+        end_year,
+        poster,
+        plot,
+        imdb_rating
+    )
+VALUES (
+        'tt4574334',
+        'Stranger Things',
+        2016,
+        NULL,
+        'https://m.media-amazon.com/images/I/71r8ZLZqjwL._AC_SY679_.jpg',
+        'In 1980s Indiana, a group of young friends witness supernatural forces and secret government exploits. As they search for answers, the children unravel a series of extraordinary mysteries.',
+        8.7 
+    )
+
+SELECT * FROM type WHERE type_id = 'tt4574334';
+
+SELECT * FROM series WHERE series_id = 'tt4574334';
+-- DELETE FROM series WHERE series_id = 'tt4574334';
+
 
 
 
@@ -198,18 +229,47 @@ INSERT INTO
         imdb_rating
     )
 VALUES (
-        'tt32459825',
+        'tt0959621',
         'Pilot',
         2008,
         '58 m',
         'Diagnosed with terminal lung cancer, a high school chemistry teacher resorts to cooking and selling methamphetamine to provide for his family.',
         '2008-01-20',
         9.0
+    )    
+
+SELECT * FROM type WHERE type_id = 'tt0959621';
+
+SELECT * FROM episode WHERE episode_id = 'tt0959621';
+
+-- DELETE FROM episode WHERE episode_id = 'tt0959621';
+
+INSERT INTO
+    episode (
+        episode_id,
+        title,
+        re_year,
+        run_time,
+        plot,
+        relese_date,
+        imdb_rating
+    )
+VALUES (
+        'tt4593118',
+        'Chapter One: The Vanishing of Will Byers',
+        2016,
+        '48 m',
+        'On his way home from a friend''s house, young Will sees something terrifying. Nearby, a sinister secret lurks in the depths of a government lab.',
+        '2016-07-15',
+        8.4
     )
 
-SELECT * FROM type WHERE type_id = 'tt32459825';
+SELECT * FROM type WHERE type_id = 'tt4593118';
 
-DELETE FROM episode WHERE episode_id = 'tt32459825';
+SELECT * FROM episode WHERE episode_id = 'tt4593118';
+
+--DELETE FROM episode WHERE episode_id = 'tt4593118';
+
 
 
 ----------------------test user functionality----------------------
@@ -217,12 +277,34 @@ SELECT public.create_user('test_user', sha256('foo'::bytea), 'test_user@gmail.co
 
 SELECT new_watchlist_movie('ur00000101', 'tt32459823');
 
-SELECT UPDATE
+SELECT new_watchlist_movie('ur00000101', 'tt1596363');
+
+SELECT new_watchlist_series('ur00000101', 'tt0903747');
+
+SELECT new_watchlist_series('ur00000101', 'tt4574334');
+
+SELECT new_watchlist_episode('ur00000101', 'tt0959621');
+
+SELECT new_watchlist_episode('ur00000101', 'tt4593118');
 
 
-SELECT public.delete_user('test_user');
 
 
+SELECT delet_watchlist_series('ur00000101', 'tt0903747');
+
+SELECT delet_watchlist_series('ur00000101', 'tt4574334');
+
+SELECT delet_watchlist_episode('ur00000101', 'tt0959621');
+
+SELECT delet_watchlist_episode('ur00000101', 'tt4593118');
+
+SELECT delet_watchlist_movie('ur00000101', 'tt32459823');   
+
+SELECT delet_watchlist_movie('ur00000101', 'tt1596363');
+
+-- SELECT public.delete_user('test_user');
 
 
+SELECT string_search('The BIG short');
 
+SELECT find_co_players('Bryan Cranston');
