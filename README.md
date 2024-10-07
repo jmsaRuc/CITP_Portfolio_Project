@@ -101,8 +101,20 @@ dotnet ef database update
 ### PSql backup import
 
 ```sh
-psql -h 127.0.0.1 -p 5532 -d import_for_portf_1 -U admin -W -a -f db/import_backup/imdb.backup
+psql -h 127.0.0.1 -p 5532 -d portf_1 -U admin -W -a -f db/import_backup/imdb.backup
 ```
+```sh
+psql -h 127.0.0.1 -p 5532 -d portf_1 -U admin -W -a -f db/import_backup/omdb_data.backup
+```
+
+```sh
+psql -h 127.0.0.1 -p 5532 -d portf_1 -U admin -W -a -f db/import_backup/wi.backup
+```
+
+
+##
+
+run db/script/create_db/create_db_final.sql
 ## Project Configuration
 
 - **Dockerfile:** Defines the Docker image for the project.
