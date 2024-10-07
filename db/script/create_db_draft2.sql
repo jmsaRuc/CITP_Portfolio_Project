@@ -1,4 +1,4 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1@public
+-- Active: 1727253378954@@127.0.0.1@5532@portf_1
 
 BEGIN
 
@@ -564,13 +564,16 @@ with
         WHERE
             titletype != 'tvEpisode'
             AND titletype != 'tvMiniSeries'
-            AND titletype != 'tvSeries'
+            AND titletype != 'tvSeries' 
             AND titletype != 'videoGame'
     )
-SELECT string_to_table(language, ','), titletype_movie.tconst
-FROM omdb_data
-    NATURAL JOIN titletype_movie;
+SELECT string_to_table(language, ','), tconst
+FROM omdb_data NATURAL JOIN titletype_movie
+WHERE tconst != 'tt3795628';
 
+INSERT INTO
+    movie_language (language, movie_id)
+VALUES ('English', 'tt3795628');    
 -- series_language
 INSERT INTO
     series_language (language, series_id)
@@ -582,9 +585,9 @@ with
             titletype = 'tvMiniSeries'
             or titletype = 'tvSeries'
     )
-SELECT string_to_table(language, ','), titletype_series.tconst
-FROM omdb_data
-    NATURAL JOIN titletype_series;
+SELECT string_to_table(language, ','), omdb_data.tconst
+FROM omdb_data, titletype_series
+WHERE  omdb_data.tconst = titletype_series.tconst;
 
 -- episode_language
 INSERT INTO
@@ -596,10 +599,9 @@ with
         WHERE
             titletype = 'tvEpisode'
     )
-SELECT string_to_table(language, ','), titletype_episode.tconst
-FROM omdb_data
-    NATURAL JOIN titletype_episode;
-
+SELECT string_to_table(language, ','), omdb_data.tconst
+FROM omdb_data, titletype_episode
+WHERE omdb_data.tconst= titletype_episode.tconst;
 -- import type
 
 ##

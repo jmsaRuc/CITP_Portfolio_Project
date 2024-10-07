@@ -381,10 +381,9 @@ with
             AND titletype != 'tvSeries'
             AND titletype != 'videoGame'
     )
-SELECT string_to_table(language, ','), omdb_data.tconst
-FROM omdb_data
-    NATURAL JOIN titletype_movie;
-
+SELECT string_to_table(language, ','), titletype.tconst
+FROM omdb_data, titletype_movie
+WHERE titletype.tconst = omdb_data.tconst;
 -- series_language
 INSERT INTO
     series_language (language, series_id)
@@ -396,9 +395,9 @@ with
             titletype = 'tvMiniSeries'
             or titletype = 'tvSeries'
     )
-SELECT string_to_table(language, ','), omdb_data.tconst
-FROM omdb_data
-    NATURAL JOIN titletype_series;
+SELECT string_to_table(language, ','), titletype.tconst
+FROM omdb_data, titletype_series
+WHERE titletype.tconst = omdb_data.tconst;
 
 -- episode_language
 INSERT INTO
@@ -410,10 +409,9 @@ with
         WHERE
             titletype = 'tvEpisode'
     )
-SELECT string_to_table(language, ','), omdb_data.tconst
-FROM omdb_data
-    NATURAL JOIN titletype_episode;
-
+SELECT string_to_table(language, ','), titletype.tconst
+FROM omdb_data, titletype_episode
+WHERE titletype.tconst = omdb_data.tconst;
 -- import type
 
 ##
@@ -442,4 +440,5 @@ WHERE
 INSERT INTO public.type (type_id, title_type)
 SELECT person_id, 'person' 
 FROM person
+
    

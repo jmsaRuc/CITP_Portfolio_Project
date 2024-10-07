@@ -41,7 +41,9 @@ BEGIN
                 movie_ids[(random() * array_length(movie_ids, 1) + 1)::int],
                 (random() * 9 + 1)::int,
                 (random() * 10 + 1)::int
-            );
+            ) ON CONFLICT (user_id, movie_id) DO UPDATE SET
+                rating = EXCLUDED.rating,
+                watchlist = EXCLUDED.watchlist;
         END LOOP;
 
         -- Insert 10 user_series_interactions
@@ -65,7 +67,7 @@ BEGIN
                 episode_ids[(random() * array_length(episode_ids, 1) + 1)::int],
                 (random() * 9 + 1)::int,
                 (random() * 10 + 1)::int
-            ) ON CONFLICT (user_id, series_id) DO UPDATE SET
+            ) ON CONFLICT (user_id, episode_id) DO UPDATE SET
                 rating = EXCLUDED.rating,
                 watchlist = EXCLUDED.watchlist; 
         END LOOP;
@@ -91,4 +93,15 @@ VALUES ('ur00000101', 'tt12768346', 1);
 
 UPDATE public.user_episode_interaction
 SET rating = 10
-WHERE user_id = 'ur00000101'
+WHERE user_id = 'ur00000101';
+
+
+-- Find duplicate rows in the movie_language table
+SELECT movie_id, language, COUNT(*)
+FROM movie_language
+GROUP BY movie_id, language
+HAVING COUNT(*) > 1;
+
+SELECT *
+FROM omdb_data
+WHERE tconst = 'tt3795628';
