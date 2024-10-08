@@ -1,6 +1,7 @@
 -- Active: 1727253378954@@127.0.0.1@5532@portf_1
+SET client_encoding = 'UTF8';
 
-BEGIN
+
 
 CREATE TABLE IF NOT EXISTS public.movie (
     movie_id character varying(10) NOT NULL,
@@ -767,5 +768,3 @@ ADD CONSTRAINT episode_series_series_id_fkey FOREIGN KEY (series_id) REFERENCES 
 
 ALTER TABLE IF EXISTS public.episode_series
 ADD CONSTRAINT episode_series_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-END;

@@ -85,6 +85,19 @@ BEGIN
     END LOOP;
 END $$;
 
+-----test duymmy users
+
+SELECT * FROM public.user LIMIT 5;
+SELECT * FROM public.user_movie_interaction LIMIT 5;
+SELECT * FROM public.user_series_interaction LIMIT 5;
+SELECT * FROM public.user_episode_interaction LIMIT 5;
+
+SELECT * FROM public.recent_view LIMIT 5;
+
+
+
+-----basic dummy test
+
 INSERT INTO
     public.user (
         user_id,
@@ -101,6 +114,8 @@ VALUES (
         current_date
     );
 
+SELECT * FROM public.user WHERE user_id = 'ur00000101';    
+
 INSERT INTO
     public.user_episode_interaction (
         user_id,
@@ -109,22 +124,21 @@ INSERT INTO
     )
 VALUES ('ur00000101', 'tt12768346', 1);
 
+SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101';
+
 UPDATE public.user_episode_interaction
 SET
     rating = 10
 WHERE
     user_id = 'ur00000101';
 
--- Find duplicate rows in the movie_language table
-SELECT movie_id, language, COUNT(*)
-FROM movie_language
-GROUP BY
-    movie_id,
-    language
-HAVING
-    COUNT(*) > 1;
+SELECT * FROM public.user;
 
-SELECT * FROM omdb_data WHERE tconst = 'tt3795628';
+SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101';
+
+SELECT * FROM public.user WHERE user_id = 'ur00000101';
+
+SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101';
 
 -- test movie type trigger
 
@@ -148,9 +162,7 @@ VALUES (
         'A frontiersman on a fur trading expedition in the 1820s fights for survival after being mauled by a bear and left for dead by members of his own hunting team.',
         '2016-01-08',
         8.0
-    )
-RETURNING
-    *;
+    );
 
 
 SELECT * FROM type WHERE type_id = 'tt32459823';
@@ -158,9 +170,9 @@ SELECT * FROM type WHERE type_id = 'tt32459823';
 
 SELECT * FROM movie WHERE movie_id = 'tt32459823';
 
--- DELETE FROM movie WHERE movie_id = 'tt32459823';
+SELECT public.delete_user('admin');
 
-
+DELETE FROM movie WHERE movie_id = 'tt32459823';
 
 -- test series type trigger
 INSERT INTO
@@ -181,13 +193,14 @@ VALUES (
         'https://m.media-amazon.com/images/I/71r8ZLZqjwL._AC_SY679_.jpg',
         'A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family''s future.',
         9.5
-    )
+    );
 
 SELECT * FROM type WHERE type_id = 'tt0903747';
 
 SELECT * FROM series WHERE series_id = 'tt0903747';
 
--- delete from series where series_id = 'tt0903747';
+DELETE from series where series_id = 'tt0903747';
+
 INSERT INTO
     series (
         series_id,
@@ -206,12 +219,12 @@ VALUES (
         'https://m.media-amazon.com/images/I/71r8ZLZqjwL._AC_SY679_.jpg',
         'In 1980s Indiana, a group of young friends witness supernatural forces and secret government exploits. As they search for answers, the children unravel a series of extraordinary mysteries.',
         8.7 
-    )
+    );
 
 SELECT * FROM type WHERE type_id = 'tt4574334';
 
 SELECT * FROM series WHERE series_id = 'tt4574334';
--- DELETE FROM series WHERE series_id = 'tt4574334';
+DELETE FROM series WHERE series_id = 'tt4574334';
 
 
 
@@ -236,13 +249,13 @@ VALUES (
         'Diagnosed with terminal lung cancer, a high school chemistry teacher resorts to cooking and selling methamphetamine to provide for his family.',
         '2008-01-20',
         9.0
-    )    
+    );    
 
 SELECT * FROM type WHERE type_id = 'tt0959621';
 
 SELECT * FROM episode WHERE episode_id = 'tt0959621';
 
--- DELETE FROM episode WHERE episode_id = 'tt0959621';
+DELETE FROM episode WHERE episode_id = 'tt0959621';
 
 INSERT INTO
     episode (
@@ -262,13 +275,13 @@ VALUES (
         'On his way home from a friend''s house, young Will sees something terrifying. Nearby, a sinister secret lurks in the depths of a government lab.',
         '2016-07-15',
         8.4
-    )
+    );
 
 SELECT * FROM type WHERE type_id = 'tt4593118';
 
 SELECT * FROM episode WHERE episode_id = 'tt4593118';
 
---DELETE FROM episode WHERE episode_id = 'tt4593118';
+DELETE FROM episode WHERE episode_id = 'tt4593118';
 
 
 
@@ -279,30 +292,25 @@ SELECT new_watchlist_movie('ur00000101', 'tt32459823');
 
 SELECT new_watchlist_movie('ur00000101', 'tt1596363');
 
+SELECT * FROM public.user_movie_interaction WHERE user_id = 'ur00000101';
+
 SELECT new_watchlist_series('ur00000101', 'tt0903747');
 
 SELECT new_watchlist_series('ur00000101', 'tt4574334');
+
+SELECT * FROM public.user_movie_interaction WHERE user_id = 'ur00000101';
 
 SELECT new_watchlist_episode('ur00000101', 'tt0959621');
 
 SELECT new_watchlist_episode('ur00000101', 'tt4593118');
 
+SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101'
 
+SELECT public.delete_user('test_user');
 
+SELECT * FROM public.user_movie_interaction WHERE user_id = 'ur00000101';
 
-SELECT delet_watchlist_series('ur00000101', 'tt0903747');
-
-SELECT delet_watchlist_series('ur00000101', 'tt4574334');
-
-SELECT delet_watchlist_episode('ur00000101', 'tt0959621');
-
-SELECT delet_watchlist_episode('ur00000101', 'tt4593118');
-
-SELECT delet_watchlist_movie('ur00000101', 'tt32459823');   
-
-SELECT delet_watchlist_movie('ur00000101', 'tt1596363');
-
--- SELECT public.delete_user('test_user');
+SELECT * FROM public.user_movie_interaction WHERE user_id = 'ur00000101';
 
 
 SELECT string_search('The BIG short');

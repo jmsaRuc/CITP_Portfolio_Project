@@ -52,34 +52,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Function to bookmark a name.
-CREATE OR REPLACE FUNCTION bookmark_name(
-    username VARCHAR(50),
-    name_id VARCHAR(50)
-)
-RETURNS BOOLEAN AS $$
-DECLARE
-    user_exists BOOLEAN;
-BEGIN
-    SELECT
-        EXISTS(
-            SELECT
-                1
-            FROM users
-            WHERE
-                username = bookmark_name.username
-        )
-    INTO user_exists;
-
-    IF user_exists THEN
-        INSERT INTO user_name (username, name_id)
-        VALUES (bookmark_name.username, bookmark_name.name_id);
-        RETURN TRUE;
-    ELSE
-        RETURN FALSE;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
 
 -- Function to watchlist movie.
 CREATE OR REPLACE FUNCTION new_watchlist_movie(
@@ -315,3 +287,4 @@ CREATE OR REPLACE FUNCTION "public"."find_co_players"(actorname text)
         END; 
 $$ 
 LANGUAGE plpgsql VOLATILE; 
+

@@ -1,7 +1,4 @@
 -- Active: 1727253378954@@127.0.0.1@5532@portf_1
-
-BEGIN
-
 CREATE TABLE IF NOT EXISTS public.movie (
     movie_id character varying(10) NOT NULL,
     title character varying(256) NOT NULL,
@@ -209,9 +206,6 @@ CREATE TABLE IF NOT EXISTS public.type (
     )
 );
 
-END;
-
-
 -- movie import part 1
 INSERT INTO
     movie (movie_id, title, re_year)
@@ -297,6 +291,7 @@ FROM omdb_data, an_seris
 WHERE
     tconst = an_seris.not_id
     and tconst = series_id;
+
 -- series import part 3
 UPDATE series
 SET
@@ -339,6 +334,7 @@ WHERE
     tconst = an_epi.not_id
     And tconst = date_not_na._id
     and tconst = episode_id;
+
 -- episode import part 3
 UPDATE episode
 SET
@@ -470,6 +466,7 @@ FROM
     NATURAL JOIN titletype_series;
 
 -- is_in_episode
+
 INSERT INTO
     is_in_episode (
         person_id,
@@ -602,9 +599,9 @@ with
 SELECT string_to_table(language, ','), omdb_data.tconst
 FROM omdb_data, titletype_episode
 WHERE omdb_data.tconst= titletype_episode.tconst;
+
 -- import type
 
-##
 INSERT INTO public.type (type_id, title_type)
 with
     type_change as (
@@ -629,11 +626,10 @@ WHERE
 
 INSERT INTO public.type (type_id, title_type)
 SELECT person_id, 'person' 
-FROM person
+FROM person;
 
 
 
-BEGIN
 
 ALTER TABLE IF EXISTS public.movie
 ADD CONSTRAINT movie_pkey PRIMARY KEY (movie_id);
@@ -768,4 +764,37 @@ ADD CONSTRAINT episode_series_series_id_fkey FOREIGN KEY (series_id) REFERENCES 
 ALTER TABLE IF EXISTS public.episode_series
 ADD CONSTRAINT episode_series_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-END;
+ALTER TABLE IF EXISTS public.recent_view
+ADD CONSTRAINT recent_view_type_id_fkey FOREIGN KEY (type_id) REFERENCES public.type (type_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.recent_view
+ADD CONSTRAINT recent_view_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.is_in_movie
+ADD CONSTRAINT is_in_movie_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.is_in_series
+ADD CONSTRAINT is_in_series_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.is_in_episode
+ADD CONSTRAINT is_in_episode_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+DROP TABLE IF EXISTS public.title_basics;
+
+DROP TABLE IF EXISTS public.title_episode;
+
+DROP TABLE IF EXISTS public.title_principals;
+
+DROP TABLE IF EXISTS public.title_ratings;
+
+DROP TABLE IF EXISTS public.omdb_data;
+
+DROP TABLE IF EXISTS public.name_basics;
+
+DROP TABLE IF EXISTS public.wi;
+
+DROP TABLE IF EXISTS public.title_akas;
+
+DROP TABLE IF EXISTS public.title_crew;
+
+

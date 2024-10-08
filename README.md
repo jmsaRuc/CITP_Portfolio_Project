@@ -1,56 +1,26 @@
+# quickstart
+make .env file in root directory
 
+then run 
+```sh
+docker compose --env-file .env build
+```
+
+for dotnet database
+```sh 
+dotnet ef database update
+```
+
+for psql import
+```sh
+./import.sh
+```
 # OMGdbApi
 
 OMGdbApi is a .NET 8.0 web API project that uses PostgreSQL as its database. This project includes Docker support for easy deployment and development.
 
 
 titletype change: movie = movie, short = movie, tvEpisode = episode, tvMiniSeries = series, tvMovie = movie, tvSeries = series, tvShort = movie, tvSpecial = movie, video = movie, videoGame = are not used in the database, they are used for different types of media.
-
-## Project Structure
-
-```
-.
-├── .gitignore
-├── Dockerfile
-├── OMGdbApi
-│   ├── Controllers
-│   │   └── OMGdbItemsController.cs
-│   ├── Migrations
-│   │   ├── 20240927142856_OMGdbApiMigration.Designer.cs
-│   │   ├── 20240927142856_OMGdbApiMigration.cs
-│   │   └── OMGdbContextModelSnapshot.cs
-│   ├── Models
-│   │   ├── OMGdbContext.cd.cs
-│   │   └── OMGdbItem.cs
-│   ├── OMGdbApi.csproj
-│   ├── OMGdbApi.http
-│   ├── Program.cs
-│   ├── Properties
-│   │   └── launchSettings.json
-│   ├── appsettings.Development.json
-│   └── appsettings.json
-├── OMGdbApi.sln
-├── README.md
-├── blueprint
-│   └── excalidraw
-│       └── main_excali.excalidraw
-├── db
-│   ├── import_backup
-│   ├── script
-│   │   ├── create-triggers
-│   │   │   └── type-triggers.sql
-│   │   ├── create_db
-│   │   │   ├── create_db_draft1.sql
-│   │   │   ├── create_db_draft2.sql
-│   │   │   ├── create_db_final.sql
-│   │   │   └── import_script.sql
-│   │   └── user_functionality
-│   │       └── user_function.sql
-│   └── test
-│       └── test_users.sql
-├── docker-compose.yml
-└── env_eksambel
-```
 
 ## Getting Started
 
@@ -63,10 +33,16 @@ titletype change: movie = movie, short = movie, tvEpisode = episode, tvMiniSerie
 
 Create a `.env` file in the root directory with the following content:
 
-```env
-OMGDB_POSTGRES_PASSWORD=your_postgres_password 
-OMGDB_PGADMIN_DEFAULT_PASSWORD=your_pgadmin_password 
-ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=OMGDB_db;Username=admin;Password=<your_postgres_password>'
+```sh
+OMGDB_POSTGRES_PASSWORD=**********
+OMGDB_PGADMIN_DEFAULT_PASSWORD=fiskenfisksomvarenfisk123@
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=532;Database=OMGDB_db;Username=admin;Password=**********'
+#for import script both in local, docker and external
+OMGDB_POSTGRES_HOST=127.0.0.1
+OMGDB_POSTGRES_PORT=5432
+OMGDB_USERDATABASE=postgres
+OMGDB_USER_PG=admin
+PGPASSWORD=**************
 ```
 
 ### Building and Running the Project
@@ -109,6 +85,53 @@ psql -h 127.0.0.1 -p 5532 -d portf_1 -U admin -W -a -f db/import_backup/omdb_dat
 
 ```sh
 psql -h 127.0.0.1 -p 5532 -d portf_1 -U admin -W -a -f db/import_backup/wi.backup
+```
+
+
+## Project Structure
+
+```
+.
+├── .gitignore     
+├── Dockerfile     
+├── OMGdbApi       
+│   ├── Controllers
+│   │   └── OMGdbItemsController.cs
+│   ├── Migrations
+│   │   ├── 20240927142856_OMGdbApiMigration.Designer.cs
+│   │   ├── 20240927142856_OMGdbApiMigration.cs
+│   │   └── OMGdbContextModelSnapshot.cs
+│   ├── Models
+│   │   ├── OMGdbContext.cd.cs
+│   │   └── OMGdbItem.cs
+│   ├── OMGdbApi.csproj
+│   ├── OMGdbApi.http
+│   ├── Program.cs
+│   ├── Properties
+│   │   └── launchSettings.json
+│   ├── appsettings.Development.json
+│   └── appsettings.json
+├── OMGdbApi.sln
+├── README.md
+├── blueprint
+│   └── excalidraw
+│       └── main_excali.excalidraw
+├── db
+│   ├── import_backup
+│   ├── script
+│   │   ├── create-triggers
+│   │   │   └── type-triggers.sql
+│   │   ├── create_db
+│   │   │   ├── create_db_draft1.sql
+│   │   │   ├── create_db_draft2.sql
+│   │   │   ├── create_db_final.sql
+│   │   │   └── import_script.sql
+│   │   └── user_functionality
+│   │       └── user_function.sql
+│   └── test
+│       └── test_users.sql
+├── docker-compose.yml
+└── env_eksambel
 ```
 
 

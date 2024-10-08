@@ -1,9 +1,11 @@
 # dotenv files
 .env
+db.env
 
 # db
 db/import_backup/*
 !db/import_backup/.ignore
+!db/import_backup/import.sh
 
 # User-specific files
 *.rsuser
