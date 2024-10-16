@@ -1,4 +1,7 @@
--- Active: 1727253378954@@127.0.0.1@5532@import_for_portf_1
+-- Active: 1727253378954@@127.0.0.1@5532@portf_1
+
+SET search_path TO public, pgtap;
+
 DROP TABLE IF EXISTS public.user_movie_interaction CASCADE;
 DROP TABLE IF EXISTS public.user_series_interaction CASCADE;
 DROP TABLE IF EXISTS public.user_episode_interaction CASCADE;
@@ -24,3 +27,9 @@ DROP TABLE IF EXISTS public.recent_view CASCADE;
 DROP TABLE IF EXISTS public.type CASCADE;
 DROP TABLE IF EXISTS public.movie CASCADE;
 
+DROP EXTENSION IF EXISTS pgtap
+    SCHEMA pgtap
+    VERSION "1.3.3"
+    CASCADE; 
+
+DROP SCHEMA pgtap CASCADE;

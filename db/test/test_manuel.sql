@@ -1,4 +1,7 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1
+-- Active: 1727253378954@@127.0.0.1@5532@portf_1@public
+
+
+
 
 -- Insert 100 users
 DO $$
@@ -83,62 +86,18 @@ BEGIN
             );
         END LOOP;
     END LOOP;
-END $$;
+END $$ LANGUAGE plpgsql;
 
------test duymmy users
-
+-----test duymmy users 
 SELECT * FROM public.user LIMIT 5;
 SELECT * FROM public.user_movie_interaction LIMIT 5;
+
+
 SELECT * FROM public.user_series_interaction LIMIT 5;
 SELECT * FROM public.user_episode_interaction LIMIT 5;
 
 SELECT * FROM public.recent_view LIMIT 5;
 
-
-
------basic dummy test
-
-INSERT INTO
-    public.user (
-        user_id,
-        username,
-        password,
-        email,
-        created_at
-    )
-VALUES (
-        'ur00000101',
-        'admin',
-        decode(md5('admin'), 'hex'),
-        'user00000101@example.com',
-        current_date
-    );
-
-SELECT * FROM public.user WHERE user_id = 'ur00000101';    
-
-INSERT INTO
-    public.user_episode_interaction (
-        user_id,
-        episode_id,
-        watchlist
-    )
-VALUES ('ur00000101', 'tt12768346', 1);
-
-SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101';
-
-UPDATE public.user_episode_interaction
-SET
-    rating = 10
-WHERE
-    user_id = 'ur00000101';
-
-SELECT * FROM public.user;
-
-SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101';
-
-SELECT * FROM public.user WHERE user_id = 'ur00000101';
-
-SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101';
 
 -- test movie type trigger
 
@@ -165,41 +124,18 @@ VALUES (
     );
 
 
-SELECT * FROM type WHERE type_id = 'tt32459823';
+SELECT title_type FROM type WHERE type_id = 'tt32459823';
 
 
 SELECT * FROM movie WHERE movie_id = 'tt32459823';
 
-SELECT public.delete_user('admin');
-
-DELETE FROM movie WHERE movie_id = 'tt32459823';
 
 -- test series type trigger
-INSERT INTO
-    series (
-        series_id,
-        title,
-        start_year,
-        end_year,
-        poster,
-        plot,
-        imdb_rating
-    )
-VALUES (
-        'tt0903747',
-        'Breaking Bad',
-        2008,
-        2013,
-        'https://m.media-amazon.com/images/I/71r8ZLZqjwL._AC_SY679_.jpg',
-        'A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family''s future.',
-        9.5
-    );
 
-SELECT * FROM type WHERE type_id = 'tt0903747';
+SELECT * FROM public.type WHERE "type_id" = 'tt0903747';
 
 SELECT * FROM series WHERE series_id = 'tt0903747';
 
-DELETE from series where series_id = 'tt0903747';
 
 INSERT INTO
     series (
@@ -224,38 +160,13 @@ VALUES (
 SELECT * FROM type WHERE type_id = 'tt4574334';
 
 SELECT * FROM series WHERE series_id = 'tt4574334';
-DELETE FROM series WHERE series_id = 'tt4574334';
-
-
 
 
 -- test episode type trigger
 
-INSERT INTO
-    episode (
-        episode_id,
-        title,
-        re_year,
-        run_time,
-        plot,
-        relese_date,
-        imdb_rating
-    )
-VALUES (
-        'tt0959621',
-        'Pilot',
-        2008,
-        '58 m',
-        'Diagnosed with terminal lung cancer, a high school chemistry teacher resorts to cooking and selling methamphetamine to provide for his family.',
-        '2008-01-20',
-        9.0
-    );    
-
 SELECT * FROM type WHERE type_id = 'tt0959621';
 
 SELECT * FROM episode WHERE episode_id = 'tt0959621';
-
-DELETE FROM episode WHERE episode_id = 'tt0959621';
 
 INSERT INTO
     episode (
@@ -281,7 +192,6 @@ SELECT * FROM type WHERE type_id = 'tt4593118';
 
 SELECT * FROM episode WHERE episode_id = 'tt4593118';
 
-DELETE FROM episode WHERE episode_id = 'tt4593118';
 
 
 
@@ -298,7 +208,7 @@ SELECT new_watchlist_series('ur00000101', 'tt0903747');
 
 SELECT new_watchlist_series('ur00000101', 'tt4574334');
 
-SELECT * FROM public.user_movie_interaction WHERE user_id = 'ur00000101';
+SELECT * FROM public.user_series_interaction WHERE user_id = 'ur00000101';
 
 SELECT new_watchlist_episode('ur00000101', 'tt0959621');
 
@@ -306,13 +216,22 @@ SELECT new_watchlist_episode('ur00000101', 'tt4593118');
 
 SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101'
 
-SELECT public.delete_user('test_user');
+DELETE from "user" WHERE user_id = 'ur00000101';
 
 SELECT * FROM public.user_movie_interaction WHERE user_id = 'ur00000101';
 
-SELECT * FROM public.user_movie_interaction WHERE user_id = 'ur00000101';
+SELECT * FROM public.user_series_interaction WHERE user_id = 'ur00000101';
+
+SELECT * FROM public.user_episode_interaction WHERE user_id = 'ur00000101';
 
 
-SELECT string_search('The BIG short');
 
-SELECT find_co_players('Bryan Cranston');
+SELECT * FROM string_search('the bIG short');
+
+SELECT * FROM public.find_co_players('Bryan Cranston') where co_actor = 'Bill Murray';
+
+DELETE FROM movie WHERE movie_id = 'tt32459823';
+
+DELETE FROM series WHERE series_id = 'tt4574334';
+
+DELETE FROM episode WHERE episode_id = 'tt4593118';

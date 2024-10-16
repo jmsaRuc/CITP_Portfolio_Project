@@ -2,7 +2,10 @@
 services:
   web_api:
     container_name: OMGDB-web_api
-    build: .
+    build: 
+      context: .
+      dockerfile: omgdb_web_api.Dockerfile
+    image: omgdb_web_api:latest   
     ports:
       - "8080:8080"
     environment:
@@ -12,7 +15,10 @@ services:
 
   postgres:
     container_name: OMGDB-pg
-    image: postgres
+    build: 
+      context: .
+      dockerfile: omdb_pg_pgtap.Dockerfile
+    image: omgdb_pg_pgtap:latest  
     hostname: localhost
     ports:
       - "5532:5432"

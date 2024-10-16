@@ -1,4 +1,14 @@
 -- Active: 1727253378954@@127.0.0.1@5532@portf_1
+
+CREATE SCHEMA IF NOT EXISTS pgtap;
+
+SET search_path TO public, pgtap;
+
+CREATE EXTENSION IF NOT EXISTS pgtap
+    SCHEMA pgtap
+    VERSION "1.3.3"
+    CASCADE;
+
 CREATE TABLE IF NOT EXISTS public.movie (
     movie_id character varying(10) NOT NULL,
     title character varying(256) NOT NULL,
@@ -694,6 +704,9 @@ ADD CONSTRAINT series_keywords_pkey PRIMARY KEY (series_id, word, field);
 ALTER TABLE IF EXISTS public.episode_keywords
 ADD CONSTRAINT episode_keywords_pkey PRIMARY KEY (episode_id, word, field);
 
+ALTER TABLE IF EXISTS public.person_keywords
+ADD CONSTRAINT person_keywords_pkey PRIMARY KEY (person_id, word, field);
+
 ALTER TABLE IF EXISTS public.person
 ADD CONSTRAINT person_pkey PRIMARY KEY (person_id);
 
@@ -711,6 +724,15 @@ ADD CONSTRAINT user_pkey PRIMARY KEY (user_id);
 
 ALTER TABLE IF EXISTS public.recent_view
 ADD CONSTRAINT recent_view_pkey PRIMARY KEY (user_id, type_id);
+
+ALTER TABLE IF EXISTS public.user_movie_interaction
+ADD CONSTRAINt user_movie_interaction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_series_interaction
+ADD CONSTRAINT user_series_interaction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_episode_interaction
+ADD CONSTRAINT user_episode_interaction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE IF EXISTS public.user_movie_interaction
 ADD CONSTRAINT user_movie_interaction_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
@@ -778,6 +800,9 @@ ADD CONSTRAINT is_in_series_person_id_fkey FOREIGN KEY (person_id) REFERENCES pu
 
 ALTER TABLE IF EXISTS public.is_in_episode
 ADD CONSTRAINT is_in_episode_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.person_keywords
+ADD CONSTRAINT person_keywords_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 DROP TABLE IF EXISTS public.title_basics;
 

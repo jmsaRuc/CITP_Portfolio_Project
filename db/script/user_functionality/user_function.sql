@@ -14,7 +14,7 @@ BEGIN
     SELECT
         EXISTS(
             SELECT username
-            FROM "user"
+            FROM public."user"
             WHERE
                 username = new_username
         )
@@ -22,7 +22,7 @@ BEGIN
     IF user_exists THEN
         RETURN FALSE;
     ELSE 
-        new_user_id := 'ur' || LPAD((SELECT COUNT(*)+1 FROM "user")::text, 8, '0');
+        new_user_id := 'ur' || LPAD((SELECT COUNT(*)+1 FROM public."user")::text, 8, '0');
         INSERT INTO "user" (user_id, username, password, email, created_at)
         VALUES (new_user_id, 
          new_username, 
@@ -34,18 +34,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS create_user (
-    username VARCHAR(50),
-    password bytea,
-    email VARCHAR(256)
-);
 -- Function to delete a user.
 CREATE OR REPLACE FUNCTION delete_user(
     v_username VARCHAR(50)
 )
 RETURNS BOOLEAN AS $$
 BEGIN
-    DELETE FROM "user"
+    DELETE FROM public."user"
     WHERE
         username = v_username;
     RETURN TRUE;
@@ -66,7 +61,7 @@ BEGIN
         EXISTS(
             SELECT
                 1
-            FROM user_movie_interaction
+            FROM public.user_movie_interaction
             WHERE user_id = who_user_id
                 AND movie_id = watchlisted_movie_id
                 AND watchlist > 0
@@ -77,7 +72,7 @@ BEGIN
         RETURN FALSE;
     ELSE
         INSERT INTO user_movie_interaction (user_id, movie_id, watchlist)
-        VALUES (who_user_id, watchlisted_movie_id, (SELECT count(*) FROM user_movie_interaction WHERE user_id = who_user_id AND watchlist > 0) + 1);
+        VALUES (who_user_id, watchlisted_movie_id, (SELECT count(*) FROM public.user_movie_interaction WHERE user_id = who_user_id AND watchlist > 0) + 1);
         RETURN TRUE;
     END IF;
 END;
@@ -95,7 +90,7 @@ BEGIN
         EXISTS(
             SELECT
                 1
-            FROM user_movie_interaction
+            FROM public.user_movie_interaction
             WHERE user_id = who_user_id
                 AND movie_id = watchlisted_movie_id
                 AND watchlist > 0
@@ -103,7 +98,7 @@ BEGIN
     INTO movie_is_watchlisted;
 
     IF movie_is_watchlisted THEN
-        DELETE FROM user_movie_interaction
+        DELETE FROM public.user_movie_interaction
         WHERE user_id = who_user_id
             AND movie_id = watchlisted_movie_id;
         RETURN TRUE;
@@ -126,7 +121,7 @@ BEGIN
         EXISTS(
             SELECT
                 1
-            FROM user_series_interaction
+            FROM public.user_series_interaction
             WHERE user_id = who_user_id
                 AND series_id = watchlisted_series_id
                 AND watchlist > 0
@@ -137,7 +132,7 @@ BEGIN
         RETURN FALSE;
     ELSE
         INSERT INTO user_series_interaction (user_id, series_id, watchlist)
-        VALUES (who_user_id, watchlisted_series_id, (SELECT count(*) FROM user_series_interaction WHERE user_id = who_user_id AND watchlist > 0) + 1);
+        VALUES (who_user_id, watchlisted_series_id, (SELECT count(*) FROM public.user_series_interaction WHERE user_id = who_user_id AND watchlist > 0) + 1);
         RETURN TRUE;
     END IF;
 END;
@@ -154,7 +149,7 @@ BEGIN
         EXISTS(
             SELECT
                 1
-            FROM user_series_interaction
+            FROM public.user_series_interaction
             WHERE user_id = who_user_id
                 AND series_id = watchlisted_series_id
                 AND watchlist > 0
@@ -162,7 +157,7 @@ BEGIN
     INTO series_is_watchlisted;
 
     IF series_is_watchlisted THEN
-        DELETE FROM user_series_interaction
+        DELETE FROM public.user_series_interaction
         WHERE user_id = who_user_id
             AND series_id = watchlisted_series_id;
         RETURN TRUE;
@@ -185,7 +180,7 @@ BEGIN
         EXISTS(
             SELECT
                 1
-            FROM user_episode_interaction
+            FROM public.user_episode_interaction
             WHERE user_id = who_user_id
                 AND episode_id = watchlisted_episode_id
                 AND watchlist > 0
@@ -196,7 +191,7 @@ BEGIN
         RETURN FALSE;
     ELSE
         INSERT INTO user_episode_interaction (user_id, episode_id, watchlist)
-        VALUES (who_user_id, watchlisted_episode_id, (SELECT count(*) FROM user_episode_interaction WHERE user_id = who_user_id AND watchlist > 0) + 1);
+        VALUES (who_user_id, watchlisted_episode_id, (SELECT count(*) FROM public.user_episode_interaction WHERE user_id = who_user_id AND watchlist > 0) + 1);
         RETURN TRUE;
     END IF;
 END;
@@ -213,7 +208,7 @@ BEGIN
         EXISTS(
             SELECT
                 1
-            FROM user_episode_interaction
+            FROM public.user_episode_interaction
             WHERE user_id = who_user_id
                 AND episode_id = watchlisted_episode_id
                 AND watchlist > 0
@@ -221,7 +216,7 @@ BEGIN
     INTO episode_is_watchlisted;
 
     IF episode_is_watchlisted THEN
-        DELETE FROM user_episode_interaction
+        DELETE FROM public.user_episode_interaction
         WHERE user_id = who_user_id
             AND episode_id = watchlisted_episode_id;
         RETURN TRUE;
@@ -239,7 +234,7 @@ BEGIN
     SELECT  
         movie_id AS id,  
         movie.title  
-    FROM  
+    FROM public. 
         movie 
     WHERE 
         LOWER(movie.title) LIKE LOWER('%' || S || '%') or 
@@ -254,7 +249,7 @@ $$ LANGUAGE plpgsql;
     person.name, 
     movie.title,
     is_in_movie.role 
-   FROM is_in_movie 
+   FROM public.is_in_movie 
      JOIN person ON is_in_movie.person_id::text = person.person_id::text 
      JOIN movie ON is_in_movie.movie_id::text = movie.movie_id::text 
   WHERE lower(is_in_movie.role::text) = ANY (ARRAY['actor'::text, 'actress'::text]);
@@ -265,13 +260,13 @@ CREATE OR REPLACE FUNCTION "public"."find_co_players"(actorname text)
    RETURN QUERY 
     WITH actor_movies AS ( 
         SELECT actorcoplayers.movie_id 
-        FROM actorcoplayers
+        FROM public.actorcoplayers
         WHERE actorcoplayers.name = actorname), 
          count_actor AS ( 
          SELECT actorcoplayers.person_id AS actor, 
         actorcoplayers.name AS co_actor, 
         COUNT(*) AS frequency 
-        FROM actorcoplayers 
+        FROM public.actorcoplayers 
         JOIN actor_movies on actorcoplayers.movie_id = actor_movies.movie_id 
         WHERE actorcoplayers.name != actorname 
         GROUP BY actorcoplayers.person_id, actorcoplayers.name 
@@ -280,8 +275,7 @@ CREATE OR REPLACE FUNCTION "public"."find_co_players"(actorname text)
         count_actor.actor, 
         count_actor.co_actor, 
         count_actor.frequency 
-    FROM  
-        count_actor 
+    FROM count_actor 
            ORDER BY  
         frequency DESC; 
         END; 
