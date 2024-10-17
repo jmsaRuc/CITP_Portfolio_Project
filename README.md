@@ -70,7 +70,7 @@ pgAdmin will be available at `http://localhost:5550`. Use the email `admin@OMGDB
 ./delete_import.sh
 ```
 ## test
-[View on Eraser![](https://app.eraser.io/workspace/koyIAg9VnKshvtw6Vd9A/preview?elements=eKDFwwLWRAYi8iNtlXmgyw&type=embed)](https://app.eraser.io/workspace/koyIAg9VnKshvtw6Vd9A?elements=eKDFwwLWRAYi8iNtlXmgyw)
+
 
 ## Project Structure
 
@@ -151,7 +151,8 @@ pgAdmin will be available at `http://localhost:5550`. Use the email `admin@OMGDB
 - **DELETE /api/OMGdbItems/{id}:** Delete an item by ID from the database.
 
 ## Database Schema
-
+![alt text](./blueprint/ERdiagram.svg)
+<img srec ="./blueprint/ERdiagram.svg">
 
 
 ## Technologies
