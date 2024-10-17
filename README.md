@@ -69,51 +69,8 @@ pgAdmin will be available at `http://localhost:5550`. Use the email `admin@OMGDB
 ```sh
 ./delete_import.sh
 ```
-# test
-
-```mermaid
-graph TD;
-    A[Root Directory] --> B[.env]
-    A --> C[.gitignore]
-    A --> D[blueprint/]
-    D --> E[draw_io/]
-    D --> F[excalidraw/]
-    F --> G[main_excali.excalidraw]
-    A --> H[db/]
-    H --> I[import_backup/]
-    I --> J[.ignore]
-    I --> K[imdb.backup]
-    I --> L[omdb_data.backup]
-    I --> M[wi.backup]
-    H --> N[script/]
-    N --> O[create_db/]
-    N --> P[...]
-    H --> Q[test/]
-    Q --> R[...]
-    A --> S[delet_import.sh]
-    A --> T[docker-compose.yml]
-    A --> U[env_eksambel]
-    A --> V[import.sh]
-    A --> W[omdb_pg_pgtap.Dockerfile]
-    A --> X[omgdb_web_api.Dockerfile]
-    A --> Y[OMGdbApi/]
-    Y --> Z[appsettings.Development.json]
-    Y --> AA[appsettings.json]
-    Y --> AB[bin/]
-    AB --> AC[...]
-    Y --> AD[Controllers/]
-    Y --> AE[Migrations/]
-    Y --> AF[Models/]
-    Y --> AG[obj/]
-    Y --> AH[OMGdbApi.csproj]
-    Y --> AI[OMGdbApi.http]
-    Y --> AJ[Program.cs]
-    Y --> AK[Properties/]
-    A --> AL[OMGdbApi.sln]
-    A --> AM[README.md]
-    A --> AN[test.sh]
-    A --> AO[.gitignore]
-```
+## test
+[View on Eraser![](https://app.eraser.io/workspace/koyIAg9VnKshvtw6Vd9A/preview?elements=eKDFwwLWRAYi8iNtlXmgyw&type=embed)](https://app.eraser.io/workspace/koyIAg9VnKshvtw6Vd9A?elements=eKDFwwLWRAYi8iNtlXmgyw)
 
 ## Project Structure
 
