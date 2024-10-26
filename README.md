@@ -69,8 +69,13 @@ pgAdmin will be available at `http://localhost:5550`. Use the email `admin@OMGDB
 ```sh
 ./delete_import.sh
 ```
-## test
+### Database Migrations
 
+To apply the latest migrations, run the following command:
+
+```sh
+dotnet ef database update
+```
 
 ## Project Structure
 
