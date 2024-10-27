@@ -92,3 +92,5 @@ CREATE OR REPLACE TRIGGER after_delete_episode
     ON public.episode
     FOR EACH ROW
     EXECUTE FUNCTION public.delete_episode_type_after_delete();
+
+---------------------------type update triggers-----------------------------

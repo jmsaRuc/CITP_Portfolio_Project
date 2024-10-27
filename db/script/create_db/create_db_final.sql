@@ -4,95 +4,177 @@ CREATE SCHEMA IF NOT EXISTS pgtap;
 
 SET search_path TO public, pgtap;
 
-CREATE EXTENSION IF NOT EXISTS pgtap
-    SCHEMA pgtap
-    VERSION "1.3.3"
-    CASCADE;
+CREATE EXTENSION IF NOT EXISTS pgtap SCHEMA pgtap VERSION "1.3.3" CASCADE;
+
+CREATE SEQUENCE IF NOT EXISTS public.title_seq INCREMENT BY 1 NO MINVALUE NO MAXVALUE;
+
+CREATE SEQUENCE IF NOT EXISTS public.user_seq 
+START WITH 1 
+INCREMENT BY 1 
+NO MINVALUE 
+NO MAXVALUE;
+
+CREATE SEQUENCE IF NOT EXISTS public.person_seq INCREMENT BY 1 NO MINVALUE NO MAXVALUE;
+
+CREATE SEQUENCE IF NOT EXISTS public.whatchlist_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE;
 
 CREATE TABLE IF NOT EXISTS public.movie (
-    movie_id character varying(10) NOT NULL,
+    movie_id character varying(10) NOT NULL DEFAULT 'tt' || to_char(
+        nextval('public.title_seq'::regclass),
+        'FM00000000'
+    ),
     title character varying(256) NOT NULL,
     re_year character varying(4),
     run_time character varying(80),
     poster character varying(180),
-    plot text,
+    plot TEXT,
     release_date date,
     imdb_rating numeric(5, 1),
     CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
-    popularity integer,
-    CONSTRAINT popularity_check CHECK ((popularity > (0)::integer))
+    popularity BIGINT,
+    CONSTRAINT popularity_check CHECK ((popularity > (0)::BIGINT))
 );
 
-CREATE TABLE IF NOT EXISTS public.user_movie_interaction (
+CREATE TABLE IF NOT EXISTS public.episode (
+    episode_id character varying(10) NOT NULL DEFAULT 'tt' || to_char(
+        nextval('public.title_seq'::regclass),
+        'FM00000000'
+    ),
+    title character varying(256) NOT NULL,
+    re_year character varying(4),
+    run_time character varying(80),
+    plot TEXT,
+    relese_date date,
+    imdb_rating numeric(5, 1),
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    popularity BIGINT,
+    CONSTRAINT popularity_check CHECK ((popularity > (0)::BIGINT))
+);
+
+CREATE TABLE IF NOT EXISTS public.series (
+    series_id character varying(10) NOT NULL DEFAULT 'tt' || to_char(
+        nextval('public.title_seq'::regclass),
+        'FM00000000'
+    ),
+    title character varying(256) NOT NULL,
+    start_year character varying(4),
+    end_year character varying(4),
+    poster character varying(180),
+    plot TEXT,
+    imdb_rating numeric(5, 1),
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    popularity BIGINT,
+    CONSTRAINT popularity_check CHECK ((popularity > (0)::BIGINT))
+);
+
+
+CREATE TABLE IF NOT EXISTS public.user (
+    user_id character varying(10) NOT NULL DEFAULT 'ur' || to_char(
+    nextval('public.user_seq'::regclass),
+    'FM00000000'
+),
+    username character varying(256) NOT NULL,
+    PASSWORD bytea NOT NULL,
+    salt bytea NOT NULL,
+    email character varying(256) NOT NULL,
+    created_at date NOT NULL DEFAULT CURRENT_DATE
+);
+
+CREATE TABLE IF NOT EXISTS public.person (
+    person_id character varying(10) NOT NULL DEFAULT 'nm' || to_char(
+    nextval('public.person_seq'::regclass),
+    'FM00000000'
+    ),
+    name character varying(256) NOT NULL,
+    birth_year character(4),
+    death_year character(4),
+    primary_profession character varying(256)
+);
+
+CREATE TABLE IF NOT EXISTS public.user_movie_whatchlist (
     user_id character varying(10) NOT NULL,
-    movie_id character varying(10),
-    rating smallint,
-    CONSTRAINT rating_check CHECK (rating BETWEEN 1 AND 10),
-    watchlist integer,
-    CONSTRAINT watchlist_check CHECK ((watchlist > (0)::integer))
+    movie_id character varying(10) NOT NULL,
+    whatchlist BIGINT NOT NULL DEFAULT nextval('public.whatchlist_seq'::regclass),
+    CONSTRAINT whatchlist_check CHECK ((whatchlist > (0)::BIGINT))
 );
 
-CREATE TABLE IF NOT EXISTS public.user_series_interaction (
+CREATE TABLE IF NOT EXISTS public.user_series_whatchlist (
+    user_id character varying(10) NOT NULL,
+    series_id character varying(10) NOT NULL,
+    whatchlist BIGINT NOT NULL DEFAULT nextval('public.whatchlist_seq'::regclass),
+    CONSTRAINT whatchlist_check CHECK ((whatchlist > (0)::BIGINT))
+);
+
+CREATE TABLE IF NOT EXISTS public.user_episode_whatchlist (
+    user_id character varying(10) NOT NULL,
+    episode_id character varying(10) NOT NULL,
+    whatchlist BIGINT NOT NULL DEFAULT nextval('public.whatchlist_seq'::regclass),
+    CONSTRAINT whatchlist_check CHECK ((whatchlist > (0)::BIGINT))
+);
+CREATE TABLE IF NOT EXISTS public.user_movie_rating (
+    user_id character varying(10) NOT NULL,
+    movie_id character varying(10) NOT NULL,
+    rating smallint,
+    CONSTRAINT rating_check CHECK (rating BETWEEN 1 AND 10)
+);
+
+CREATE TABLE IF NOT EXISTS public.user_series_rating (
     user_id character varying(10) NOT NULL,
     series_id character varying(10),
     rating smallint,
-    CONSTRAINT rating_check CHECK (rating BETWEEN 1 AND 10),
-    watchlist integer,
-    CONSTRAINT watchlist_check CHECK ((watchlist > (0)::integer))
+    CONSTRAINT rating_check CHECK (rating BETWEEN 1 AND 10)
 );
 
-CREATE Table IF NOT EXISTS public.user_episode_interaction (
+CREATE TABLE IF NOT EXISTS public.user_episode_rating (
     user_id character varying(10) NOT NULL,
     episode_id character varying(10),
     rating smallint,
-    CONSTRAINT rating_check CHECK (rating BETWEEN 1 AND 10),
-    watchlist integer,
-    CONSTRAINT watchlist_check CHECK ((watchlist > (0)::integer))
+    CONSTRAINT rating_check CHECK (rating BETWEEN 1 AND 10)
 );
 
-CREATE TABLE if NOT EXISTS Public.movie_language (
-    language character varying(200),
+CREATE TABLE IF NOT EXISTS Public.movie_language (
+    LANGUAGE character varying(200),
     movie_id character varying(10)
 );
 
 CREATE TABLE IF NOT EXISTS public.series_language (
-    language character varying(200),
+    LANGUAGE character varying(200),
     series_id character varying(10)
 );
 
 CREATE TABLE IF NOT EXISTS public.episode_language (
-    language character varying(200),
+    LANGUAGE character varying(200),
     episode_id character varying(10)
 );
 
 CREATE TABLE IF NOT EXISTS public.is_in_movie (
     person_id character varying(10) NOT NULL,
     movie_id character varying(10),
-    cast_order integer,
-    CONSTRAINT order_check CHECK ((cast_order > (0)::integer)),
-    role character varying(50),
-    job text,
-    character text
+    cast_order BIGINT,
+    CONSTRAINT order_check CHECK ((cast_order > (0)::BIGINT)),
+    ROLE character varying(50),
+    job TEXT,
+    character TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.is_in_series (
     person_id character varying(10) NOT NULL,
     series_id character varying(10),
-    cast_order integer,
-    CONSTRAINT order_check CHECK ((cast_order > (0)::integer)),
-    role character varying(50),
-    job text,
-    character text
+    cast_order BIGINT,
+    CONSTRAINT order_check CHECK ((cast_order > (0)::BIGINT)),
+    ROLE character varying(50),
+    job TEXT,
+    character TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.is_in_episode (
     person_id character varying(10) NOT NULL,
     episode_id character varying(10),
-    cast_order integer,
-    CONSTRAINT order_check CHECK ((cast_order > (0)::integer)),
-    role character varying(50),
-    job text,
-    character text
+    cast_order BIGINT,
+    CONSTRAINT order_check CHECK ((cast_order > (0)::BIGINT)),
+    ROLE character varying(50),
+    job TEXT,
+    character TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.movie_genre (
@@ -112,99 +194,53 @@ CREATE TABLE IF NOT EXISTS public.episode_genre (
 
 CREATE TABLE IF NOT EXISTS public.movie_keywords (
     movie_id character varying(10),
-    word text NOT NULL,
+    word TEXT NOT NULL,
     field character varying(1) NOT NULL,
-    lexeme text
+    lexeme TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.series_keywords (
     series_id character varying(10),
-    word text NOT NULL,
+    word TEXT NOT NULL,
     field character varying(1) NOT NULL,
-    lexeme text
+    lexeme TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.episode_keywords (
     episode_id character varying(10),
-    word text NOT NULL,
+    word TEXT NOT NULL,
     field character varying(1) NOT NULL,
-    lexeme text
+    lexeme TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.person_keywords (
     person_id character varying(10),
-    word text NOT NULL,
+    word TEXT NOT NULL,
     field character varying(1) NOT NULL,
-    lexeme text
-);
-
-CREATE TABLE IF NOT EXISTS public.person (
-    person_id character varying(10) NOT NULL,
-    name character varying(256) NOT NULL,
-    birth_year character(4),
-    death_year character(4),
-    primary_profession character varying(256)
-);
-
-CREATE TABLE IF NOT EXISTS public.episode (
-    episode_id character varying(10) NOT NULL,
-    title character varying(256) NOT NULL,
-    re_year character varying(4),
-    run_time character varying(80),
-    plot text,
-    relese_date date,
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
-    popularity integer,
-    CONSTRAINT popularity_check CHECK ((popularity > (0)::integer))
+    lexeme TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.episode_series (
     series_id character varying(10),
     episode_id character varying(10),
-    season_number integer,
+    season_number BIGINT,
     CONSTRAINT season_number_check CHECK (
-        (season_number > (0)::integer)
+        (season_number > (0)::BIGINT)
     ),
-    episode_number integer,
+    episode_number BIGINT,
     CONSTRAINT episode_number_check CHECK (
         (
-            episode_number >= (0)::integer
+            episode_number >= (0)::BIGINT
         )
     )
 );
 
-CREATE TABLE IF NOT EXISTS public.series (
-    series_id character varying(10) NOT NULL,
-    title character varying(256) NOT NULL,
-    start_year character varying(4),
-    end_year character varying(4),
-    poster character varying(180),
-    plot text,
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
-    popularity integer,
-    CONSTRAINT popularity_check CHECK ((popularity > (0)::integer))
-);
-
-CREATE TABLE IF NOT EXISTS public.user (
-    user_id character varying(10) NOT NULL,
-    username character varying(256) NOT NULL,
-    password bytea NOT NULL,
-    email character varying(256) NOT NULL,
-    created_at date
-);
-
 CREATE TABLE IF NOT EXISTS public.recent_view (
     user_id character varying(10) NOT NULL,
-    title_type character varying(10) NOT NULL,
-    CONSTRAINT title_type_check CHECK (
-        title_type IN ('movie', 'series', 'episode', 'person')
-    ),
     type_id character varying(10) NOT NULL,
-    view_ordering integer,
+    view_ordering bigint GENERATED ALWAYS AS IDENTITY,
     CONSTRAINT view_ordering CHECK (
-        (view_ordering > (0)::integer)
+        (view_ordering > (0)::bigint)
     )
 );
 
@@ -212,7 +248,12 @@ CREATE TABLE IF NOT EXISTS public.type (
     type_id character varying(10) NOT NULL,
     title_type character varying(10) NOT NULL,
     CONSTRAINT title_type_check CHECK (
-        title_type IN ('movie', 'series', 'episode', 'person')
+        title_type IN (
+            'movie',
+            'series',
+            'episode',
+            'person'
+        )
     )
 );
 
@@ -220,7 +261,7 @@ CREATE TABLE IF NOT EXISTS public.type (
 INSERT INTO
     movie (movie_id, title, re_year)
 SELECT tconst, primarytitle, startyear
-FROM title_basics
+FROM public.title_basics
 WHERE
     titletype != 'tvEpisode'
     AND titletype != 'tvMiniSeries'
@@ -230,19 +271,19 @@ WHERE
 --movie import part 2¨
 --
 
-with
-    not_an_epi as (
-        SELECT movie_id as not_id
+WITH
+    not_an_epi AS (
+        SELECT movie_id AS not_id
         FROM movie
     ),
-    date_not_na as (
+    date_not_na AS (
         SELECT
-            tconst as _id,
+            tconst AS _id,
             released,
             CASE
                 WHEN released = 'N/A' THEN NULL
                 ELSE TO_DATE(released, 'DD Mon YYYY')
-            END as release_date
+            END AS release_date
         FROM omdb_data
     )
 UPDATE movie
@@ -257,8 +298,8 @@ FROM
     date_not_na
 WHERE
     tconst = not_an_epi.not_id
-    And tconst = date_not_na._id
-    and tconst = movie_id;
+    AND tconst = date_not_na._id
+    AND tconst = movie_id;
 
 -- movie import part 3
 UPDATE movie
@@ -284,13 +325,13 @@ SELECT
 FROM title_basics
 WHERE
     titletype = 'tvMiniSeries'
-    or titletype = 'tvSeries';
+    OR titletype = 'tvSeries';
 
 -- series import part 2
 
-with
-    an_seris as (
-        SELECT series_id as not_id
+WITH
+    an_seris AS (
+        SELECT series_id AS not_id
         FROM series
     )
 UPDATE series
@@ -300,7 +341,7 @@ SET
 FROM omdb_data, an_seris
 WHERE
     tconst = an_seris.not_id
-    and tconst = series_id;
+    AND tconst = series_id;
 
 -- series import part 3
 UPDATE series
@@ -319,19 +360,19 @@ WHERE
     titletype = 'tvEpisode';
 
 -- episode import part 2
-with
-    an_epi as (
-        SELECT episode_id as not_id
+WITH
+    an_epi AS (
+        SELECT episode_id AS not_id
         FROM episode
     ),
-    date_not_na as (
+    date_not_na AS (
         SELECT
-            tconst as _id,
+            tconst AS _id,
             released,
             CASE
                 WHEN released = 'N/A' THEN NULL
                 ELSE TO_DATE(released, 'DD Mon YYYY')
-            END as release_date
+            END AS release_date
         FROM omdb_data
     )
 UPDATE episode
@@ -342,8 +383,8 @@ SET
 FROM omdb_data, an_epi, date_not_na
 WHERE
     tconst = an_epi.not_id
-    And tconst = date_not_na._id
-    and tconst = episode_id;
+    AND tconst = date_not_na._id
+    AND tconst = episode_id;
 
 -- episode import part 3
 UPDATE episode
@@ -354,7 +395,7 @@ WHERE
     episode_id = tconst;
 
 -- import series episodes relation part 1
-INSERT into
+INSERT INTO
     episode_series (
         series_id,
         episode_id,
@@ -381,17 +422,17 @@ SELECT
     primaryname,
     birthyear,
     deathyear,
-    split_part(primaryprofession, ',', 1) as primary_profession
+    split_part(primaryprofession, ',', 1) AS primary_profession
 FROM name_basics;
 
 -- movie_genre
 INSERT INTO
     movie_genre (genre_name, movie_id)
-SELECT string_to_table(genres, ',') as genre, tconst
+SELECT string_to_table(genres, ',') AS genre, tconst
 FROM title_basics
 WHERE
     genres IS NOT NULL
-    and titletype != 'tvEpisode'
+    AND titletype != 'tvEpisode'
     AND titletype != 'tvMiniSeries'
     AND titletype != 'tvSeries'
     AND titletype != 'videoGame';
@@ -399,21 +440,21 @@ WHERE
 -- series_genre
 INSERT INTO
     series_genre (genre_name, series_id)
-SELECT string_to_table(genres, ',') as genre, tconst
+SELECT string_to_table(genres, ',') AS genre, tconst
 FROM title_basics
 WHERE
     genres IS NOT NULL
-    and titletype = 'tvMiniSeries'
-    or titletype = 'tvSeries';
+    AND titletype = 'tvMiniSeries'
+    OR titletype = 'tvSeries';
 
 -- episode_genre
 INSERT INTO
     episode_genre (genre_name, episode_id)
-SELECT string_to_table(genres, ',') as genre, tconst
+SELECT string_to_table(genres, ',') AS genre, tconst
 FROM title_basics
 WHERE
     genres IS NOT NULL
-    and titletype = 'tvEpisode';
+    AND titletype = 'tvEpisode';
 
 -- is_in_movie
 INSERT INTO
@@ -421,12 +462,12 @@ INSERT INTO
         person_id,
         movie_id,
         cast_order,
-        role,
+        ROLE,
         job,
         character
     )
-with
-    titletype_movie as (
+WITH
+    titletype_movie AS (
         SELECT tconst
         FROM title_basics
         WHERE
@@ -452,17 +493,17 @@ INSERT INTO
         person_id,
         series_id,
         cast_order,
-        role,
+        ROLE,
         job,
         character
     )
-with
-    titletype_series as (
+WITH
+    titletype_series AS (
         SELECT tconst
         FROM title_basics
         WHERE
             titletype = 'tvMiniSeries'
-            or titletype = 'tvSeries'
+            OR titletype = 'tvSeries'
     )
 SELECT
     nconst,
@@ -482,12 +523,12 @@ INSERT INTO
         person_id,
         episode_id,
         cast_order,
-        role,
+        ROLE,
         job,
         character
     )
-with
-    titletype_episode as (
+WITH
+    titletype_episode AS (
         SELECT tconst
         FROM title_basics
         WHERE
@@ -508,8 +549,8 @@ FROM
 
 INSERT INTO
     movie_keywords (movie_id, word, field, lexeme)
-with
-    titletype_episode as (
+WITH
+    titletype_episode AS (
         SELECT tconst
         FROM title_basics
         WHERE
@@ -530,13 +571,13 @@ INSERT INTO
         field,
         lexeme
     )
-with
-    titletype_series as (
+WITH
+    titletype_series AS (
         SELECT tconst
         FROM title_basics
         WHERE
             titletype = 'tvMiniSeries'
-            or titletype = 'tvSeries'
+            OR titletype = 'tvSeries'
     )
 SELECT wi.tconst, word, field, lexeme
 FROM wi
@@ -550,8 +591,8 @@ INSERT INTO
         field,
         lexeme
     )
-with
-    titletype_episode as (
+WITH
+    titletype_episode AS (
         SELECT tconst
         FROM title_basics
         WHERE
@@ -563,58 +604,63 @@ FROM wi
 
 -- movie_language
 INSERT INTO
-    movie_language (language, movie_id)
-with
-    titletype_movie as (
+    movie_language (LANGUAGE, movie_id)
+WITH
+    titletype_movie AS (
         SELECT tconst
         FROM title_basics
         WHERE
             titletype != 'tvEpisode'
             AND titletype != 'tvMiniSeries'
-            AND titletype != 'tvSeries' 
+            AND titletype != 'tvSeries'
             AND titletype != 'videoGame'
     )
-SELECT string_to_table(language, ','), tconst
-FROM omdb_data NATURAL JOIN titletype_movie
-WHERE tconst != 'tt3795628';
+SELECT string_to_table(LANGUAGE, ','), tconst
+FROM omdb_data
+    NATURAL JOIN titletype_movie
+WHERE
+    tconst != 'tt3795628';
 
 INSERT INTO
-    movie_language (language, movie_id)
-VALUES ('English', 'tt3795628');    
+    movie_language (LANGUAGE, movie_id)
+VALUES ('English', 'tt3795628');
 -- series_language
 INSERT INTO
-    series_language (language, series_id)
-with
-    titletype_series as (
+    series_language (LANGUAGE, series_id)
+WITH
+    titletype_series AS (
         SELECT tconst
         FROM title_basics
         WHERE
             titletype = 'tvMiniSeries'
-            or titletype = 'tvSeries'
+            OR titletype = 'tvSeries'
     )
-SELECT string_to_table(language, ','), omdb_data.tconst
+SELECT string_to_table(LANGUAGE, ','), omdb_data.tconst
 FROM omdb_data, titletype_series
-WHERE  omdb_data.tconst = titletype_series.tconst;
+WHERE
+    omdb_data.tconst = titletype_series.tconst;
 
 -- episode_language
 INSERT INTO
-    episode_language (language, episode_id)
-with
-    titletype_episode as (
+    episode_language (LANGUAGE, episode_id)
+WITH
+    titletype_episode AS (
         SELECT tconst
         FROM title_basics
         WHERE
             titletype = 'tvEpisode'
     )
-SELECT string_to_table(language, ','), omdb_data.tconst
+SELECT string_to_table(LANGUAGE, ','), omdb_data.tconst
 FROM omdb_data, titletype_episode
-WHERE omdb_data.tconst= titletype_episode.tconst;
+WHERE
+    omdb_data.tconst = titletype_episode.tconst;
 
 -- import type
 
-INSERT INTO public.type (type_id, title_type)
-with
-    type_change as (
+INSERT INTO
+    public.type (type_id, title_type)
+WITH
+    type_change AS (
         SELECT
             tconst,
             titletype,
@@ -624,7 +670,7 @@ with
                 WHEN titletype = 'tvSeries' THEN 'series'
                 WHEN titletype = 'videoGame' THEN NULL
                 ELSE 'movie'
-            END as type_name_v
+            END AS type_name_v
         FROM title_basics
     )
 SELECT tconst, type_change.type_name_v
@@ -634,12 +680,10 @@ WHERE
 
 -- import person type
 
-INSERT INTO public.type (type_id, title_type)
-SELECT person_id, 'person' 
+INSERT INTO
+    public.type (type_id, title_type)
+SELECT person_id, 'person'
 FROM person;
-
-
-
 
 ALTER TABLE IF EXISTS public.movie
 ADD CONSTRAINT movie_pkey PRIMARY KEY (movie_id);
@@ -647,23 +691,32 @@ ADD CONSTRAINT movie_pkey PRIMARY KEY (movie_id);
 ALTER TABLE IF EXISTS public.type
 ADD CONSTRAINT type_pkey PRIMARY KEY (type_id);
 
-ALTER TABLE IF EXISTS public.user_movie_interaction
-ADD CONSTRAINT user_movie_interaction_pkey PRIMARY KEY (user_id, movie_id);
+ALTER TABLE IF EXISTS public.user_movie_whatchlist
+ADD CONSTRAINT user_movie_whatchlist_pkey PRIMARY KEY (user_id, movie_id);
 
-ALTER TABLE IF EXISTS public.user_series_interaction
-ADD CONSTRAINT user_series_interaction_pkey PRIMARY KEY (user_id, series_id);
+ALTER TABLE IF EXISTS public.user_series_whatchlist
+ADD CONSTRAINT user_series_whatchlist_pkey PRIMARY KEY (user_id, series_id);
 
-ALTER TABLE IF EXISTS public.user_episode_interaction
-ADD CONSTRAINT user_episode_interaction_pkey PRIMARY KEY (user_id, episode_id);
+ALTER TABLE IF EXISTS public.user_episode_whatchlist
+ADD CONSTRAINT user_episode_whatchlist_pkey PRIMARY KEY (user_id, episode_id);
+
+ALTER TABLE IF EXISTS public.user_movie_rating
+ADD CONSTRAINT user_movie_rating_pkey PRIMARY KEY (user_id, movie_id);
+
+ALTER TABLE IF EXISTS public.user_series_rating
+ADD CONSTRAINT user_series_rating_pkey PRIMARY KEY (user_id, series_id);
+
+ALTER TABLE IF EXISTS public.user_episode_rating
+ADD CONSTRAINT user_episode_rating_pkey PRIMARY KEY (user_id, episode_id);
 
 ALTER TABLE IF EXISTS public.movie_language
-ADD CONSTRAINT movie_language_pkey PRIMARY KEY (language, movie_id);
+ADD CONSTRAINT movie_language_pkey PRIMARY KEY (LANGUAGE, movie_id);
 
 ALTER TABLE IF EXISTS public.series_language
-ADD CONSTRAINT series_language_pkey PRIMARY KEY (language, series_id);
+ADD CONSTRAINT series_language_pkey PRIMARY KEY (LANGUAGE, series_id);
 
 ALTER TABLE IF EXISTS public.episode_language
-ADD CONSTRAINT episode_language_pkey PRIMARY KEY (language, episode_id);
+ADD CONSTRAINT episode_language_pkey PRIMARY KEY (LANGUAGE, episode_id);
 
 ALTER TABLE IF EXISTS public.is_in_movie
 ADD CONSTRAINT is_in_movie_pkey PRIMARY KEY (
@@ -725,23 +778,41 @@ ADD CONSTRAINT user_pkey PRIMARY KEY (user_id);
 ALTER TABLE IF EXISTS public.recent_view
 ADD CONSTRAINT recent_view_pkey PRIMARY KEY (user_id, type_id);
 
-ALTER TABLE IF EXISTS public.user_movie_interaction
-ADD CONSTRAINt user_movie_interaction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_movie_whatchlist
+ADD CONSTRAINT user_movie_whatchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_series_interaction
-ADD CONSTRAINT user_series_interaction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_series_whatchlist
+ADD CONSTRAINT user_series_whatchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_episode_interaction
-ADD CONSTRAINT user_episode_interaction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_episode_whatchlist
+ADD CONSTRAINT user_episode_whatchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_movie_interaction
-ADD CONSTRAINT user_movie_interaction_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_movie_whatchlist
+ADD CONSTRAINT user_movie_whatchlist_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_series_interaction
-ADD CONSTRAINT user_series_interaction_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_series_whatchlist
+ADD CONSTRAINT user_series_whatchlist_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_episode_interaction
-ADD CONSTRAINT user_episode_interaction_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_episode_whatchlist
+ADD CONSTRAINT user_episode_whatchlist_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_movie_rating
+ADD CONSTRAINT user_movie_rating_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_movie_rating
+ADD CONSTRAINT user_movie_rating_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_series_rating
+ADD CONSTRAINT user_series_rating_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_series_rating
+ADD CONSTRAINT user_series_rating_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_episode_rating
+ADD CONSTRAINT user_episode_rating_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.user_episode_rating
+ADD CONSTRAINT user_episode_rating_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE IF EXISTS public.movie_language
 ADD CONSTRAINT movie_language_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
@@ -779,7 +850,6 @@ ADD CONSTRAINT series_keywords_series_id_fkey FOREIGN KEY (series_id) REFERENCES
 ALTER TABLE IF EXISTS public.episode_keywords
 ADD CONSTRAINT episode_keywords_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-
 ALTER TABLE IF EXISTS public.episode_series
 ADD CONSTRAINT episode_series_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -804,6 +874,11 @@ ADD CONSTRAINT is_in_episode_person_id_fkey FOREIGN KEY (person_id) REFERENCES p
 ALTER TABLE IF EXISTS public.person_keywords
 ADD CONSTRAINT person_keywords_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
+SELECT SETVAL('public.title_seq',(SELECT RIGHT(max("type_id"), 7) max_val FROM public."type")::bigint);
+
+
+SELECT SETVAL('public.person_seq',(SELECT RIGHT(max("person_id"), 7) max_val FROM public."person")::bigint);
+
 DROP TABLE IF EXISTS public.title_basics;
 
 DROP TABLE IF EXISTS public.title_episode;
@@ -821,5 +896,3 @@ DROP TABLE IF EXISTS public.wi;
 DROP TABLE IF EXISTS public.title_akas;
 
 DROP TABLE IF EXISTS public.title_crew;
-
-
