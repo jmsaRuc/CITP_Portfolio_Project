@@ -1,2 +1,9 @@
-OMGDB_POSTGRES_PASSWORD=*****
-OMGDB_PGADMIN_DEFAULT_PASSWORD=*****
+OMGDB_POSTGRES_PASSWORD=**********
+OMGDB_PGADMIN_DEFAULT_PASSWORD=fiskenfisksomvarenfisk123@
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=532;Database=OMGDB_db;Username=admin;Password=**********'
+#for import script both in local, docker and external
+OMGDB_POSTGRES_HOST=127.0.0.1
+OMGDB_POSTGRES_PORT=5432
+OMGDB_USERDATABASE=postgres
+OMGDB_USER_PG=admin
+PGPASSWORD=**************
