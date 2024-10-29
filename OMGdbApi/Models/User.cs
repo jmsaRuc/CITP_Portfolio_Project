@@ -6,6 +6,7 @@ namespace OMGdbApi.Models;
 [Table("user")]
 public class User
 {   
+
     [Column("user_id")]
     public string? Id { get; set; }
 

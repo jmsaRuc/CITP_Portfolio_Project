@@ -38,7 +38,7 @@ docker compose --env-file .env build
 2. **Run the Docker containers:**
 
 ```sh
-docker compose --env-file .env up -d
+docker compose --env-file .env up --build -d
 ```
 
 3. **Access the API:**

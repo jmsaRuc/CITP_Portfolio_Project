@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMGdbApi.Models;
+using OMGdbApi.Service;
 
 namespace OMGdbApi.Controllers
 {
@@ -14,10 +15,13 @@ namespace OMGdbApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly OMGdbContext _context;
+        private readonly Hashing _hasing = new Hashing();
 
-        public UserController(OMGdbContext context)
+        public UserController(OMGdbContext context, Hashing hasing)
         {
             _context = context;
+
+            _hasing = hasing;
         }
 
         // GET: api/User
@@ -75,22 +79,41 @@ namespace OMGdbApi.Controllers
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> CreateUser(
+            string userName,
+            string loginPassword,
+            string user_email
+        )
         {
-            _context.Users.Add(user);
-
-            if (user == null)
+            if (
+                string.IsNullOrEmpty(userName)
+                || string.IsNullOrEmpty(loginPassword)
+                || string.IsNullOrEmpty(user_email)
+            )
             {
                 return BadRequest();
             }
 
+            (var hashedPWD, var salt) = _hasing.Hash(loginPassword);
+
+            var user = new User
+                {
+                    Name = userName,
+                    Password = hashedPWD,
+                    Salt = salt,
+                    Email = user_email,
+                };
+
+            _context.Users.Add(
+                user
+            );
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (UserExists(user?.Id ?? ""))
+                if (UserExists(userName))
                 {
                     return Conflict();
                 }
@@ -99,6 +122,7 @@ namespace OMGdbApi.Controllers
                     throw;
                 }
             }
+
 
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
