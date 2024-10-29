@@ -232,6 +232,8 @@ BEGIN
     END LOOP;
 END $$ LANGUAGE plpgsql;
 
+
+SELECT * FROM public.user_episode_whatchlist where user_id = 'ur00002833';
 -----test duymmy users
 SELECT * FROM public.user LIMIT 5;
 

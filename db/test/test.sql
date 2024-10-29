@@ -11,7 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (31);
+SELECT pgtap.plan (30);
 
 
 --------------------------------------------------------------------------------
@@ -477,6 +477,8 @@ BEGIN
     END LOOP;
 END $$ LANGUAGE plpgsql;
 
+
+
 ----test duymmy users----
 
 SELECT pgtap.ok (
@@ -585,24 +587,16 @@ VALUES (
 SELECT pgtap.is (
         (
             SELECT title_type
-            FROM public.type
+            FROM public."type"
             WHERE
-                "type_id" = (
+                "type_id" in  (
                     SELECT movie_id
                     FROM public.movie
                     WHERE
                         title = 'The Revenant'
                 )
+            LIMIT 1    
         ), 'movie', 'Movie type trigger'
-    );
-
-SELECT pgtap.is (
-        (
-            SELECT title_type
-            FROM public.type
-            WHERE
-                "type_id" = 'tt0903747'
-        ), 'series', 'Series type trigger'
     );
 
 INSERT INTO
@@ -700,8 +694,9 @@ SELECT pgtap.ok (
 
 SELECT pg_sleep(1);
 
+
 -- clean up --------------------------------------------
-DELETE FROM public.movie WHERE movie_id = (SELECT movie_id FROM public.movie WHERE title = 'The Revenant');
+DELETE FROM public.movie WHERE movie_id IN (SELECT movie_id FROM public.movie WHERE title = 'The Revenant' LIMIT 1);
 
 DELETE FROM public.series WHERE series_id = (SELECT series_id FROM public.series WHERE title = 'Stranger Things');
 

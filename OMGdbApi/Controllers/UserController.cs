@@ -6,21 +6,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMGdbApi.Models;
-using OMGdbApi.Service;
 
 namespace OMGdbApi.Controllers
 {
-    [Route("api/User")]
+    [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly OMGdbContext _context;
-        private readonly Hashing _hashing;
 
-        public UserController(OMGdbContext context, Hashing hashing)
+        public UserController(OMGdbContext context)
         {
             _context = context;
-            _hashing = hashing;
         }
 
         // GET: api/User
@@ -78,45 +75,29 @@ namespace OMGdbApi.Controllers
         // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(string name, string password, string email)
+        public async Task<ActionResult<User>> PostUser(User user)
         {
-            if (name == null || password == null || email == null)
-            {
-                return BadRequest();
-            }
-
-            if (name.Length < 3 || password.Length < 8 || email.Length < 5)
-            {
-                return BadRequest();
-            }
-
-            if (_context.Users.Any(e => e.Name == name))
-            {
-                return Conflict();
-            }
-
-            bool not_created = false;
-
-            (var hashedpw, var salt) = _hashing.Hash(password);
-
-            try
-            {
-                not_created = await _context.CreateUser(name, password, email);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            if (not_created)
-            {
-                return Conflict();
-            }
-
-            var user = await _context.Users.FindAsync(name);
+            _context.Users.Add(user);
 
             if (user == null)
             {
-                return Conflict();
+                return BadRequest();
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (UserExists(user?.Id ?? ""))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
