@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Linq;
 
 namespace OMGdbApi.Service;
 
@@ -25,7 +26,7 @@ public class Hashing
     public bool Verify(string loginPassword, byte[] hashedRegisterdPassword, byte[] salt)
     {
         byte[] hashedLogin = HashSHA256(loginPassword, salt);
-        if (hashedLogin == hashedRegisterdPassword)
+        if (hashedLogin.SequenceEqual(hashedRegisterdPassword))
         {
             return true;
         }

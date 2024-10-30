@@ -52,7 +52,8 @@ namespace OMGdbApi.Controllers
         // PUT: api/user/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(string email, string id, User user)
+        [Authorize]
+        public async Task<IActionResult> PutUser(string id, User user)
         {
             if (id != user.Id)
             {
@@ -145,7 +146,7 @@ namespace OMGdbApi.Controllers
                 return BadRequest();
             }
 
-            var user = await _context.Users.FindAsync(email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             
 
             if (user == null || user.Email == null || user.Password == null || user.Salt == null)
@@ -167,7 +168,9 @@ namespace OMGdbApi.Controllers
             var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
 
             if (string.IsNullOrEmpty(secret))
-            {
+            {   
+                Console.WriteLine("ERROR: JWT_SECRET is not set");
+                
                 return StatusCode(500);
             }
 
@@ -185,12 +188,13 @@ namespace OMGdbApi.Controllers
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return Ok(new { email = user.Email, token = jwt });
+            return Ok(new { id = user.Id, token = jwt });
         }
 
 
         // DELETE: api/User/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _context.Users.FindAsync(id);

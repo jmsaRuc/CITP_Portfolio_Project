@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS public.user (
     username character varying(256) NOT NULL,
     PASSWORD bytea NOT NULL,
     salt bytea NOT NULL,
-    email character varying(256) NOT NULL,
+    email character varying(256) NOT NULL UNIQUE,
     created_at date NOT NULL DEFAULT CURRENT_DATE
 );
 
@@ -773,7 +773,7 @@ ALTER TABLE IF EXISTS public.series
 ADD CONSTRAINT series_pkey PRIMARY KEY (series_id);
 
 ALTER TABLE IF EXISTS public.user
-ADD CONSTRAINT user_pkey PRIMARY KEY (user_id, email);
+ADD CONSTRAINT user_pkey PRIMARY KEY (user_id);
 
 ALTER TABLE IF EXISTS public.recent_view
 ADD CONSTRAINT recent_view_pkey PRIMARY KEY (user_id, type_id);

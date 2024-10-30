@@ -9,7 +9,7 @@ RUN dotnet restore
 # copy everything else and build app
 COPY OMGdbApi/. ./OMGdbApi/
 WORKDIR /source/OMGdbApi
-RUN dotnet publish -c release -o /app
+RUN dotnet publish -c release -o /app 
 
 # final stage/image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
