@@ -9,7 +9,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      ASPNETCORE_ConnectionStrings_DefaultConnection: ${ASPNETCORE_ConnectionStrings_DefaultConnection}  
+      ASPNETCORE_ConnectionStrings_DefaultConnection: ${ASPNETCORE_ConnectionStrings_DefaultConnection}
+      OMGDB_API_JWT_SECRET: ${OMGDB_API_JWT_SECRET}  
     depends_on:
       - "postgres"
 
@@ -38,7 +39,7 @@ services:
     ports:
       - "5550:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@OMGDB.com
+      PGADMIN_DEFAULT_EMAIL: ${OMGDB_PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${OMGDB_PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - f2eeebaad83afb9c13152f407eb12ed40738fe9517018482bb7a4392e87fe442:/var/lib/pgadmin  

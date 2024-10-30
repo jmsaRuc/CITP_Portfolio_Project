@@ -773,7 +773,7 @@ ALTER TABLE IF EXISTS public.series
 ADD CONSTRAINT series_pkey PRIMARY KEY (series_id);
 
 ALTER TABLE IF EXISTS public.user
-ADD CONSTRAINT user_pkey PRIMARY KEY (user_id);
+ADD CONSTRAINT user_pkey PRIMARY KEY (user_id, email);
 
 ALTER TABLE IF EXISTS public.recent_view
 ADD CONSTRAINT recent_view_pkey PRIMARY KEY (user_id, type_id);

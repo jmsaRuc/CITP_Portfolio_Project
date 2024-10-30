@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OMGdbApi.Models;
 using OMGdbApi.Service;
 
@@ -24,14 +28,14 @@ namespace OMGdbApi.Controllers
             _hasing = hasing;
         }
 
-        // GET: api/User
+        // GET: api/user
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
-        // GET: api/User/5
+        // GET: api/user/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(string id)
         {
@@ -45,10 +49,10 @@ namespace OMGdbApi.Controllers
             return user;
         }
 
-        // PUT: api/User/5
+        // PUT: api/user/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(string id, User user)
+        public async Task<IActionResult> PutUser(string email, string id, User user)
         {
             if (id != user.Id)
             {
@@ -76,9 +80,9 @@ namespace OMGdbApi.Controllers
             return NoContent();
         }
 
-        // POST: api/User
+        // POST: api/user/create
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<ActionResult<User>> CreateUser(
             string userName,
             string loginPassword,
@@ -123,9 +127,67 @@ namespace OMGdbApi.Controllers
                 }
             }
 
-
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
+
+         // PUT: api/user/login
+        [HttpPut("login")]
+        public async Task<ActionResult<User>> Login(
+            string email,
+            string loginPassword
+        )
+        {
+            if (
+                string.IsNullOrEmpty(email)
+                || string.IsNullOrEmpty(loginPassword)
+            )
+            {
+                return BadRequest();
+            }
+
+            var user = await _context.Users.FindAsync(email);
+            
+
+            if (user == null || user.Email == null || user.Password == null || user.Salt == null)
+            {
+                return NotFound();
+            }
+
+            if (!_hasing.Verify(loginPassword, user.Password, user.Salt))
+            {
+                return Unauthorized();
+            }
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.Name, user.Email),
+                new(ClaimTypes.NameIdentifier, user.Email),
+            };
+
+            var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+
+            if (string.IsNullOrEmpty(secret))
+            {
+                return StatusCode(500);
+            }
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                issuer: "OMGdbApi",
+                audience: "OMGdbApi",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: creds
+            );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return Ok(new { email = user.Email, token = jwt });
+        }
+
 
         // DELETE: api/User/5
         [HttpDelete("{id}")]
@@ -147,5 +209,6 @@ namespace OMGdbApi.Controllers
         {
             return _context.Users.Any(e => e.Id == id);
         }
+
     }
 }

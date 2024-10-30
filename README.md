@@ -15,9 +15,12 @@ Create a `.env` file in the root directory with the following content:
 
 ./env_eksambel
 ```sh
+OMGDB_POSTGRES_USER=admin
 OMGDB_POSTGRES_PASSWORD=**********
-OMGDB_PGADMIN_DEFAULT_PASSWORD=fiskenfisksomvarenfisk123@
+OMGDB_PGADMIN_DEFAULT_EMAIL=admin@OMGDB.com
+OMGDB_PGADMIN_DEFAULT_PASSWORD=**********
 ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=532;Database=OMGDB_db;Username=admin;Password=**********'
+OMGDB_API_JWT_SECRET=**********
 #for import script both in local, docker and external
 OMGDB_POSTGRES_HOST=127.0.0.1
 OMGDB_POSTGRES_PORT=5432
@@ -38,7 +41,7 @@ docker compose --env-file .env build
 2. **Run the Docker containers:**
 
 ```sh
-docker compose --env-file .env up --build -d
+docker compose --env-file .env up -d
 ```
 
 3. **Access the API:**
