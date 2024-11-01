@@ -9,11 +9,8 @@ using OMGdbApi.Models;
 
 namespace OMGdbApi.Controllers
 {
-
-
     [Route("api/episodes")]
     [ApiController]
-
     public class EpisodesController : ControllerBase
     {
         private readonly OMGdbContext _context;

@@ -13,7 +13,7 @@ namespace OMGdbApi.Controllers
     [ApiController]
     public class PersonController : ControllerBase
     {
-        public readonly OMGdbContext _context;
+        private readonly OMGdbContext _context;
 
         public PersonController(OMGdbContext context)
         {

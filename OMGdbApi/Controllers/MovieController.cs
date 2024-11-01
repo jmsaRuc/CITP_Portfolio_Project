@@ -13,8 +13,6 @@ namespace OMGdbApi.Controllers
     [ApiController]
     public class MovieController : ControllerBase
     {
-        
-    
         private readonly OMGdbContext _context;
 
         public MovieController(OMGdbContext context)

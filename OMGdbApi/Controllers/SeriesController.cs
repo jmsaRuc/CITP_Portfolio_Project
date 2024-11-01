@@ -13,7 +13,7 @@ namespace OMGdbApi.Controllers
     [ApiController]
     public class SeriesController : ControllerBase
     {
-        public readonly OMGdbContext _context;
+        private readonly OMGdbContext _context;
 
         public SeriesController(OMGdbContext context)
         {
@@ -25,13 +25,6 @@ namespace OMGdbApi.Controllers
         public async Task<ActionResult<IEnumerable<Series>>> GetSeries()
         {
             return await _context.Series.ToListAsync();
-        }
-
-        [HttpGet]
-        [Route("search")]
-        public async Task<ActionResult<IEnumerable<Series>>> SearchSeries([FromQuery] string title)
-        {
-            return await _context.Series.Where(s => s.Title.Contains(title)).ToListAsync();
         }
 
         // GET: api/Series/5
