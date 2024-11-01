@@ -1,0 +1,37 @@
+
+services:
+  postgres:
+    container_name: OMGDB-pg
+    build: 
+      context: .
+      dockerfile: omddb_pg_test.Dockerfile
+    image: omddb_pg_test:latest  
+    hostname: localhost
+    ports:
+      - "5532:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${OMGDB_POSTGRES_PASSWORD}
+      POSTGRES_DB: OMGDB_db
+    volumes:
+      - db_test_volume:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: OMGDB-pgadmin
+    image: dpage/pgadmin4:8.12.0
+    depends_on:
+      - postgres
+    ports:
+      - "5550:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${OMGDB_PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${OMGDB_PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - f2eeebaad83afb9c13152f407eb12ed40738fe9517018482bb7a4392e87fe442:/var/lib/pgadmin  
+    restart: unless-stopped
+
+volumes:
+  db_test_volume:
+  f2eeebaad83afb9c13152f407eb12ed40738fe9517018482bb7a4392e87fe442:
+    external: true

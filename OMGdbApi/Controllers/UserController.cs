@@ -30,14 +30,16 @@ namespace OMGdbApi.Controllers
 
         // GET: api/user
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Select(x => UserDTO(x)).ToListAsync();
         }
+
+       
 
         // GET: api/user/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(string id)
+        public async Task<ActionResult<UserDTO>> GetUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
 
@@ -46,19 +48,29 @@ namespace OMGdbApi.Controllers
                 return NotFound();
             }
 
-            return user;
+            return UserDTO(user);
         }
 
         // PUT: api/user/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> PutUser(string id, User user)
+        public async Task<IActionResult> PutUser(string id, UserDTO userDTO)
         {
-            if (id != user.Id)
+            if (id !=  userDTO.Id)
             {
                 return BadRequest();
             }
+
+            var user = await _context.Users.FindAsync(id);                     
+
+            if (user == null)
+            {
+                return NotFound();
+            }    
+            
+            user.Name = userDTO.Name;
+            user.Email = userDTO.Email;
 
             _context.Entry(user).State = EntityState.Modified;
 
@@ -66,16 +78,9 @@ namespace OMGdbApi.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException) when (!UserExists(id))
             {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+               return NotFound();
             }
 
             return NoContent();
@@ -84,7 +89,7 @@ namespace OMGdbApi.Controllers
         // POST: api/user/create
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("create")]
-        public async Task<ActionResult<User>> CreateUser(
+        public async Task<ActionResult<UserDTO>> CreateUser(
             string userName,
             string loginPassword,
             string user_email
@@ -118,7 +123,7 @@ namespace OMGdbApi.Controllers
             }
             catch (DbUpdateException)
             {
-                if (UserExists(userName))
+                if (user.Id != null && UserExists(user.Id))
                 {
                     return Conflict();
                 }
@@ -128,12 +133,12 @@ namespace OMGdbApi.Controllers
                 }
             }
 
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, UserDTO(user));
         }
 
          // PUT: api/user/login
         [HttpPut("login")]
-        public async Task<ActionResult<User>> Login(
+        public async Task<ActionResult<UserLogin>> Login(
             string email,
             string loginPassword
         )
@@ -154,16 +159,27 @@ namespace OMGdbApi.Controllers
                 return NotFound();
             }
 
+            if  (user.Id != null && !UserExists(user.Id))
+            {
+                return NotFound();
+            }
+
             if (!_hasing.Verify(loginPassword, user.Password, user.Salt))
             {
                 return Unauthorized();
             }
 
-            var claims = new List<Claim>
+            var claims = new List<Claim>();
+
+            if (user.Id != null)
             {
-                new(ClaimTypes.Name, user.Email),
-                new(ClaimTypes.NameIdentifier, user.Email),
-            };
+                claims.Add(new Claim(ClaimTypes.Name, user.Id));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
+            }
+            else
+            {
+                return NotFound();
+            }
 
             var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
 
@@ -188,7 +204,11 @@ namespace OMGdbApi.Controllers
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return Ok(new { id = user.Id, token = jwt });
+            return Ok(new UserLogin
+            {
+                Id = user.Id,
+                Token = jwt
+            });
         }
 
 
@@ -213,6 +233,15 @@ namespace OMGdbApi.Controllers
         {
             return _context.Users.Any(e => e.Id == id);
         }
+
+        private static UserDTO UserDTO(User user) =>
+            new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Created_at = user.Created_at,
+            };
 
     }
 }
