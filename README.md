@@ -16,29 +16,59 @@ Create a `.env` file in the root directory with the following content:
 ./env_eksambel
 ```sh
 OMGDB_POSTGRES_USER=admin
-OMGDB_POSTGRES_PASSWORD=**********
+OMGDB_POSTGRES_PASSWORD=***********
 OMGDB_PGADMIN_DEFAULT_EMAIL=admin@OMGDB.com
-OMGDB_PGADMIN_DEFAULT_PASSWORD=**********
-ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=532;Database=OMGDB_db;Username=admin;Password=**********'
-OMGDB_API_JWT_SECRET=**********
+OMGDB_PGADMIN_DEFAULT_PASSWORD=***********
+#For OMGDB_API
+OMGDB_API_JWT_SECRET=*********
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=portf_1;Username=admin;Password=***********'
+OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=***********
 #for import script both in local, docker and external
 OMGDB_POSTGRES_HOST=127.0.0.1
 OMGDB_POSTGRES_PORT=5432
-OMGDB_USERDATABASE=postgres
+OMGDB_USERDATABASE=portf_1
 OMGDB_USER_PG=admin
-PGPASSWORD=**************
+PGPASSWORD=***********
 ```
 
 
 ### Building and Running the Project
 
-1. **Build the Docker containers:**
+1. **Make Cert**
+
+1.a **Clean old cert**
+    
+```sh
+dotnet dev-certs https --clean
+```
+
+1.b **Create a self-signed certificate:**
+
+```sh
+dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p { PASSWORD }
+```
+
+1.c **Trust the certificate:**
+
+```sh
+dotnet dev-certs https --trust
+```
+
+1.d **Set the certificate password in the `.env` file:**
+
+```sh
+OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password={ PASSWORD }
+```
+
+**Importent: if you change the path or cert name, change it also in compose**
+
+2.a **Build the Docker containers:**
 
 ```sh
 docker compose --env-file .env build
 ```
 
-2. **Run the Docker containers:**
+2.b **Run the Docker containers:**
 
 ```sh
 docker compose --env-file .env up -d
@@ -71,13 +101,6 @@ pgAdmin will be available at `http://localhost:5550`. Use the email `admin@OMGDB
 - Delete import files
 ```sh
 ./delete_import.sh
-```
-### Database Migrations
-
-To apply the latest migrations, run the following command:
-
-```sh
-dotnet ef database update
 ```
 
 ## Project Structure
