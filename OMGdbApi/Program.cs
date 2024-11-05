@@ -16,7 +16,10 @@ builder.Services.AddSingleton(new Hashing());
 var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
 if (string.IsNullOrEmpty(secret))
 {
-    throw new Exception("JWT_SECRET is not set");
+    var rng = new Random();
+    var bytes = new byte[32];
+    rng.NextBytes(bytes);
+    secret = Convert.ToBase64String(bytes);
 }
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -87,3 +90,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program {}

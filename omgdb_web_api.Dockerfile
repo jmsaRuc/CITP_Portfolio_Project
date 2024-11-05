@@ -4,7 +4,7 @@ WORKDIR /source
 # copy csproj and restore as distinct layers
 COPY *.sln .
 COPY OMGdbApi/*.csproj ./OMGdbApi/
-RUN dotnet restore
+RUN dotnet restore OMGdbApi
 
 # copy everything else and build app
 COPY OMGdbApi/. ./OMGdbApi/

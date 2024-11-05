@@ -42,13 +42,13 @@ COPY ./db/test/test.sql /db/test
 
 COPY ./init-db.sh /docker-entrypoint-initdb.d/init-db.sh
 
-ENV OMGDB_POSTGRES_PORT=5532
+ENV OMGDB_POSTGRES_PORT=5432
 
 ENV OMGDB_USERDATABASE=portf_1
 
 ENV OMGDB_USER_PG=admin
 
-ENV PGPASSWORD=fiskenfisksomvarenfisk123@
+ENV PGPASSWORD=admin
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

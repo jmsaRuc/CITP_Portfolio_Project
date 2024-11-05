@@ -30,6 +30,7 @@ namespace OMGdbApi.Controllers
 
         // GET: api/user
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
             return await _context.Users.Select(x => UserDTO(x)).ToListAsync();
@@ -39,6 +40,7 @@ namespace OMGdbApi.Controllers
 
         // GET: api/user/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<UserDTO>> GetUser(string id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -55,24 +57,23 @@ namespace OMGdbApi.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> PutUser(string id, UserDTO userDTO)
+        public async Task<ActionResult<UserDTO>> PutUser(string id, string name, string email)
         {
-            if (id !=  userDTO.Id)
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
             {
                 return BadRequest();
             }
 
+            
             var user = await _context.Users.FindAsync(id);                     
 
             if (user == null)
             {
                 return NotFound();
             }    
+            user.Name = name;
+            user.Email = email;
             
-            user.Name = userDTO.Name;
-            user.Email = userDTO.Email;
-
-            _context.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -83,35 +84,39 @@ namespace OMGdbApi.Controllers
                return NotFound();
             }
 
-            return NoContent();
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, UserDTO(user));
         }
 
         // POST: api/user/create
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("create")]
-        public async Task<ActionResult<UserDTO>> CreateUser(
-            string userName,
-            string loginPassword,
-            string user_email
+        public async Task<ActionResult<UserDTO>> CreateUser(UserCreate userCreate
         )
         {
             if (
-                string.IsNullOrEmpty(userName)
-                || string.IsNullOrEmpty(loginPassword)
-                || string.IsNullOrEmpty(user_email)
+                
+                string.IsNullOrEmpty(userCreate.Name)
+                || string.IsNullOrEmpty(userCreate.Password)
+                || string.IsNullOrEmpty(userCreate.Email)
             )
             {
                 return BadRequest();
             }
 
-            (var hashedPWD, var salt) = _hasing.Hash(loginPassword);
+            // Check if email already exists
+            if (_context.Users.Any(u => u.Email == userCreate.Email))
+            {
+                return Conflict("Email already exists.");
+            }
+
+            (var hashedPWD, var salt) = _hasing.Hash(userCreate.Password);
 
             var user = new User
                 {
-                    Name = userName,
+                    Name = userCreate.Name,
                     Password = hashedPWD,
                     Salt = salt,
-                    Email = user_email,
+                    Email = userCreate.Email,
                 };
 
             _context.Users.Add(
@@ -147,7 +152,7 @@ namespace OMGdbApi.Controllers
                 string.IsNullOrEmpty(email)
                 || string.IsNullOrEmpty(loginPassword)
             )
-            {
+            {   
                 return BadRequest();
             }
 
@@ -226,7 +231,7 @@ namespace OMGdbApi.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         private bool UserExists(string id)
