@@ -4,13 +4,13 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 
 namespace OMGdbApi.Models
 {
-    [Table("episodes")]
+    [Table("episode")]
     public class Episodes
     {
         [Column("episode_id")]
         public string? Id { get; set; }
 
-        [Column("Title")]
+        [Column("title")]
         public string? Title { get; set; }
 
         [Column("re_year")]
@@ -24,10 +24,6 @@ namespace OMGdbApi.Models
 
         public string? Plot { get; set; }
 
-        [Column("Language")]
-
-        public string? Language { get; set; }
-
         [Column("relese_date")]
 
         public DateTime? ReleaseDate { get; set; }
@@ -36,7 +32,7 @@ namespace OMGdbApi.Models
 
         public decimal? ImdbRating { get; set; }
 
-        [Column("ordering")]
+        [Column("popularity")]
 
         public int? Ordering { get; set; }
 

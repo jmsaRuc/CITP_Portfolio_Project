@@ -10,7 +10,7 @@ namespace OMGdbApi.Models
         [Column("series_id")]
         public string? Id { get; set; }
 
-        [Column("Title")]
+        [Column("title")]
         public string? Title { get; set; }
 
         [Column("start_year")]
@@ -26,15 +26,11 @@ namespace OMGdbApi.Models
 
         public string? Plot { get; set; }
 
-        [Column("Language")]
-
-        public string? Language { get; set; }
-
         [Column("imdb_rating")]
 
         public decimal? ImdbRating { get; set; }
 
-        [Column("ordering")]
+        [Column("popularity")]
 
         public int? Ordering { get; set; }
     }

@@ -40,69 +40,6 @@ namespace OMGdbApi.Controllers
 
             return episodes;
         }
-
-        // PUT: api/Episodes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEpisodes(string id, Episodes episodes)
-        {
-            if (id != episodes.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(episodes).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EpisodesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Episodes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Episodes>> PostEpisodes(Episodes episodes)
-        {
-            _context.Episodes.Add(episodes);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetEpisodes", new { id = episodes.Id }, episodes);
-        }
-
-        // DELETE: api/Episodes/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEpisodes(string id)
-        {
-            var episodes = await _context.Episodes.FindAsync(id);
-            if (episodes == null)
-            {
-                return NotFound();
-            }
-
-            _context.Episodes.Remove(episodes);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool EpisodesExists(string id)
-        {
-            return _context.Episodes.Any(e => e.Id == id);
-        }
     }
 
 }  
