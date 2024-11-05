@@ -55,7 +55,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         //Person
         modelBuilder.Entity<Person>()
             .Property(b => b.Id)
-            .HasDefaultValueSql("('nm' || to_char(nextval('public.name_seq'::regclass),'FM00000000'))");
+            .HasDefaultValueSql("('nm' || to_char(nextval('public.person_seq'::regclass),'FM00000000'))");
 
     }
 
