@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace OMGdbApi.Models;
 
@@ -9,7 +7,7 @@ namespace OMGdbApi.Models;
 
     public class Movie
     {
-        [Key]
+    
         [Column("movie_id")]
         public string? Id { get; set; }
 
