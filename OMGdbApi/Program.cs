@@ -1,5 +1,7 @@
+
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +12,7 @@ using OMGdbApi.Service;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton(new Hashing());
@@ -92,3 +95,4 @@ app.MapControllers();
 app.Run();
 
 public partial class Program {}
+

@@ -7,24 +7,57 @@ namespace OMGdbApi.Models;
 public class OMGdbContext : DbContext
 {  
 
-
     public OMGdbContext(DbContextOptions<OMGdbContext> options)
         : base(options)
     {
     }
 
     public DbSet<User> Users { get; set; } = null!;
+   
+    public DbSet<Episodes> Episodes { get; set; } = null!;
+
+    public DbSet<Movie> Movie { get; set; } = null!;
+
+    public DbSet<Series> Series { get; set; } = null!;
+
+    public DbSet<Person> Person { get; set; } = null!;
+       
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        //User
         modelBuilder.Entity<User>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))");
 
-         modelBuilder.Entity<User>()
-            .Property(b => b.Created_at)
-            .HasDefaultValueSql("getdate()"); 
-    }  
+        modelBuilder.Entity<User>()
+           .Property(b => b.Created_at)
+           .HasDefaultValueSql("getdate()");
+
+        //Episodes
+        modelBuilder.Entity<Episodes>()
+            .Property(b => b.Id)
+            .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
+
+        //Movie
+        modelBuilder.Entity<Movie>()
+            .Property(b => b.Id)
+            .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
+
+        //Series
+        modelBuilder.Entity<Series>()
+            .Property(b => b.Id)
+            .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
+            
+        //Person
+        modelBuilder.Entity<Person>()
+            .Property(b => b.Id)
+            .HasDefaultValueSql("('nm' || to_char(nextval('public.person_seq'::regclass),'FM00000000'))");
+
+    }
+
+     
+}  
    // public async Task<bool> CreateUser(string name, byte[] password, string email)
    // {
    //     try {
@@ -50,4 +83,4 @@ public class OMGdbContext : DbContext
    //     }
    //     return false;
    // }
-}
+
