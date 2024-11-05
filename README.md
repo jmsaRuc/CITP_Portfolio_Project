@@ -53,6 +53,11 @@ dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p { PASSWORD }
 ```sh
 dotnet dev-certs https --trust
 ```
+1.d **Ceck certificate**
+    
+```sh
+dotnet dev-certs https --check
+```
 
 1.d **Set the certificate password in the `.env` file:**
 
