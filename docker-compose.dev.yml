@@ -29,7 +29,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${OMGDB_PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - f2eeebaad83afb9c13152f407eb12ed40738fe9517018482bb7a4392e87fe442:/var/lib/pgadmin  
-    restart: unless-stopped
+    restart: unless-stopped  
 
 volumes:
   db_test_volume:
