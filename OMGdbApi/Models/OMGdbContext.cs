@@ -21,17 +21,14 @@ public class OMGdbContext : DbContext
     public DbSet<Series> Series { get; set; } = null!;
 
     public DbSet<Person> Person { get; set; } = null!;
-protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        //User
+       
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
+        //User
         modelBuilder.Entity<User>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))");
-
 
         modelBuilder.Entity<User>()
            .Property(b => b.Created_at)
@@ -59,10 +56,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 
     }
 
-         modelBuilder.Entity<User>()
-            .Property(b => b.Created_at)
-            .HasDefaultValueSql("getdate()"); 
-    }  
+     
+}  
    // public async Task<bool> CreateUser(string name, byte[] password, string email)
    // {
    //     try {
