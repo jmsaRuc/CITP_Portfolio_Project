@@ -7,9 +7,16 @@ services:
       dockerfile: omgdb_web_api.Dockerfile
     image: omgdb_web_api:latest   
     ports:
-      - "8080:8080"
+      - "80:80"
+      - "443:443"
     environment:
-      ASPNETCORE_ConnectionStrings_DefaultConnection: ${ASPNETCORE_ConnectionStrings_DefaultConnection}  
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/OMGDBapp.pfx"
+      ASPNETCORE_ConnectionStrings_DefaultConnection: ${ASPNETCORE_ConnectionStrings_DefaultConnection}
+      JWT_SECRET: ${OMGDB_API_JWT_SECRET}
+    volumes:
+      - ./certs:/https:ro    
     depends_on:
       - "postgres"
 
@@ -38,7 +45,7 @@ services:
     ports:
       - "5550:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@OMGDB.com
+      PGADMIN_DEFAULT_EMAIL: ${OMGDB_PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${OMGDB_PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - f2eeebaad83afb9c13152f407eb12ed40738fe9517018482bb7a4392e87fe442:/var/lib/pgadmin  

@@ -5,7 +5,8 @@ using Npgsql;
 namespace OMGdbApi.Models;
 
 public class OMGdbContext : DbContext
-{
+{  
+
 
     public OMGdbContext(DbContextOptions<OMGdbContext> options)
         : base(options)
@@ -14,6 +15,16 @@ public class OMGdbContext : DbContext
 
     public DbSet<User> Users { get; set; } = null!;
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>()
+            .Property(b => b.Id)
+            .HasDefaultValueSql("('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))");
+
+         modelBuilder.Entity<User>()
+            .Property(b => b.Created_at)
+            .HasDefaultValueSql("getdate()"); 
+    }  
    // public async Task<bool> CreateUser(string name, byte[] password, string email)
    // {
    //     try {

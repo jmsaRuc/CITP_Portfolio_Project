@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS public.user (
     username character varying(256) NOT NULL,
     PASSWORD bytea NOT NULL,
     salt bytea NOT NULL,
-    email character varying(256) NOT NULL,
+    email character varying(256) NOT NULL UNIQUE,
     created_at date NOT NULL DEFAULT CURRENT_DATE
 );
 
