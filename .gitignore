@@ -7,6 +7,12 @@ db/import_backup/*
 !db/import_backup/.ignore
 !db/import_backup/import.sh
 
+# certificets
+certs/*
+!certs/.ignore
+certs/OMGDBapp.pfx
+*.pfx
+
 # User-specific files
 *.rsuser
 *.suo
@@ -243,7 +249,6 @@ ClientBin/
 *.dbmdl
 *.dbproj.schemaview
 *.jfm
-*.pfx
 *.publishsettings
 orleans.codegen.cs
 
