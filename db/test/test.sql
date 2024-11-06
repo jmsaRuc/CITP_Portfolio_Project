@@ -161,22 +161,22 @@ SELECT pgtap.is (
         ), NULL, 'User deleted'
     );
 
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT popularity
             FROM public.movie
             WHERE
                 movie_id = 'tt18339924'
-        ), NULL, 'popularity delet movie test'
+        ) = 0, 'popularity delet movie test'
     );
 
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT popularity
             FROM public.series
             WHERE
                 series_id = 'tt26476058'
-        ), NULL, 'popularity delet series test'
+        ) = 0, 'popularity delet series test'
     );
 
 INSERT INTO

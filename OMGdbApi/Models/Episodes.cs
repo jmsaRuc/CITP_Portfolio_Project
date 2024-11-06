@@ -34,7 +34,7 @@ namespace OMGdbApi.Models
 
         [Column("popularity")]
 
-        public long? Popularity { get; set; }
+        public long Popularity { get; set; }
 
     }
 }

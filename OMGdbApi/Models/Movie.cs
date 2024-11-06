@@ -34,6 +34,6 @@ namespace OMGdbApi.Models;
         public decimal? ImdbRating { get; set; }
 
         [Column("popularity")]
-        public long? Popularity { get; set; }
+        public long Popularity { get; set; }
     }
 

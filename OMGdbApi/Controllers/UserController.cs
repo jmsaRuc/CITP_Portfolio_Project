@@ -35,7 +35,7 @@ namespace OMGdbApi.Controllers
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers(int? pageSize, int? pageNumber)
         {   
             
-            if (pageSize == null || pageSize < 1 || pageSize > 100)
+            if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
@@ -51,7 +51,6 @@ namespace OMGdbApi.Controllers
             }
 
             return await _context.Users
-            .AsNoTracking()
             .OrderBy(x => x.Created_at)
             .Skip((int)((pageNumber - 1) * pageSize))
             .Take((int)pageSize)

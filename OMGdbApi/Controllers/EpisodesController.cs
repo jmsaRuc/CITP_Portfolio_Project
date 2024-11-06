@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMGdbApi.Models;
-
+using System.Linq; 
 namespace OMGdbApi.Controllers
 {
     [Route("api/episodes")]
@@ -19,7 +19,7 @@ namespace OMGdbApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Episodes>>> GetEpisodes(int? pageSize, int? pageNumber)
         {    
-            if (pageSize == null || pageSize < 1 || pageSize > 100)
+            if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
@@ -27,19 +27,19 @@ namespace OMGdbApi.Controllers
             {
                 pageNumber = 1;
             }
-            var totalRecords = await _context.Users.CountAsync();
+            var totalRecords = await _context.Episodes.CountAsync();
             
             if ((int)((pageNumber - 1) * pageSize) > totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
             }   
-
+            
             return await _context.Episodes
-            .AsNoTracking()
-            .OrderByDescending(x => x.Popularity)
-            .Skip((int)((pageNumber - 1) * pageSize))
-            .Take((int)pageSize)
-            .ToListAsync();
+                .AsNoTracking()
+                .OrderByDescending(x => x.Popularity)
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .ToListAsync();
         }
 
         // GET: api/Episodes/5

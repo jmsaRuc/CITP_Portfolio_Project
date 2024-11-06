@@ -23,7 +23,7 @@ namespace OMGdbApi.Models
         public string? PrimaryProfession { get; set; }
 
         [Column("popularity")]
-        public long? Popularity { get; set; }
+        public long Popularity { get; set; }
 
     }
 }

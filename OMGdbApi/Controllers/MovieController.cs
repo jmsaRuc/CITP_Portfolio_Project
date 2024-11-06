@@ -19,7 +19,7 @@ namespace OMGdbApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovie(int? pageSize, int? pageNumber)
         {
-            if (pageSize == null || pageSize < 1 || pageSize > 100)
+            if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
@@ -27,7 +27,7 @@ namespace OMGdbApi.Controllers
             {
                 pageNumber = 1;
             }
-            var totalRecords = await _context.Users.CountAsync();
+            var totalRecords = await _context.Movie.CountAsync();
             
             if ((int)((pageNumber - 1) * pageSize) > totalRecords)
             {

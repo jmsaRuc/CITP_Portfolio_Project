@@ -19,7 +19,7 @@ namespace OMGdbApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Person>>> GetPerson(int? pageSize, int? pageNumber)
         {
-            if (pageSize == null || pageSize < 1 || pageSize > 100)
+            if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
@@ -27,7 +27,7 @@ namespace OMGdbApi.Controllers
             {
                 pageNumber = 1;
             }
-            var totalRecords = await _context.Users.CountAsync();
+            var totalRecords = await _context.Person.CountAsync();
             
             if ((int)((pageNumber - 1) * pageSize) > totalRecords)
             {
@@ -36,7 +36,7 @@ namespace OMGdbApi.Controllers
 
             return await _context.Person
             .AsNoTracking()
-            .OrderByDescending(x => x.Popularity)
+            .OrderBy(x => x.Popularity)
             .Skip((int)((pageNumber - 1) * pageSize))
             .Take((int)pageSize)
             .ToListAsync();

@@ -168,6 +168,10 @@ BEGIN
     WHERE "type_id" = OLD."type_id"
     GROUP BY "type_id";
 
+    IF pop_count IS NULL
+    THEN
+        pop_count := 0;
+    END IF;
     
     IF what_type = 'movie' 
     THEN
