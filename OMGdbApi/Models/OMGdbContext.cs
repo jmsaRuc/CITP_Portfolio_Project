@@ -1,7 +1,7 @@
 using OMGdbApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-
+using OMGdbApi.Models.Users;
 namespace OMGdbApi.Models;
 
 public class OMGdbContext : DbContext
@@ -28,11 +28,14 @@ public class OMGdbContext : DbContext
         //User
         modelBuilder.Entity<User>()
             .Property(b => b.Id)
-            .HasDefaultValueSql("('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))");
+            .HasDefaultValueSql("('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))"); 
 
         modelBuilder.Entity<User>()
            .Property(b => b.Created_at)
            .HasDefaultValueSql("getdate()");
+
+        modelBuilder.Entity<User>()
+            .HasIndex(b => b.Created_at);     
 
         //Episodes
         modelBuilder.Entity<Episodes>()

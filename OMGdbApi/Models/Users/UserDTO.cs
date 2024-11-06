@@ -1,6 +1,6 @@
 using System;
 using System.Text.Json.Serialization;
-namespace OMGdbApi.Models;
+namespace OMGdbApi.Models.Users;
 
 public class UserDTO
 {   
@@ -15,4 +15,5 @@ public class UserDTO
     
     [JsonPropertyName("created_at")]
     public DateTime Created_at { get; set; }
+
 }

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OMGdbApi.Models;
 using OMGdbApi.Service;
+using OMGdbApi.Models.Users;
 
 namespace OMGdbApi.Controllers
 {
@@ -31,9 +32,29 @@ namespace OMGdbApi.Controllers
         // GET: api/user
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
-        {
-            return await _context.Users.Select(x => UserDTO(x)).ToListAsync();
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers(int? pageSize, int? pageNumber)
+        {   
+            
+            if (pageSize == null || pageSize < 1 || pageSize > 100)
+            {
+                pageSize = 10;
+            }
+            if (pageNumber == null || pageNumber < 1) 
+            {
+                pageNumber = 1;
+            }
+            var totalRecords = await _context.Users.CountAsync();
+            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            {
+                pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+            }
+            return await _context.Users
+            .AsNoTracking()
+            .OrderBy(x => x.Created_at)
+            .Skip((int)((pageNumber - 1) * pageSize))
+            .Take((int)pageSize)
+            .Select(x => UserDTO(x))     
+            .ToListAsync();
         }
 
        

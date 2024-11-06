@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OMGdbApi;
 using OMGdbApi.Models;
+using OMGdbApi.Models.Users;
 using OMGdbApi.Service;
 
 var builder = WebApplication.CreateBuilder(args);
