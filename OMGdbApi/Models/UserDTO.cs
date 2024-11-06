@@ -1,6 +1,6 @@
 using System;
 using System.Text.Json.Serialization;
-namespace OMGdbApi.Models;
+namespace OMGdbApi.Models.Users;
 
 public class UserDTO
 {   

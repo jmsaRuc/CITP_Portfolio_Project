@@ -113,7 +113,7 @@ pgAdmin will be available at `http://localhost:5550`. Use the email `admin@OMGDB
 - **Unit Tests:** Run the unit tests using the following command:
 
 ```sh
-cd /test
+cd ./test
 ```
     
 ```sh

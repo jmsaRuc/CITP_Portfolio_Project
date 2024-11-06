@@ -13,10 +13,18 @@ public class RequestClass
      
 
 
-    public RestResponse GetFakeApiRequest(string token, string baseUrl)
+    public RestResponse GetFakeApiRequest(string token, string baseUrl, int? pageSize = null, int? pageNumber = null)
     {   
+
+        var Url = baseUrl;
+        if ((pageSize == null && pageNumber == null) || (pageSize == 0 && pageNumber == 0))
+        {
+            string pageParameterUrl = $"pageSize={pageSize}&pageNumber={pageNumber}";
+            Url = $"{baseUrl}?{pageParameterUrl}"; 
+        }
+        
         var Authenticator = new JwtAuthenticator(token);
-        var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
+        var options = new RestClientOptions(Url) { Authenticator = Authenticator };
         RestClient client = new RestClient(options);
 
         RestRequest restRequest = new RestRequest(baseUrl, Method.Get);
