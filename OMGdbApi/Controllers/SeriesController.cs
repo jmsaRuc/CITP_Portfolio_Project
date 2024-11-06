@@ -17,9 +17,29 @@ namespace OMGdbApi.Controllers
 
         // GET: api/Series
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Series>>> GetSeries()
+        public async Task<ActionResult<IEnumerable<Series>>> GetSeries(int? pageSize, int? pageNumber)
         {
-            return await _context.Series.ToListAsync();
+            if (pageSize == null || pageSize < 1 || pageSize > 100)
+            {
+                pageSize = 10;
+            }
+            if (pageNumber == null || pageNumber < 1) 
+            {
+                pageNumber = 1;
+            }
+            var totalRecords = await _context.Users.CountAsync();
+            
+            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            {
+                pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+            }   
+
+            return await _context.Series
+            .AsNoTracking()
+            .OrderByDescending(x => x.Popularity)
+            .Skip((int)((pageNumber - 1) * pageSize))
+            .Take((int)pageSize)
+            .ToListAsync();
         }
 
         // GET: api/Series/5

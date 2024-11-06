@@ -42,21 +42,30 @@ public class OMGdbContext : DbContext
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
 
+        modelBuilder.Entity<Episodes>()
+            .HasIndex(b => b.Popularity);    
+
         //Movie
         modelBuilder.Entity<Movie>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
 
+        modelBuilder.Entity<Movie>()
+            .HasIndex(b => b.Popularity);
+
         //Series
         modelBuilder.Entity<Series>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
+        modelBuilder.Entity<Series>()
+            .HasIndex(b => b.Popularity);    
             
         //Person
         modelBuilder.Entity<Person>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('nm' || to_char(nextval('public.person_seq'::regclass),'FM00000000'))");
-
+        modelBuilder.Entity<Person>()
+            .HasIndex(b => b.Popularity);
     }
 
      
