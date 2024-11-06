@@ -88,7 +88,9 @@ CREATE TABLE IF NOT EXISTS public.person (
     name character varying(256) NOT NULL,
     birth_year character(4),
     death_year character(4),
-    primary_profession character varying(256)
+    primary_profession character varying(256),
+    popularity BIGINT,
+    CONSTRAINT popularity_check CHECK ((popularity > (0)::BIGINT))
 );
 
 CREATE TABLE IF NOT EXISTS public.user_movie_whatchlist (

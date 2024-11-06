@@ -20,14 +20,6 @@ VALUES ('test_user', sha256('foo'::bytea), sha256('asdw'::bytea), 'wup@gmail.com
 -- shoud be ur00000003
 SELECT user_id FROM public."user" WHERE username = 'test_user';
 
--- test recent view
-INSERT INTO
-    public.recent_view ("user_id", "type_id")
-VALUES ('ur00000003', 'tt18339924');
-
-INSERT INTO
-    public.recent_view ("user_id", "type_id")
-VALUES ('ur00000003', 'tt26476058');
 
 -- should be 2
 SELECT view_ordering
@@ -145,7 +137,33 @@ WHERE
     AND
     movie_id = 'tt18339924';
 
+-- test recent view trigger
 
+INSERT INTO
+    public.recent_view ("user_id", "type_id")
+VALUES ('ur00000209', 'tt18339924');
+
+INSERT INTO
+    public.recent_view ("user_id", "type_id")
+VALUES ('ur00005120', 'tt26476058');
+
+INSERT INTO
+    public.recent_view ("user_id", "type_id")
+    VALUES ('ur00005120', 'nm0000001');
+
+
+
+SELECT * 
+FROM public."type"
+WHERE "type_id" = 'tt26476058';
+
+SELECT *
+FROM public."movie"s
+WHERE "movie_id" = 'tt18339924';
+
+SELECT * 
+FROM public."series"
+WHERE "series_id" = 'tt26476058';
 
 -- Insert 100 users
 DO $$

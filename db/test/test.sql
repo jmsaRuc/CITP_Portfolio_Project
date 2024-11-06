@@ -11,8 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (30);
-
+SELECT pgtap.plan (35);
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -88,9 +87,7 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ),
-        'tt18339924'
-    );
+        ),'tt18339924');
 
 INSERT INTO
     public.recent_view ("user_id", "type_id")
@@ -100,20 +97,45 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ),
-        'tt26476058'
-    );
+        ),'tt26476058');
 
 -- should be 2
-SELECT pgtap.ok ((SELECT view_ordering
-FROM public.recent_view
-WHERE
-    user_id = (SELECT user_id FROM public.user WHERE username = 'test_user')
-    AND type_id = 'tt26476058'
+SELECT pgtap.ok (
+        (
+            SELECT view_ordering
+            FROM public.recent_view
+            WHERE
+                user_id = (
+                    SELECT user_id
+                    FROM public.user
+                    WHERE
+                        username = 'test_user'
+                )
+                AND type_id = 'tt26476058'
+        ) >= 2, 'Recent view test'
+    );
 
+---- test recent trigger ------------------
 
-) >= 2, 'Recent view test');
+SELECT pgtap.ok (
+        (
+            SELECT popularity
+            FROM public.movie
+            WHERE
+                movie_id = 'tt18339924'
+        ) >= 1, 'popularity populated movie test'
+    );
 
+SELECT pgtap.ok (
+        (
+            SELECT popularity
+            FROM public.series
+            WHERE
+                series_id = 'tt26476058'
+        ) >= 1, 'popularity populated series test'
+    );
+
+------------------test recent view delete (trigger also) ----------------------------
 DELETE FROM public."user"
 WHERE
     user_id = (
@@ -139,6 +161,24 @@ SELECT pgtap.is (
         ), NULL, 'User deleted'
     );
 
+SELECT pgtap.is (
+        (
+            SELECT popularity
+            FROM public.movie
+            WHERE
+                movie_id = 'tt18339924'
+        ), NULL, 'popularity delet movie test'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT popularity
+            FROM public.series
+            WHERE
+                series_id = 'tt26476058'
+        ), NULL, 'popularity delet series test'
+    );
+
 INSERT INTO
     public."user" (
         username,
@@ -155,10 +195,15 @@ VALUES (
 
 INSERT INTO
     public.recent_view ("user_id", "type_id")
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt18339924');
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt18339924'
+    );
 
 -- should be 1 higher then the last one
 
@@ -167,10 +212,12 @@ SELECT pgtap.ok (
             SELECT view_ordering
             FROM public.recent_view
             WHERE
-                user_id = (SELECT user_id
+                user_id = (
+                    SELECT user_id
                     FROM public.user
                     WHERE
-                        username = 'test_user')
+                        username = 'test_user'
+                )
                 AND type_id = 'tt18339924'
         ) >= 3, 'Recent view test'
     );
@@ -178,27 +225,39 @@ SELECT pgtap.ok (
 -- test whatchlist movie
 INSERT INTO
     public.user_movie_whatchlist ("user_id", movie_id)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt18339924');
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt18339924'
+    );
 
 INSERT INTO
     public.user_movie_whatchlist ("user_id", movie_id)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt21217874');
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt21217874'
+    );
 
 SELECT pgtap.ok (
         (
             SELECT whatchlist
             FROM public.user_movie_whatchlist
             WHERE
-                user_id = (SELECT user_id
+                user_id = (
+                    SELECT user_id
                     FROM public.user
                     WHERE
-                        username = 'test_user')
+                        username = 'test_user'
+                )
                 AND movie_id = 'tt21217874'
         ) >= 2, 'movie Whatchlist test'
     );
@@ -207,17 +266,27 @@ SELECT pgtap.ok (
 
 INSERT INTO
     public.user_series_whatchlist ("user_id", series_id)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt0903747');
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt0903747'
+    );
 
 INSERT INTO
     public.user_series_whatchlist ("user_id", series_id)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt28638980');
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt28638980'
+    );
 
 -- should be higer then select movie_whatchlist
 SELECT pgtap.ok (
@@ -225,10 +294,12 @@ SELECT pgtap.ok (
             SELECT whatchlist
             FROM public.user_series_whatchlist
             WHERE
-                user_id = (SELECT user_id
+                user_id = (
+                    SELECT user_id
                     FROM public.user
                     WHERE
-                        username = 'test_user')
+                        username = 'test_user'
+                )
                 AND series_id = 'tt28638980'
         ) >= 4, 'series Whatchlist test'
     );
@@ -237,17 +308,27 @@ SELECT pgtap.ok (
 
 INSERT INTO
     public.user_episode_whatchlist ("user_id", episode_id)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt11437568');
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt11437568'
+    );
 
 INSERT INTO
     public.user_episode_whatchlist ("user_id", episode_id)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt11576414');
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt11576414'
+    );
 
 -- should be higher then select series_whatchlist
 
@@ -256,10 +337,12 @@ SELECT pgtap.ok (
             SELECT whatchlist
             FROM public.user_episode_whatchlist
             WHERE
-                user_id = (SELECT user_id
+                user_id = (
+                    SELECT user_id
                     FROM public.user
                     WHERE
-                        username = 'test_user')
+                        username = 'test_user'
+                )
                 AND episode_id = 'tt11576414'
         ) >= 6, 'episode Whatchlist test'
     );
@@ -268,24 +351,42 @@ SELECT pgtap.ok (
 
 INSERT INTO
     public.user_movie_rating ("user_id", movie_id, rating)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt18339924', 5);
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt18339924',
+        5
+    );
 
 INSERT INTO
     public.user_series_rating ("user_id", series_id, rating)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt0903747', 5);
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt0903747',
+        5
+    );
 
 INSERT INTO
     public.user_episode_rating ("user_id", episode_id, rating)
-VALUES ((SELECT user_id
-                    FROM public.user
-                    WHERE
-                        username = 'test_user'), 'tt11437568', 5);
+VALUES (
+        (
+            SELECT user_id
+            FROM public.user
+            WHERE
+                username = 'test_user'
+        ),
+        'tt11437568',
+        5
+    );
 
 -- should be 5
 SELECT pgtap.ok (
@@ -293,10 +394,12 @@ SELECT pgtap.ok (
             SELECT rating
             FROM public.user_movie_rating
             WHERE
-                user_id = (SELECT user_id
+                user_id = (
+                    SELECT user_id
                     FROM public.user
                     WHERE
-                        username = 'test_user')
+                        username = 'test_user'
+                )
                 AND movie_id = 'tt18339924'
         ) >= 5, 'movie rating test'
     );
@@ -385,18 +488,19 @@ DECLARE
     episode_ids text[];
     type_ids text[];
     new_user_id text;
+    random_int int;
 BEGIN
     -- Get movie_ids, series_ids, episode_ids, and type_ids
     SELECT array_agg(movie_id) INTO movie_ids FROM public.movie;
     SELECT array_agg(series_id) INTO series_ids FROM public.series;
     SELECT array_agg(episode_id) INTO episode_ids FROM public.episode;
-    SELECT array_agg("type_id") INTO type_ids FROM public.type;
+    SELECT array_agg("type_id" ORDER BY random()) INTO type_ids FROM public.type;
 
     FOR i IN 1..100 LOOP
         new_user_id := (SELECT "user_id" FROM public."user" WHERE username = 'user' || i);
 
         -- Insert 10 user_movie_whatchlist
-        FOR j IN 1..10 LOOP
+        FOR j IN 1..100 LOOP
             INSERT INTO public.user_movie_whatchlist("user_id", movie_id) 
             VALUES (
                 new_user_id,
@@ -407,18 +511,18 @@ BEGIN
         END LOOP;
 
         -- Insert 10 user_series_whatchlist
-        FOR j IN 1..10 LOOP
+        FOR j IN 1..100 LOOP
             INSERT INTO public.user_series_whatchlist("user_id", series_id)
             VALUES (
                 new_user_id,
-                series_ids[(i+j)::int]
+                series_ids[( i + j)::int]
             ) ON CONFLICT ("user_id", series_id) DO UPDATE SET
                 "user_id" = new_user_id,
                 series_id = series_ids[(i+j)::int];
         END LOOP;
 
         -- Insert 10 user_episode_whatchlist
-        FOR j IN 1..10 LOOP
+        FOR j IN 1..100 LOOP
             INSERT INTO public.user_episode_whatchlist("user_id", episode_id)
              VALUES (
                 new_user_id,
@@ -429,55 +533,57 @@ BEGIN
         END LOOP;
 
         -- Insert 10 recent_views
-        FOR j IN 1..10 LOOP
+        FOR j IN 1..100 LOOP
+            random_int := floor(random() * (10 * i + j ) + 1)::int;
             INSERT INTO public.recent_view ("user_id", "type_id")
             VALUES (
                 new_user_id,
-                type_ids[((i+j)::int)]
+                type_ids[random_int]
             ) ON CONFLICT ("user_id", "type_id") DO UPDATE SET
                 "user_id" = new_user_id,
-                "type_id" = type_ids[((i+j)::int)];
+                "type_id" = type_ids[random_int];
         END LOOP;
 
-        FOR j IN 1..10 LOOP
+        FOR j IN 1..100 LOOP
+            random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_movie_rating ("user_id", movie_id, rating)
             VALUES (
                 new_user_id,
                 movie_ids[(i+j)::int],
-                j
+                random_int 
             ) ON CONFLICT ("user_id", movie_id) DO UPDATE SET
                 "user_id" = new_user_id,
                 movie_id = movie_ids[(i+j)::int],
-                rating = j;
+                rating = random_int;
         END LOOP;
 
-        FOR j IN 1..10 LOOP
+        FOR j IN 1..100 LOOP
+            random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_series_rating ("user_id", series_id, rating)
             VALUES (
                 new_user_id,
                 series_ids[(i+j)::int],
-                j
+                random_int
             ) ON CONFLICT ("user_id", series_id) DO UPDATE SET
                 "user_id" = new_user_id,
                 series_id = series_ids[(i+j)::int],
-                rating = j;
+                rating = random_int;
         END LOOP;
 
-        FOR j IN 1..10 LOOP
+        FOR j IN 1..100 LOOP
+            random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_episode_rating ("user_id", episode_id, rating)
             VALUES (
                 new_user_id,
                 episode_ids[(i+j)::int],
-                j
+                random_int
             ) ON CONFLICT ("user_id", episode_id) DO UPDATE SET
                 "user_id" = new_user_id,
                 episode_id = episode_ids[(i+j)::int],
-                rating = j;
+                rating = random_int;
         END LOOP;           
     END LOOP;
 END $$ LANGUAGE plpgsql;
-
-
 
 ----test duymmy users----
 
@@ -486,6 +592,15 @@ SELECT pgtap.ok (
             SELECT COUNT(*)
             FROM public."user"
         ) = 100, '100 users created'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT COUNT(*)
+            FROM public.movie
+            WHERE
+                popularity > 0
+        ) >= 10, 'popularity populated movie test'
     );
 
 SELECT pgtap.is (
@@ -521,14 +636,16 @@ SELECT pgtap.is (
         ), NULL, 'No duplicate entries in user_episode_interaction'
     );
 
-SELECT pgtap.is ((
-        SELECT count(*)
-        FROM public.recent_view
-        GROUP BY
-            "user_id", "type_id", view_ordering
-        HAVING
-            count(*) > 1
-    ), NULL, 'No duplicate entries in recent_view');   
+SELECT pgtap.is (
+        (
+            SELECT count(*)
+            FROM public.recent_view
+            GROUP BY
+                "user_id", "type_id", view_ordering
+            HAVING
+                count(*) > 1
+        ), NULL, 'No duplicate entries in recent_view'
+    );
 
 SELECT pgtap.is (
         (
@@ -589,13 +706,13 @@ SELECT pgtap.is (
             SELECT title_type
             FROM public."type"
             WHERE
-                "type_id" in  (
+                "type_id" IN (
                     SELECT movie_id
                     FROM public.movie
                     WHERE
                         title = 'The Revenant'
                 )
-            LIMIT 1    
+            LIMIT 1
         ), 'movie', 'Movie type trigger'
     );
 
@@ -694,18 +811,36 @@ SELECT pgtap.ok (
 
 SELECT pg_sleep(1);
 
-
 -- clean up --------------------------------------------
-DELETE FROM public.movie WHERE movie_id IN (SELECT movie_id FROM public.movie WHERE title = 'The Revenant' LIMIT 1);
-
-DELETE FROM public.series WHERE series_id = (SELECT series_id FROM public.series WHERE title = 'Stranger Things');
-
-DELETE FROM public.episode WHERE episode_id = (SELECT episode_id FROM public.episode WHERE title = 'Chapter One: The Vanishing of Will Byers');
-
-DELETE FROM public."user"
+DELETE FROM public.movie
 WHERE
-    username LIKE 'user%';
+    movie_id IN (
+        SELECT movie_id
+        FROM public.movie
+        WHERE
+            title = 'The Revenant'
+        LIMIT 1
+    );
 
+DELETE FROM public.series
+WHERE
+    series_id = (
+        SELECT series_id
+        FROM public.series
+        WHERE
+            title = 'Stranger Things'
+    );
+
+DELETE FROM public.episode
+WHERE
+    episode_id = (
+        SELECT episode_id
+        FROM public.episode
+        WHERE
+            title = 'Chapter One: The Vanishing of Will Byers'
+    );
+
+DELETE FROM public."user" WHERE username LIKE 'user%';
 
 SELECT * FROM pgtap.finish ();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 
 namespace OMGdbApi.Models
 {
@@ -20,6 +21,9 @@ namespace OMGdbApi.Models
 
         [Column("primary_profession")]
         public string? PrimaryProfession { get; set; }
+
+        [Column("popularity")]
+        public long? Popularity { get; set; }
 
     }
 }

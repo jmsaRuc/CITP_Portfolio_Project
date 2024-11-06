@@ -44,10 +44,12 @@ namespace OMGdbApi.Controllers
                 pageNumber = 1;
             }
             var totalRecords = await _context.Users.CountAsync();
+            
             if ((int)((pageNumber - 1) * pageSize) > totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
             }
+
             return await _context.Users
             .AsNoTracking()
             .OrderBy(x => x.Created_at)

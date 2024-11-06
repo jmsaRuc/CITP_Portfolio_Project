@@ -22,7 +22,7 @@ namespace OMGdbApi.Controllers
             return await _context.Person.ToListAsync();
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Person>> GetPerson(string id)
         {
             var person = await _context.Person.FindAsync(id);
