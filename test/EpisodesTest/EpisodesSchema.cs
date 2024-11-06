@@ -32,7 +32,7 @@ public class EpisodesSchema
 
         [Column("popularity")]
 
-        public int? Ordering { get; set; }
+        public long Popularity { get; set; }
 
     
 }

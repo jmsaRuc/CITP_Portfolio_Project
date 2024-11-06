@@ -21,7 +21,7 @@ namespace test.MovieTest
                     Plot = "The first movie plot.",
                     ReleaseDate = new DateTime(2022, 5, 1),
                     ImdbRating = 8.5M,
-                    Ordering = 1
+                    Popularity = 1
                 },
                 new MovieSchema
                 {
@@ -33,7 +33,7 @@ namespace test.MovieTest
                     Plot = "The second movie plot.",
                     ReleaseDate = new DateTime(2022, 5, 8),
                     ImdbRating = 8.7M,
-                    Ordering = 2
+                    Popularity = 2
                 }
             };
         }

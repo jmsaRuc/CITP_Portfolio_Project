@@ -27,8 +27,7 @@ public class SeriesSchema
 
         public decimal? ImdbRating { get; set; }
 
-        [Column("popularity")]
-
-        public int? Ordering { get; set; }
+         [Column("popularity")]
+        public long Popularity { get; set; }
 
 }

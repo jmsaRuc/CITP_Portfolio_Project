@@ -19,4 +19,7 @@ public class PersonSchema
         [Column("primary_profession")]
         public string? PrimaryProfession { get; set; }
 
+         [Column("popularity")]
+        public long Popularity { get; set; }
+
 }

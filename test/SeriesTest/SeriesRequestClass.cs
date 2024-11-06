@@ -20,7 +20,7 @@ namespace test.SeriesTest
                     Poster = "https://www.example.com/poster.jpg",
                     Plot = "The first series plot.",
                     ImdbRating = 8.5M,
-                    Ordering = 1
+                    Popularity = 1
                 },
                 new SeriesSchema
                 {
@@ -31,7 +31,7 @@ namespace test.SeriesTest
                     Poster = "https://www.example.com/poster.jpg",
                     Plot = "The second series plot.",
                     ImdbRating = 8.7M,
-                    Ordering = 2
+                    Popularity = 2
                 }
             };
         }
