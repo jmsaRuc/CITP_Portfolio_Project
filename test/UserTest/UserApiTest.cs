@@ -39,7 +39,7 @@ namespace test.UserTest
             var body = request.GetBearerToken(user);
 
             RestResponse response = request.DeleteFakeApiRequest(
-                body.Token,
+                body.Token!,
                 $"https://localhost/api/user/{body.Id}"
             );
         }
@@ -143,7 +143,7 @@ namespace test.UserTest
             Assert.NotNull(body.Token);
             RestResponse response = request.GetFakeApiRequest(
                 body.Token,
-                "https://localhost/api/user"
+                "https://localhost/api/user", 10, 1
             );
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(response.Content);

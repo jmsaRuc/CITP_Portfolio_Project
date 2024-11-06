@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 
 namespace OMGdbApi.Models;
 
@@ -33,6 +34,6 @@ namespace OMGdbApi.Models;
         public decimal? ImdbRating { get; set; }
 
         [Column("popularity")]
-        public int? Ordering { get; set; }
+        public long Popularity { get; set; }
     }
 

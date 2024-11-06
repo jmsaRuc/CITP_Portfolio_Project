@@ -1,7 +1,7 @@
 using OMGdbApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-
+using OMGdbApi.Models.Users;
 namespace OMGdbApi.Models;
 
 public class OMGdbContext : DbContext
@@ -28,32 +28,62 @@ public class OMGdbContext : DbContext
         //User
         modelBuilder.Entity<User>()
             .Property(b => b.Id)
-            .HasDefaultValueSql("('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))");
+            .HasDefaultValueSql("('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))"); 
 
         modelBuilder.Entity<User>()
            .Property(b => b.Created_at)
            .HasDefaultValueSql("getdate()");
+
+        modelBuilder.Entity<User>()
+            .HasIndex(b => b.Created_at);     
 
         //Episodes
         modelBuilder.Entity<Episodes>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
 
+        modelBuilder.Entity<Episodes>()
+            .Property(b => b.Popularity)
+            .HasDefaultValueSql("0");    
+
+        modelBuilder.Entity<Episodes>()
+            .HasIndex(b => b.Popularity);    
+
         //Movie
         modelBuilder.Entity<Movie>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
 
+        modelBuilder.Entity<Movie>()
+            .Property(b => b.Popularity)
+            .HasDefaultValue("0");    
+
+        modelBuilder.Entity<Movie>()
+            .HasIndex(b => b.Popularity);
+
         //Series
         modelBuilder.Entity<Series>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
+
+        modelBuilder.Entity<Series>()
+            .Property(b => b.Popularity)
+            .HasDefaultValue("0");    
+
+        modelBuilder.Entity<Series>()
+            .HasIndex(b => b.Popularity);    
             
         //Person
         modelBuilder.Entity<Person>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('nm' || to_char(nextval('public.person_seq'::regclass),'FM00000000'))");
 
+        modelBuilder.Entity<Person>()
+            .Property(b => b.Popularity)
+            .HasDefaultValue("0");
+
+        modelBuilder.Entity<Person>()
+            .HasIndex(b => b.Popularity);
     }
 
      

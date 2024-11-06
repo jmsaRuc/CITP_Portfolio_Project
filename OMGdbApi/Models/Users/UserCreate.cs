@@ -1,6 +1,6 @@
 using System;
 
-namespace OMGdbApi.Models;
+namespace OMGdbApi.Models.Users;
 
 public class UserCreate
 {

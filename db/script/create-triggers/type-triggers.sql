@@ -93,4 +93,122 @@ CREATE OR REPLACE TRIGGER after_delete_episode
     FOR EACH ROW
     EXECUTE FUNCTION public.delete_episode_type_after_delete();
 
----------------------------type update triggers-----------------------------
+-----------------------------popularity insert triggers-----------------------------
+
+CREATE OR REPLACE FUNCTION public.update_popularity_after_insert()
+    RETURNS TRIGGER AS $$
+DECLARE
+    what_type VARCHAR;
+    pop_count bigint;
+BEGIN
+    SELECT title_type INTO what_type
+    FROM public.type
+    WHERE "type_id" = NEW."type_id";
+
+    SELECT count(*) INTO pop_count 
+    FROM public.recent_view
+    WHERE "type_id" = NEW."type_id"
+    GROUP BY "type_id";
+
+    
+    IF what_type = 'movie' 
+    THEN
+        UPDATE public.movie
+        SET popularity = pop_count
+        WHERE "movie_id" = NEW."type_id";
+        RETURN NEW;
+    END IF;  
+
+    IF what_type = 'series' 
+    THEN 
+        UPDATE public.series
+        SET popularity = pop_count
+        WHERE "series_id" = NEW."type_id";
+        RETURN NEW;
+    END IF;   
+
+    IF what_type = 'episode' 
+    THEN
+        UPDATE public.episode
+        SET popularity = pop_count
+        WHERE "episode_id" = NEW."type_id";
+        RETURN NEW;
+    END IF;
+
+    IF what_type = 'person' 
+    THEN
+        UPDATE public.person
+        SET popularity = pop_count
+        WHERE "person_id" = NEW."type_id";
+        RETURN NEW;
+    END IF;   
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_insert_recent_view
+    AFTER INSERT
+    ON public.recent_view
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_popularity_after_insert();
+
+-----------------------------popularity delet triggers-----------------------------
+
+CREATE OR REPLACE FUNCTION public.update_popularity_after_delet()
+    RETURNS TRIGGER AS $$
+DECLARE
+    what_type VARCHAR;
+    pop_count bigint;
+BEGIN
+    SELECT title_type INTO what_type
+    FROM public.type
+    WHERE "type_id" = OLD."type_id";
+
+    SELECT count(*) INTO pop_count 
+    FROM public.recent_view
+    WHERE "type_id" = OLD."type_id"
+    GROUP BY "type_id";
+
+    IF pop_count IS NULL
+    THEN
+        pop_count := 0;
+    END IF;
+    
+    IF what_type = 'movie' 
+    THEN
+        UPDATE public.movie
+        SET popularity = pop_count
+        WHERE "movie_id" = OLD."type_id";
+        RETURN OLD;
+    END IF;  
+
+    IF what_type = 'series' 
+    THEN 
+        UPDATE public.series
+        SET popularity = pop_count
+        WHERE "series_id" = OLD."type_id";
+        RETURN OLD;
+    END IF;   
+
+    IF what_type = 'episode' 
+    THEN
+        UPDATE public.episode
+        SET popularity = pop_count
+        WHERE "episode_id" = OLD."type_id";
+        RETURN OLD;
+    END IF;
+
+    IF what_type = 'person' 
+    THEN
+        UPDATE public.person
+        SET popularity = pop_count
+        WHERE "person_id" = OLD."type_id";
+        RETURN OLD;
+    END IF;   
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_delete_recent_view
+    AFTER DELETE
+    ON public.recent_view
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_popularity_after_delet();

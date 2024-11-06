@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OMGdbApi.Models;
+namespace OMGdbApi.Models.Users;
 [Table("user")]
 public class User
 {   
