@@ -199,8 +199,8 @@ dotnet test
 - **DELETE /api/OMGdbItems/{id}:** Delete an item by ID from the database.
 
 ## Database Schema
-![alt text](./blueprint/ERdiagram.svg)
-<img srec ="./blueprint/ERdiagram.svg">
+![alt text](./blueprint/ER_Diagram.svg)
+<img srec ="./blueprint/ER_Diagram.svg">
 
 
 ## Technologies
