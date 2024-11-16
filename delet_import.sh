@@ -20,6 +20,8 @@ PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOS
 
 PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/search_functionality/drop_functions.sql > /dev/null
 
+PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/search_functionality/user_functions/drop.sql > /dev/null
+
 echo "\n"
 
 echo "DROPPING functions and triggers DONE"

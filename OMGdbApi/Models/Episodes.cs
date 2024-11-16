@@ -20,6 +20,9 @@ namespace OMGdbApi.Models
 
         public string? RunTime { get; set; }
 
+        [Column("poster")]
+        public string? Poster { get; set; }
+
         [Column("plot")]
 
         public string? Plot { get; set; }

@@ -20,23 +20,25 @@ namespace test.UserTest
             _testOutputHelper = testOutputHelper;
         }
 
-        readonly RequestClass request = new();
+        readonly RequestClassUser request = new();
 
         private UserSchema user = new UserSchema();
 
-        private void Create_User()
+        internal UserSchema Login()
+        {
+            var user = (UserSchema)RequestClassUser.BuildBodyUser();
+            var body = request.GetBearerToken(user);
+            return body;
+        }
+        internal void Create_User()
         {
             string url = "https://localhost/api/user/create";
             RestResponse response = request.PostFakeApiRequest(url);
-            var body = JsonSerializer.Deserialize<UserSchema>(response.Content!);
-            var user = (UserSchema)RequestClass.BuildBodyUser();
         }
 
-        private void Delet_User()
+        internal void Delet_User()
         {
-            var user = (UserSchema)RequestClass.BuildBodyUser();
-            user.Name = "testuser";
-            var body = request.GetBearerToken(user);
+            var body = Login();
 
             RestResponse response = request.DeleteFakeApiRequest(
                 body.Token!,
@@ -56,7 +58,7 @@ namespace test.UserTest
             var body = JsonSerializer.Deserialize<UserSchema>(response.Content!);
             Assert.NotNull(body);
 
-            var user = (UserSchema)RequestClass.BuildBodyUser();
+            var user = (UserSchema)RequestClassUser.BuildBodyUser();
             Assert.Equal(user.Name, body.Name);
             Assert.Equal(user.Email, body.Email);
             Assert.NotNull(body.Id);
@@ -65,7 +67,7 @@ namespace test.UserTest
 
 
             //delet user
-            user = (UserSchema)RequestClass.BuildBodyUser();
+            user = (UserSchema)RequestClassUser.BuildBodyUser();
             user.Name = "testuser_new";
             body = request.GetBearerToken(user);
             Assert.NotNull(body.Token);
@@ -100,9 +102,8 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
 
-            var body = request.GetBearerToken(user);
+            var body = Login();
             Assert.NotNull(body.Token);
 
             Assert.False(string.IsNullOrEmpty(body.Token));
@@ -119,7 +120,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
+            var user = (UserSchema)RequestClassUser.BuildBodyUser();
 
             user.Password = "alskjdfnbaslkjdfnsalkjn";
 
@@ -138,8 +139,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
-            var body = request.GetBearerToken(user);
+            var body = Login();
             Assert.NotNull(body.Token);
             RestResponse response = request.GetFakeApiRequest(
                 body.Token,
@@ -159,8 +159,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
-            var tokenBody = request.GetBearerToken(user);
+            var tokenBody = Login();
             Assert.NotNull(tokenBody.Token);
             RestResponse response = request.GetFakeApiRequest(
                 tokenBody.Token,
@@ -183,8 +182,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
-            var tokenBody = request.GetBearerToken(user);
+            var tokenBody = Login();
             Assert.NotNull(tokenBody.Token);
             RestResponse response = request.GetFakeApiRequest(
                 tokenBody.Token,
@@ -203,7 +201,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
+            var user = (UserSchema)RequestClassUser.BuildBodyUser();
             var tokenBody = request.GetBearerToken(user);
             Assert.NotNull(tokenBody.Token);
             Assert.NotNull(tokenBody.Id);
@@ -218,7 +216,7 @@ namespace test.UserTest
             Assert.Equal(user.Email, body.Email);
 
             //delet user
-            user = (UserSchema)RequestClass.BuildBodyUser();
+            user = (UserSchema)RequestClassUser.BuildBodyUser();
             user.Name = "testuser";
             body = request.GetBearerToken(user);
 
@@ -235,8 +233,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
-            var tokenBody = request.GetBearerToken(user);
+            var tokenBody = Login();
             Assert.NotNull(tokenBody.Token);
             RestResponse response = request.PutFakeApiRequestUser("invalid-id", tokenBody.Token);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -252,7 +249,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
+            var user = (UserSchema)RequestClassUser.BuildBodyUser();
             user.Name = "testuser_new";
             var body = request.GetBearerToken(user);
             Assert.NotNull(body.Token);
@@ -272,7 +269,7 @@ namespace test.UserTest
             Create_User();
 
             //test
-            var user = (UserSchema)RequestClass.BuildBodyUser();
+            var user = (UserSchema)RequestClassUser.BuildBodyUser();
             user.Name = "testuser_new";
             var body = request.GetBearerToken(user);
             Assert.NotNull(body.Token);

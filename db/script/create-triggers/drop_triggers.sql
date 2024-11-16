@@ -23,9 +23,9 @@ DROP FUNCTION IF EXISTS create_movie_type_after_insert CASCADE;
 DROP FUNCTION IF EXISTS create_movie_type_after_insert CASCADE;
 
 
-DROP FUNCTION IF EXISTS public.update_popularity_after_insert CASCADE;
+DROP FUNCTION IF EXISTS update_popularity_after_delet CASCADE;
 DROP TRIGGER IF EXISTS after_insert_recent_view ON public.recent_view;   
 
-DROP FUNCTION IF EXISTS public.update_popularity_after_insert CASCADE;
+DROP FUNCTION IF EXISTS update_popularity_after_insert CASCADE;
 
 DROP TRIGGER IF EXISTS after_delet_recent_view ON public.recent_view;

@@ -1,6 +1,20 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1@public
+-- Active: 1727253378954@@127.0.0.1@5532@portf_1
+
+
+SELECT *
+FROM public."episode"
+WHERE "episode_id" = 'tt0959621';
 
 -- test Function to create a user sequens. d1
+
+SELECT max(whatchlist)
+FROM public.user_movie_whatchlist
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
+
+SELECT max(whatchlist_order)
+FROM public.get_user_watchlist((SELECT "user_id" FROM public."user" LIMIT 1))
+WHERE title_type = 'movie';
+
 
 INSERT INTO
     public.user (username, password, salt, email)

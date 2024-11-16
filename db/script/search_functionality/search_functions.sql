@@ -37,15 +37,16 @@ CREATE OR REPLACE FUNCTION "public"."find_co_players"(actorname text)
     WITH actor_movies AS ( 
         SELECT actorcoplayers.movie_id 
         FROM public.actorcoplayers
-        WHERE actorcoplayers.name = actorname), 
-         count_actor AS ( 
-         SELECT actorcoplayers.person_id AS actor, 
-        actorcoplayers.name AS co_actor, 
-        COUNT(*) AS frequency 
-        FROM public.actorcoplayers 
-        JOIN actor_movies on actorcoplayers.movie_id = actor_movies.movie_id 
-        WHERE actorcoplayers.name != actorname 
-        GROUP BY actorcoplayers.person_id, actorcoplayers.name 
+        WHERE actorcoplayers.name = actorname
+        ), 
+        count_actor AS ( 
+            SELECT actorcoplayers.person_id AS actor, 
+            actorcoplayers.name AS co_actor, 
+            COUNT(*) AS frequency 
+            FROM public.actorcoplayers 
+            JOIN actor_movies on actorcoplayers.movie_id = actor_movies.movie_id 
+            WHERE actorcoplayers.name != actorname 
+            GROUP BY actorcoplayers.person_id, actorcoplayers.name 
          ) 
         SELECT  
         count_actor.actor, 

@@ -2,6 +2,7 @@ using OMGdbApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OMGdbApi.Models.Users;
+using OMGdbApi.Models.Users.Watchlist;
 namespace OMGdbApi.Models;
 
 public class OMGdbContext : DbContext
@@ -21,7 +22,13 @@ public class OMGdbContext : DbContext
     public DbSet<Series> Series { get; set; } = null!;
 
     public DbSet<Person> Person { get; set; } = null!;
-       
+
+    public DbSet<WatchlistEpisode> WatchlistEpisode { get; set; } = null!;   
+
+    public DbSet<WatchlistMovie> WatchlistMovie { get; set; } = null!;
+
+    public DbSet<WatchlistSeries> WatchlistSeries { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,6 +91,30 @@ public class OMGdbContext : DbContext
 
         modelBuilder.Entity<Person>()
             .HasIndex(b => b.Popularity);
+
+        //WatchlistEpisode
+        modelBuilder.Entity<WatchlistEpisode>()
+            .HasKey(b => new { b.UserId, b.EpisodeId });
+
+        modelBuilder.Entity<WatchlistEpisode>()
+            .Property(b => b.Watchlist_order)
+            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");
+
+        //WatchlistMovie
+        modelBuilder.Entity<WatchlistMovie>()
+            .HasKey(b => new { b.UserId, b.MovieId });
+
+        modelBuilder.Entity<WatchlistMovie>()
+            .Property(b => b.watchlist_order)
+            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");
+
+       //WatchlistSeries
+        modelBuilder.Entity<WatchlistSeries>()
+            .HasKey(b => new { b.UserId, b.SeriesId });
+
+        modelBuilder.Entity<WatchlistSeries>()
+            .Property(b => b.watchlist_order)
+            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");                      
     }
 
      

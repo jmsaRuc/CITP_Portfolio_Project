@@ -64,12 +64,25 @@ namespace OMGdbApi.Controllers
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<UserDTO>> GetUser(string id)
-        {
+        {   
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest();
+            }
+
+        
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
                 return NotFound();
+            }
+
+            var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (token_id != user.Id)
+            {
+                return Unauthorized();
             }
 
             return UserDTO(user);
@@ -80,8 +93,10 @@ namespace OMGdbApi.Controllers
         [HttpPut("{id}")]
         [Authorize]
         public async Task<ActionResult<UserDTO>> PutUser(string id, string name, string email)
-        {
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
+        {   
+            
+
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(id))
             {
                 return BadRequest();
             }
@@ -92,7 +107,15 @@ namespace OMGdbApi.Controllers
             if (user == null)
             {
                 return NotFound();
-            }    
+            } 
+
+            var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (token_id != user.Id)
+            {
+                return Unauthorized();
+            }
+
             user.Name = name;
             user.Email = email;
             
@@ -225,7 +248,7 @@ namespace OMGdbApi.Controllers
                 issuer: "OMGdbApi",
                 audience: "OMGdbApi",
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddMinutes(1440),
                 signingCredentials: creds
             );
 
@@ -243,11 +266,23 @@ namespace OMGdbApi.Controllers
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
-        {
+        {   
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest();
+            }
+
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
+            }
+
+            var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (token_id != user.Id)
+            {
+                return Unauthorized();
             }
 
             _context.Users.Remove(user);
@@ -268,7 +303,7 @@ namespace OMGdbApi.Controllers
                 Name = user.Name,
                 Email = user.Email,
                 Created_at = user.Created_at,
-            };
+            };   
 
     }
 }

@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace test.UserTest;
 
-public class RequestClass
+public class RequestClassUser
 {
 
      
@@ -44,6 +44,7 @@ public class RequestClass
 
         return restResponse;  
     }
+
 
     public RestResponse PutFakeApiRequestUser(string id, string token)
     {   
