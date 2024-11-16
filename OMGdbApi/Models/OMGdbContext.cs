@@ -105,7 +105,7 @@ public class OMGdbContext : DbContext
             .HasKey(b => new { b.UserId, b.MovieId });
 
         modelBuilder.Entity<WatchlistMovie>()
-            .Property(b => b.watchlist_order)
+            .Property(b => b.Watchlist_order)
             .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");
 
        //WatchlistSeries
@@ -113,7 +113,7 @@ public class OMGdbContext : DbContext
             .HasKey(b => new { b.UserId, b.SeriesId });
 
         modelBuilder.Entity<WatchlistSeries>()
-            .Property(b => b.watchlist_order)
+            .Property(b => b.Watchlist_order)
             .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");                      
     }
 

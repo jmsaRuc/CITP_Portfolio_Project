@@ -221,7 +221,7 @@ namespace test.UserTest
             body = request.GetBearerToken(user);
 
             response = request.DeleteFakeApiRequest(
-                body.Token,
+                body.Token!,
                 $"https://localhost/api/user/{body.Id}"
             );
         }

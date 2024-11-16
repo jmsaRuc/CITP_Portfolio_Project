@@ -1,5 +1,7 @@
 -- Active: 1727253378954@@127.0.0.1@5532@portf_1
 
+SELECT *
+FROM public.string_search ('the biG short');
 
 SELECT *
 FROM public."episode"

@@ -12,6 +12,6 @@ public class WatchlistMovie
     public string? MovieId { get; set; }
 
     [Column("watchlist")]
-    public long watchlist_order { get; set; }
+    public long? Watchlist_order { get; set; }
 
 }
