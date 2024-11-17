@@ -211,4 +211,4 @@ CREATE OR REPLACE TRIGGER after_delete_recent_view
     AFTER DELETE
     ON public.recent_view
     FOR EACH ROW
-    EXECUTE FUNCTION public.update_popularity_after_delet();
+    EXECUTE FUNCTION public.update_popularity_after_delet();   

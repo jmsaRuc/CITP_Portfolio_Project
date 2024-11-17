@@ -98,8 +98,7 @@ public class OMGdbContext : DbContext
         modelBuilder.Entity<WatchlistAll>(e=>
         {
             e.HasNoKey();
-        });
-            
+        });   
         
         //WatchlistEpisode
         modelBuilder.Entity<WatchlistEpisode>()

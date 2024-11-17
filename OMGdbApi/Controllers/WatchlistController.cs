@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using OMGdbApi.Models;
 using OMGdbApi.Models.Users.Watchlist;
 using OMGdbApi.Service;
-using System.Security.Claims;
-using Npgsql;
 
 namespace OMGdbApi.Controllers
 {
@@ -19,7 +19,7 @@ namespace OMGdbApi.Controllers
     public class WatchlistController : ControllerBase
     {
         private readonly OMGdbContext _context;
-        
+
         public WatchlistController(OMGdbContext context)
         {
             _context = context;
@@ -28,7 +28,12 @@ namespace OMGdbApi.Controllers
         // GET: api/user/{UserId}/watchlist
         [HttpGet("{UserId}/watchlist")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<WatchlistAll>>> GetWatchlist(string UserId){
+        public async Task<ActionResult<IEnumerable<WatchlistAll>>> GetWatchlist(
+            string UserId,
+            int? pageSize,
+            int? pageNumber
+        )
+        {
             if (UserId == null)
             {
                 return BadRequest("UserId is null");
@@ -40,35 +45,57 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
-            }   
-        
-            return await _context.WatchlistAll.FromSqlInterpolated($"SELECT * FROM get_user_watchlist({UserId})").ToListAsync();
+            }
+            if (pageSize == null || pageSize < 1 || pageSize > 1000)
+            {
+                pageSize = 10;
+            }
+            if (pageNumber == null || pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+            var totalRecords = await _context
+                .WatchlistAll.FromSqlInterpolated($"SELECT * FROM get_user_watchlist({UserId})")
+                .CountAsync();
+
+            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            {
+                pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+            }
+
+            return await _context
+                .WatchlistAll.FromSqlInterpolated($"SELECT * FROM get_user_watchlist({UserId})")
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .ToListAsync();
         }
 
-         ///////////////////////////////////////////////watchlist/episode///////////////////////////////////////////////
+        ///////////////////////////////////////////////watchlist/episode///////////////////////////////////////////////
 
         // GET: api/user/{UserId}/watchlist/episode/{EpisodeId}
         [HttpGet("{UserId}/watchlist/episode/{EpisodeId}")]
         [Authorize]
-        public async Task<ActionResult<WatchlistEpisode>> GetWatchlistEpisode(string UserId, string EpisodeId)
-        {   
+        public async Task<ActionResult<WatchlistEpisode>> GetWatchlistEpisode(
+            string UserId,
+            string EpisodeId
+        )
+        {
             if (UserId == null || EpisodeId == null)
             {
                 return BadRequest("UserId or EpisodeId is null");
             }
 
-            
             if (!UserExists(UserId))
             {
                 return BadRequest("User dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -93,15 +120,14 @@ namespace OMGdbApi.Controllers
 
         [HttpPost("watchlist/episode")]
         [Authorize]
-        public async Task<ActionResult<WatchlistEpisode>> PostWatchlistEpisode(WatchlistEpisode watchlistEpisode)
-        {   
-            
-
+        public async Task<ActionResult<WatchlistEpisode>> PostWatchlistEpisode(
+            WatchlistEpisode watchlistEpisode
+        )
+        {
             if (watchlistEpisode.UserId == null || watchlistEpisode.EpisodeId == null)
             {
                 return BadRequest("UserId or EpisodeId is null");
             }
-
 
             if (!UserExists(watchlistEpisode.UserId))
             {
@@ -109,7 +135,7 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != watchlistEpisode.UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -137,7 +163,11 @@ namespace OMGdbApi.Controllers
                 }
             }
 
-            return CreatedAtAction(nameof(GetWatchlistEpisode), new { watchlistEpisode.UserId, watchlistEpisode.EpisodeId }, watchlistEpisode);
+            return CreatedAtAction(
+                nameof(GetWatchlistEpisode),
+                new { watchlistEpisode.UserId, watchlistEpisode.EpisodeId },
+                watchlistEpisode
+            );
         }
 
         // DELETE: api/{UserId}/watchlist/episode/{EpisodeId}
@@ -156,7 +186,7 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -184,21 +214,23 @@ namespace OMGdbApi.Controllers
         // GET: api/user/{UserId}/watchlist/movie/{MovieId}¨
         [HttpGet("{UserId}/watchlist/movie/{MovieId}")]
         [Authorize]
-        public async Task<ActionResult<WatchlistMovie>> GetWatchlistMovie(string UserId, string MovieId)
-        {   
+        public async Task<ActionResult<WatchlistMovie>> GetWatchlistMovie(
+            string UserId,
+            string MovieId
+        )
+        {
             if (UserId == null || MovieId == null)
             {
                 return BadRequest("UserId or MovieId is null");
             }
 
-            
             if (!UserExists(UserId))
             {
                 return BadRequest("User dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -215,7 +247,6 @@ namespace OMGdbApi.Controllers
             {
                 return NotFound("Movie not in User watchlist");
             }
-           
 
             return watchlistMovie;
         }
@@ -223,15 +254,15 @@ namespace OMGdbApi.Controllers
         // POST: api/user/watchlist/movie
         [HttpPost("watchlist/movie")]
         [Authorize]
-        public async Task<ActionResult<WatchlistMovie>> PostWatchlistMovie(WatchlistMovie watchlistMovie)
-        {   
-                
+        public async Task<ActionResult<WatchlistMovie>> PostWatchlistMovie(
+            WatchlistMovie watchlistMovie
+        )
+        {
             if (watchlistMovie.UserId == null || watchlistMovie.MovieId == null)
             {
                 return BadRequest("UserId or MovieId is null");
             }
 
-        
             if (!UserExists(watchlistMovie.UserId))
             {
                 return BadRequest("User dose not exist");
@@ -266,7 +297,11 @@ namespace OMGdbApi.Controllers
                 }
             }
 
-            return CreatedAtAction(nameof(GetWatchlistMovie), new { watchlistMovie.UserId, watchlistMovie.MovieId }, watchlistMovie);
+            return CreatedAtAction(
+                nameof(GetWatchlistMovie),
+                new { watchlistMovie.UserId, watchlistMovie.MovieId },
+                watchlistMovie
+            );
         }
 
         // DELETE: api/{UserId}/watchlist/movie/{MovieId}
@@ -285,7 +320,7 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -309,25 +344,27 @@ namespace OMGdbApi.Controllers
         }
 
         ///////////////////////////////////////////////watchlist/series///////////////////////////////////////////////
-        
+
         // GET: api/user/{UserId}/watchlist/series/{SeriesId}
         [HttpGet("{UserId}/watchlist/series/{SeriesId}")]
         [Authorize]
-        public async Task<ActionResult<WatchlistSeries>> GetWatchlistSeries(string UserId, string SeriesId)
-        {   
+        public async Task<ActionResult<WatchlistSeries>> GetWatchlistSeries(
+            string UserId,
+            string SeriesId
+        )
+        {
             if (UserId == null || SeriesId == null)
             {
                 return BadRequest("UserId or SeriesId is null");
             }
 
-            
             if (!UserExists(UserId))
             {
                 return BadRequest("User dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -351,10 +388,10 @@ namespace OMGdbApi.Controllers
         // POST: api/user/watchlist/series
         [HttpPost("watchlist/series")]
         [Authorize]
-        public async Task<ActionResult<WatchlistSeries>> PostWatchlistSeries(WatchlistSeries watchlistSeries)
-        {   
-            
-
+        public async Task<ActionResult<WatchlistSeries>> PostWatchlistSeries(
+            WatchlistSeries watchlistSeries
+        )
+        {
             if (watchlistSeries.UserId == null || watchlistSeries.SeriesId == null)
             {
                 return BadRequest("UserId or SeriesId is null");
@@ -366,7 +403,7 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != watchlistSeries.UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -394,7 +431,11 @@ namespace OMGdbApi.Controllers
                 }
             }
 
-            return CreatedAtAction(nameof(GetWatchlistSeries), new { watchlistSeries.UserId, watchlistSeries.SeriesId }, watchlistSeries);
+            return CreatedAtAction(
+                nameof(GetWatchlistSeries),
+                new { watchlistSeries.UserId, watchlistSeries.SeriesId },
+                watchlistSeries
+            );
         }
 
         // DELETE: api/{UserId}/watchlist/series/{SeriesId}
@@ -413,7 +454,7 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
@@ -435,14 +476,17 @@ namespace OMGdbApi.Controllers
 
             return Ok("Series removed from User watchlist");
         }
-        
-        private bool UserExists(string  UserId)
+
+        private bool UserExists(string UserId)
         {
-            return _context.Users.Any(e => e.Id ==  UserId);
-        }    
+            return _context.Users.Any(e => e.Id == UserId);
+        }
+
         private bool WatchlistEpisodeExists(string UserId, string EpisodeId)
         {
-            return _context.WatchlistEpisode.Any(e => e.UserId == UserId && e.EpisodeId == EpisodeId);
+            return _context.WatchlistEpisode.Any(e =>
+                e.UserId == UserId && e.EpisodeId == EpisodeId
+            );
         }
 
         private bool EpisodeExists(string EpisodeId)
@@ -460,7 +504,7 @@ namespace OMGdbApi.Controllers
             return _context.Movie.Any(e => e.Id == MovieId);
         }
 
-         private bool WatchlistSeriesExists(string UserId, string MovieId)
+        private bool WatchlistSeriesExists(string UserId, string MovieId)
         {
             return _context.WatchlistMovie.Any(e => e.UserId == UserId && e.MovieId == MovieId);
         }
@@ -469,6 +513,5 @@ namespace OMGdbApi.Controllers
         {
             return _context.Series.Any(e => e.Id == MovieId);
         }
-
     }
 }

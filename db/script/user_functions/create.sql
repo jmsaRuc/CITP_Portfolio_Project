@@ -8,7 +8,7 @@
 
 CREATE OR REPLACE FUNCTION public.get_user_watchlist(user_id_v VARCHAR)
     RETURNS TABLE (title_id VARCHAR, title_type VARCHAR, title_of VARCHAR, 
-    poster_of VARCHAR, watchlist_order BIGINT) AS $$
+    poster_of VARCHAR, average_r NUMERIC, imdb_r NUMERIC, watchlist_order BIGINT) AS $$
 BEGIN
     RETURN QUERY
                 WITH
@@ -42,6 +42,8 @@ BEGIN
                     episode_id AS title_id_v,
                     title,
                     poster,
+                    average_rating,
+                    imdb_rating,
                     'episode'::varchar AS title_type_v
                 FROM episode
                 WHERE
@@ -54,6 +56,8 @@ BEGIN
                     series_id AS title_id_v,
                     title,
                     poster,
+                    average_rating,
+                    imdb_rating,
                     'series'::varchar AS title_type_v
                 FROM series
                 WHERE
@@ -66,6 +70,8 @@ BEGIN
                     movie_id AS title_id_v,
                     title,
                     poster,
+                    average_rating,
+                    imdb_rating,
                     'movie'::varchar AS title_type_v
                 FROM movie
                 WHERE
@@ -79,6 +85,8 @@ BEGIN
             title_type_v,
             title,
             poster,
+            average_rating,
+            imdb_rating,
             watchlist_order_v
         FROM
             combined_user_whatch

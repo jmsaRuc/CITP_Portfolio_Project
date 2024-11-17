@@ -500,4 +500,101 @@ public class WatchlistApiTest
         //delete user
         userApiTests.Delet_User();
     }
+
+    
+    //////////////////////////////////////////Test Watchlist get all//////////////////////////////////////////
+    ///
+    [Fact]
+    public void Test13_GetAllWatchlist()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser.Token);
+
+        //create watchlist series
+        string url = "https://localhost/api/user/watchlist/series";
+
+        var watchlistSeries = (WatchlistSeriesSchema)
+            RequestClassWatchlist.BuildBodySeries(bodyUser.Id!);
+
+        RestResponse restResponse = requestWatch.PostRestRequest(
+            bodyUser.Token!,
+            url,
+            watchlistSeries
+        );
+        _testOutputHelper.WriteLine(restResponse.Content!);
+
+        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var bodyWatchlistSeries = JsonSerializer.Deserialize<WatchlistSeriesSchema>(
+            restResponse.Content!
+        );
+        Assert.NotNull(bodyWatchlistSeries);
+        Assert.Equal(watchlistSeries.SeriesId, bodyWatchlistSeries.SeriesId);
+
+        //create watchlist movie
+        string urlMovie = "https://localhost/api/user/watchlist/movie";
+
+        var watchlistMovie = (WatchlistMovieSchema)
+            RequestClassWatchlist.BuildBodyMovie(bodyUser.Id!);
+        _testOutputHelper.WriteLine(watchlistMovie.MovieId);
+        RestResponse restResponseMovie = requestWatch.PostRestRequest(
+            bodyUser.Token!,
+            urlMovie,
+            watchlistMovie
+        );
+        _testOutputHelper.WriteLine(restResponseMovie.Content!);
+
+        Assert.Equal(HttpStatusCode.Created, restResponseMovie.StatusCode);
+        Assert.NotNull(restResponseMovie.Content);
+        var bodyWatchlistMovie = JsonSerializer.Deserialize<WatchlistMovieSchema>(
+            restResponseMovie.Content!
+        );
+        Assert.NotNull(bodyWatchlistMovie);
+        Assert.Equal(watchlistMovie.MovieId, bodyWatchlistMovie.MovieId);
+
+        //create watchlist episode
+        string urlEpisode = "https://localhost/api/user/watchlist/episode";
+
+        var watchlistEpisode = (WatchlistEpisodeSchema)
+            RequestClassWatchlist.BuildBodyEpisode(bodyUser.Id!);
+        _testOutputHelper.WriteLine(watchlistEpisode.EpisodeId);
+        RestResponse restResponseEpisode = requestWatch.PostRestRequest(
+            bodyUser.Token!,
+            urlEpisode,
+            watchlistEpisode
+        );
+        _testOutputHelper.WriteLine(restResponseEpisode.Content!);
+
+        Assert.Equal(HttpStatusCode.Created, restResponseEpisode.StatusCode);
+        Assert.NotNull(restResponseEpisode.Content);
+        var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
+            restResponseEpisode.Content!
+        );
+        Assert.NotNull(bodyWatchlistEpisode);
+        Assert.Equal(watchlistEpisode.EpisodeId, bodyWatchlistEpisode.EpisodeId);
+
+        //get all watchlist
+
+        string urlGetAll = $"https://localhost/api/user/{bodyUser.Id}/watchlist?pageSize=1&pageNumber=3";
+
+        var Authenticator = new JwtAuthenticator(bodyUser.Token!);
+        var options = new RestClientOptions(urlGetAll) {Authenticator = Authenticator};
+        RestClient client = new RestClient(options);
+
+        RestRequest restRequest = new RestRequest(urlGetAll, Method.Get);
+        RestResponse restResponseGetAll = client.Execute(restRequest);
+        _testOutputHelper.WriteLine(restResponseGetAll.Content!);
+
+        Assert.Equal(HttpStatusCode.OK, restResponseGetAll.StatusCode);
+        Assert.NotNull(restResponseGetAll.Content);
+        Assert.NotNull(watchlistEpisode.EpisodeId);
+        Assert.Contains(watchlistEpisode.EpisodeId, restResponseGetAll.Content);
+
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
+        userApiTests.Delet_User();
+    }
 }
