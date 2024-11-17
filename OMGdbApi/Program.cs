@@ -77,6 +77,10 @@ var Configuration = builder.Configuration;
 string connection =
     Environment.GetEnvironmentVariable("ASPNETCORE_ConnectionStrings_DefaultConnection")
     ?? string.Empty;
+if (string.IsNullOrEmpty(connection))
+{
+    throw new Exception("Connection string is not set");
+}    
 builder.Services.AddDbContext<OMGdbContext>(options => options.UseNpgsql(connection));
 
 var app = builder.Build();

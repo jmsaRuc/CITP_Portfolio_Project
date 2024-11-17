@@ -10,6 +10,7 @@ using OMGdbApi.Models;
 using OMGdbApi.Models.Users.Watchlist;
 using OMGdbApi.Service;
 using System.Security.Claims;
+using Npgsql;
 
 namespace OMGdbApi.Controllers
 {
@@ -22,6 +23,30 @@ namespace OMGdbApi.Controllers
         public WatchlistController(OMGdbContext context)
         {
             _context = context;
+        }
+
+        // GET: api/user/{UserId}/watchlist
+        [HttpGet("{UserId}/watchlist")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<WatchlistAll>>> GetWatchlist(string UserId){
+            if (UserId == null)
+            {
+                return BadRequest("UserId is null");
+            }
+
+            if (!UserExists(UserId))
+            {
+                return BadRequest("User dose not exist");
+            }
+
+            var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (token_id != UserId)
+            {
+                return Unauthorized("Unauthorized");
+            }   
+        
+            return await _context.WatchlistAll.FromSqlInterpolated($"SELECT * FROM get_user_watchlist({UserId})").ToListAsync();
         }
 
          ///////////////////////////////////////////////watchlist/episode///////////////////////////////////////////////
@@ -46,7 +71,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!EpisodeExists(EpisodeId))
@@ -87,7 +112,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != watchlistEpisode.UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!EpisodeExists(watchlistEpisode.EpisodeId))
@@ -122,7 +147,7 @@ namespace OMGdbApi.Controllers
         {
             if (UserId == null || EpisodeId == null)
             {
-                return BadRequest();
+                return BadRequest("UserId or EpisodeId is null");
             }
 
             if (!UserExists(UserId))
@@ -134,7 +159,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!EpisodeExists(EpisodeId))
@@ -176,7 +201,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!MovieExists(MovieId))
@@ -216,7 +241,7 @@ namespace OMGdbApi.Controllers
 
             if (token_id != watchlistMovie.UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!MovieExists(watchlistMovie.MovieId))
@@ -251,7 +276,7 @@ namespace OMGdbApi.Controllers
         {
             if (UserId == null || MovieId == null)
             {
-                return BadRequest();
+                return BadRequest("UserId or MovieId is null");
             }
 
             if (!UserExists(UserId))
@@ -263,7 +288,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!MovieExists(MovieId))
@@ -305,7 +330,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!SeriesExists(SeriesId))
@@ -344,7 +369,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != watchlistSeries.UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!SeriesExists(watchlistSeries.SeriesId))
@@ -379,7 +404,7 @@ namespace OMGdbApi.Controllers
         {
             if (UserId == null || SeriesId == null)
             {
-                return BadRequest();
+                return BadRequest("UserId or SeriesId is null");
             }
 
             if (!UserExists(UserId))
@@ -391,7 +416,7 @@ namespace OMGdbApi.Controllers
             
             if (token_id != UserId)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             if (!SeriesExists(SeriesId))

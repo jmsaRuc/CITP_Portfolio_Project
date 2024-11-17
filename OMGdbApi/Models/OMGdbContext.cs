@@ -23,6 +23,8 @@ public class OMGdbContext : DbContext
 
     public DbSet<Person> Person { get; set; } = null!;
 
+    public DbSet<WatchlistAll> WatchlistAll { get; set; } = null!;
+
     public DbSet<WatchlistEpisode> WatchlistEpisode { get; set; } = null!;   
 
     public DbSet<WatchlistMovie> WatchlistMovie { get; set; } = null!;
@@ -92,6 +94,13 @@ public class OMGdbContext : DbContext
         modelBuilder.Entity<Person>()
             .HasIndex(b => b.Popularity);
 
+        //WatchlistAll
+        modelBuilder.Entity<WatchlistAll>(e=>
+        {
+            e.HasNoKey();
+        });
+            
+        
         //WatchlistEpisode
         modelBuilder.Entity<WatchlistEpisode>()
             .HasKey(b => new { b.UserId, b.EpisodeId });
