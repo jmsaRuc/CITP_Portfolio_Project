@@ -153,7 +153,7 @@ CREATE OR REPLACE TRIGGER after_insert_recent_view
 
 -----------------------------popularity delet triggers-----------------------------
 
-CREATE OR REPLACE FUNCTION public.update_popularity_after_delet()
+CREATE OR REPLACE FUNCTION public.update_popularity_after_delete()
     RETURNS TRIGGER AS $$
 DECLARE
     what_type VARCHAR;
@@ -211,4 +211,156 @@ CREATE OR REPLACE TRIGGER after_delete_recent_view
     AFTER DELETE
     ON public.recent_view
     FOR EACH ROW
-    EXECUTE FUNCTION public.update_popularity_after_delet();   
+    EXECUTE FUNCTION public.update_popularity_after_delete();
+
+--------------------------------------------------- rating insert triggers ---------------------------------------------------
+
+-- movie
+
+CREATE OR REPLACE FUNCTION public.update_movie_average_rating_after_insert()
+    RETURNS TRIGGER AS $$
+DECLARE
+    rated_average numeric(5,1);
+BEGIN
+    SELECT avg(rating) INTO rated_average
+    FROM public.user_movie_rating
+    WHERE movie_id = NEW."movie_id";
+
+    UPDATE public.movie
+    SET average_rating = rated_average
+    WHERE "movie_id" = NEW."movie_id";
+    RETURN NEW;
+
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_insert_movie_rating
+    AFTER INSERT
+    ON public.user_movie_rating
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_movie_average_rating_after_insert();
+
+-- episode
+
+CREATE OR REPLACE FUNCTION public.update_episode_average_rating_after_insert()
+    RETURNS TRIGGER AS $$
+DECLARE
+    rated_average numeric(5,1);
+BEGIN
+    SELECT avg(rating) INTO rated_average
+    FROM public.user_episode_rating
+    WHERE episode_id = NEW."episode_id";
+
+    UPDATE public.episode
+    SET average_rating = rated_average
+    WHERE "episode_id" = NEW."episode_id";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_insert_episode_rating
+    AFTER INSERT
+    ON public.user_episode_rating
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_episode_average_rating_after_insert();
+
+-- series
+
+CREATE OR REPLACE FUNCTION public.update_series_average_rating_after_insert()
+    RETURNS TRIGGER AS $$
+DECLARE
+    rated_average numeric(5,1);
+BEGIN
+    SELECT avg(rating) INTO rated_average
+    FROM public.user_series_rating
+    WHERE series_id = NEW."series_id";
+
+    UPDATE public.series
+    SET average_rating = rated_average
+    WHERE "series_id" = NEW."series_id";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_insert_series_rating
+    AFTER INSERT
+    ON public.user_series_rating
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_series_average_rating_after_insert();
+
+
+
+--------------------------------------------------- rating insert triggers on delet ---------------------------------------------------    
+
+-- movie
+CREATE OR REPLACE FUNCTION public.update_movie_average_rating_after_delete()
+    RETURNS TRIGGER AS $$
+DECLARE
+    rated_average numeric(5,1);
+BEGIN
+    SELECT avg(rating) INTO rated_average
+    FROM public.user_movie_rating
+    WHERE movie_id = OLD."movie_id";
+    
+    UPDATE public.movie
+    SET average_rating = rated_average
+    WHERE "movie_id" = OLD."movie_id";
+    RETURN OLD;
+
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_delet_movie_rating
+    AFTER DELETE
+    ON public.user_movie_rating
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_movie_average_rating_after_delete();
+-- episode
+
+CREATE OR REPLACE FUNCTION public.update_episode_average_rating_after_delete()
+    RETURNS TRIGGER AS $$
+DECLARE
+    rated_average numeric(5,1);
+BEGIN
+    SELECT avg(rating) INTO rated_average
+    FROM public.user_episode_rating
+    WHERE episode_id = OLD."episode_id";
+
+    UPDATE public.episode
+    SET average_rating = rated_average
+    WHERE "episode_id" = OLD."episode_id";
+    RETURN OLD;
+
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_delet_episode_rating
+    AFTER DELETE
+    ON public.user_episode_rating
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_episode_average_rating_after_delete();
+
+-- series
+
+CREATE OR REPLACE FUNCTION public.update_series_average_rating_after_delete()
+    RETURNS TRIGGER AS $$
+DECLARE
+    rated_average numeric(5,1);
+BEGIN
+    SELECT avg(rating) INTO rated_average
+    FROM public.user_series_rating
+    WHERE series_id = OLD."series_id";
+
+    UPDATE public.series
+    SET average_rating = rated_average
+    WHERE "series_id" = OLD."series_id";
+    RETURN OLD;
+
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_delet_series_rating
+    AFTER DELETE
+    ON public.user_series_rating
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_series_average_rating_after_delete();

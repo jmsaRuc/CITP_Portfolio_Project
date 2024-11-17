@@ -1,4 +1,8 @@
 
+------- misc test queries -------
+SELECT *
+FROM public."movie"
+WHERE average_rating != NULL
 
 SELECT *
 FROM public.string_search ('the biG short');
@@ -7,7 +11,22 @@ SELECT *
 FROM public."episode"
 WHERE "episode_id" = 'tt0959621';
 
--- test Function to create a user sequens. d1
+-- test rating trigger
+SELECT  movie_id
+FROM public.user_movie_rating
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
+GROUP BY movie_id
+ORDER BY max(rating) DESC
+LIMIT 1;
+
+
+SELECT movie_id
+FROM public."movie"
+WHERE "movie_id" = 'tt0280079'
+GROUP BY movie_id 
+ORDER BY max(average_rating) DESC
+
+-- test get user watchlist
 
 SELECT max(watchlist)
 FROM public.user_movie_watchlist

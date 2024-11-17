@@ -11,7 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (36);
+SELECT pgtap.plan (42);
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -351,7 +351,7 @@ SELECT pgtap.ok (
         ) >= 6, 'episode watchlist test'
     );
 
--- test rating movie/series/episode
+-------------------------- test rating movie/series/episode
 
 INSERT INTO
     public.user_movie_rating ("user_id", movie_id, rating)
@@ -408,7 +408,7 @@ SELECT pgtap.ok (
         ) >= 5, 'movie rating test'
     );
 
-------------- delete user test ------------------------------
+--------------------------------------- delete user test -----------------------------------------
 
 DELETE FROM public."user" WHERE username = 'test_user';
 
@@ -469,6 +469,33 @@ SELECT pgtap.ok (
             FROM public.user_episode_rating
         ) = 0, 'episode rating deleted'
     );
+------------------------rating delet trigger test --------------------------------------------
+SELECT pgtap.is (
+        (
+            SELECT average_rating
+            FROM public.movie
+            WHERE
+                movie_id = 'tt18339924'
+        ), NULL, 'movie rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT average_rating
+            FROM public.series
+            WHERE
+                series_id = 't11437568'
+        ), NULL, 'series rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT average_rating
+            FROM public.episode
+            WHERE
+                episode_id = 'tt11437568'
+        ), NULL, 'episode rating trigger'
+    );    
 ------------------------------------------------------------------------------------------
 --multi user test
 ------------------------------------------------------------------------------------------
@@ -707,6 +734,133 @@ SELECT pgtap.ok (
             WHERE
                 title_type = 'movie'
         ), 'get_user_watchlist'
+    );
+
+SELECT movie_id
+FROM public.user_movie_rating
+WHERE
+    "user_id" = (
+        SELECT "user_id"
+        FROM public."user"
+        LIMIT 1
+    )
+GROUP BY
+    movie_id
+ORDER BY max(rating) DESC
+LIMIT 1;
+-----------------------------------test rating insert triggers when meny --------------------------------------------
+SELECT pgtap.is (
+        (
+            SELECT movie_id
+            FROM public.user_movie_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                movie_id
+            ORDER BY max(rating) DESC
+            LIMIT 1
+        ), (
+            SELECT movie_id
+            FROM public."movie"
+            WHERE
+                "movie_id" = (
+                    SELECT movie_id
+                    FROM public.user_movie_rating
+                    WHERE
+                        "user_id" = (
+                            SELECT "user_id"
+                            FROM public."user"
+                            LIMIT 1
+                        )
+                    GROUP BY
+                        movie_id
+                    ORDER BY max(rating) DESC
+                    LIMIT 1
+                )
+            GROUP BY
+                movie_id
+            ORDER BY max(average_rating) DESC
+        ), 'movie rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT series_id
+            FROM public.user_series_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                series_id
+            ORDER BY max(rating) DESC
+            LIMIT 1
+        ), (
+            SELECT series_id
+            FROM public."series"
+            WHERE
+                "series_id" = (
+                    SELECT series_id
+                    FROM public.user_series_rating
+                    WHERE
+                        "user_id" = (
+                            SELECT "user_id"
+                            FROM public."user"
+                            LIMIT 1
+                        )
+                    GROUP BY
+                        series_id
+                    ORDER BY max(rating) DESC
+                    LIMIT 1
+                )
+            GROUP BY
+                series_id
+            ORDER BY max(average_rating) DESC
+        ), 'series rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT episode_id
+            FROM public.user_episode_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                episode_id
+            ORDER BY max(rating) DESC
+            LIMIT 1
+        ), (
+            SELECT episode_id
+            FROM public."episode"
+            WHERE
+                "episode_id" = (
+                    SELECT episode_id
+                    FROM public.user_episode_rating
+                    WHERE
+                        "user_id" = (
+                            SELECT "user_id"
+                            FROM public."user"
+                            LIMIT 1
+                        )
+                    GROUP BY
+                        episode_id
+                    ORDER BY max(rating) DESC
+                    LIMIT 1
+                )
+            GROUP BY
+                episode_id
+            ORDER BY max(average_rating) DESC
+        ), 'episode rating trigger'
     );
 
 -- test type trigger --------------------------------------------
