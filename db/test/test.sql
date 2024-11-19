@@ -11,7 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (42);
+SELECT pgtap.plan (43);
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -495,7 +495,7 @@ SELECT pgtap.is (
             WHERE
                 episode_id = 'tt11437568'
         ), NULL, 'episode rating trigger'
-    );    
+    );
 ------------------------------------------------------------------------------------------
 --multi user test
 ------------------------------------------------------------------------------------------
@@ -735,19 +735,34 @@ SELECT pgtap.ok (
                 title_type = 'movie'
         ), 'get_user_watchlist'
     );
-
-SELECT movie_id
-FROM public.user_movie_rating
-WHERE
-    "user_id" = (
-        SELECT "user_id"
-        FROM public."user"
-        LIMIT 1
-    )
-GROUP BY
-    movie_id
-ORDER BY max(rating) DESC
-LIMIT 1;
+--- test get user rating -----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT movie_id
+            FROM public.user_movie_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            ORDER BY movie_id DESC
+            LIMIT 1
+        ), (
+            SELECT title_id
+            FROM public.get_user_rating (
+                    (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            WHERE
+                title_type = 'movie'
+            ORDER BY title_id DESC
+            LIMIT 1
+        ), 'get_user_rating'
+    );
 -----------------------------------test rating insert triggers when meny --------------------------------------------
 SELECT pgtap.is (
         (

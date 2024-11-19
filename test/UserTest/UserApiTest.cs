@@ -31,16 +31,21 @@ namespace test.UserTest
             return body;
         }
         internal void Create_User()
-        {
+        {   
+            Delet_User();
+
             string url = "https://localhost/api/user/create";
-            RestResponse response = request.PostFakeApiRequest(url);
+            request.PostFakeApiRequest(url);
         }
 
         internal void Delet_User()
         {
             var body = Login();
-
-            RestResponse response = request.DeleteFakeApiRequest(
+            if (body.Token == null)
+            {
+                return;
+            }
+            request.DeleteFakeApiRequest(
                 body.Token!,
                 $"https://localhost/api/user/{body.Id}"
             );
@@ -97,7 +102,7 @@ namespace test.UserTest
 
         [Fact]
         public void Test3_GetTokenValid()
-        {
+        {   
             //create user
             Create_User();
 
@@ -155,6 +160,7 @@ namespace test.UserTest
         [Fact]
         public void Test6_GetUserIdValid()
         {   
+
             //create user
             Create_User();
 
@@ -170,7 +176,7 @@ namespace test.UserTest
             var body = JsonSerializer.Deserialize<UserSchema>(response.Content!);
             Assert.NotNull(body);
             Assert.Equal(tokenBody.Id, body.Id);
-
+            
             //delet user
             Delet_User();
         }

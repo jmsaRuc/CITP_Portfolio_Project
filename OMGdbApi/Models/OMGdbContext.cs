@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OMGdbApi.Models.Users;
 using OMGdbApi.Models.Users.Watchlist;
+using OMGdbApi.Models.Users.Ratings;
+
 namespace OMGdbApi.Models;
 
 public class OMGdbContext : DbContext
@@ -30,6 +32,15 @@ public class OMGdbContext : DbContext
     public DbSet<WatchlistMovie> WatchlistMovie { get; set; } = null!;
 
     public DbSet<WatchlistSeries> WatchlistSeries { get; set; } = null!;
+
+    public DbSet<RatingALL> RatingALL { get; set; } = null!;
+
+    public DbSet<RatingEpisode> RatingEpisode { get; set; } = null!;
+
+    public DbSet<RatingMovie> RatingMovie { get; set; } = null!;
+
+    public DbSet<RatingSeries> RatingSeries { get; set; } = null!;
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -122,34 +133,24 @@ public class OMGdbContext : DbContext
 
         modelBuilder.Entity<WatchlistSeries>()
             .Property(b => b.Watchlist_order)
-            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");                      
+            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");
+
+       //RatingAll
+           modelBuilder.Entity<RatingALL>(e=>
+            {
+                e.HasNoKey();
+            });   
+    
+        //RatingEpisode
+        modelBuilder.Entity<RatingEpisode>()
+            .HasKey(b => new { b.UserId, b.EpisodeId });    
+
+        //RatingMovie
+        modelBuilder.Entity<RatingMovie>()
+            .HasKey(b => new { b.UserId, b.MovieId });
+
+        //RatingSeries
+        modelBuilder.Entity<RatingSeries>()
+            .HasKey(b => new { b.UserId, b.SeriesId });                           
     }
-
-     
-}  
-   // public async Task<bool> CreateUser(string name, byte[] password, string email)
-   // {
-   //     try {
-   //         await using var dataSource = Database.GetDbConnection();
-   //         await using var cmd = dataSource.CreateCommand();
-   //         cmd.CommandText = "SELECT create_user($1, $2, $3)";
-//
-   //         cmd.Parameters.Add(new NpgsqlParameter("1", name));
-   //         cmd.Parameters.Add(new NpgsqlParameter("2", password));
-   //         cmd.Parameters.Add(new NpgsqlParameter("3", email));
-//
-   //         await using var reader = await cmd.ExecuteReaderAsync();
-//
-   //         if (await reader.ReadAsync())
-   //         {
-   //             return reader.GetBoolean(0);
-   //         }
-//
-   //     } 
-   //     catch (Exception e)
-   //     {
-   //         Console.WriteLine(e);
-   //     }
-   //     return false;
-   // }
-
+} 

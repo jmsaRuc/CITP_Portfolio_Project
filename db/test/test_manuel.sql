@@ -1,4 +1,6 @@
 
+
+
 ------- misc test queries -------
 SELECT *
 FROM public."movie"
@@ -11,13 +13,22 @@ SELECT *
 FROM public."episode"
 WHERE "episode_id" = 'tt0959621';
 
--- test rating trigger
-SELECT  movie_id
+
+----test get user rating
+SELECT  movie_id, rating
 FROM public.user_movie_rating
 WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
-GROUP BY movie_id
-ORDER BY max(rating) DESC
+ORDER BY movie_id DESC
 LIMIT 1;
+
+SELECT title_id, user_rating
+FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
+WHERE title_type = 'movie'
+ORDER BY title_id DESC
+LIMIT 1;
+
+-- test rating trigger
+
 
 
 SELECT movie_id
