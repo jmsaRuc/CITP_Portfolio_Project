@@ -76,6 +76,16 @@ public class ValidateIDs
             return false;
         }
 
+        if (Id == "")
+        {
+            return false;
+        }
+
+        if (Id == null)
+        {
+            return false;
+        }
+
         if (Id != null && Id.Length > 10)
         {
             return false;

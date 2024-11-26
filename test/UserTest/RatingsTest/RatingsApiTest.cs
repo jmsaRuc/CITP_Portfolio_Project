@@ -7,11 +7,11 @@ using Xunit.Abstractions;
 namespace test.UserTest.RatingsTest;
 
 public class RatingsApiTest
-{   
+{
     private readonly ITestOutputHelper _testOutputHelper;
 
     private readonly UserApiTests userApiTests;
-    
+
     public RatingsApiTest(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
@@ -24,7 +24,7 @@ public class RatingsApiTest
 
     [Fact]
     public void Test1_CreateRatingEpisode()
-    {   
+    {
         //create user
         userApiTests.Create_User();
 
@@ -36,13 +36,13 @@ public class RatingsApiTest
 
         var ratingsEpisode = BuildBodyRatingEpisode(bodyUser.Id!);
 
-        var restResponse = request.PostRestRequest(url, ratingsEpisode, bodyUser.Token!);
+        var restResponse = request.PostRestRequest(url, ratingsEpisode, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
         var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
-            restResponse.Content!
+            restResponse.Content
         );
         Assert.NotNull(bodyWatchlistEpisode);
         Assert.Equal(ratingsEpisode.UserId, bodyWatchlistEpisode.UserId);
@@ -65,7 +65,7 @@ public class RatingsApiTest
 
         var ratingsEpisode = BuildBodyRatingEpisode(bodyUser.Id!, 0);
 
-        var restResponse = request.PostRestRequest(url, ratingsEpisode, bodyUser.Token!);
+        var restResponse = request.PostRestRequest(url, ratingsEpisode, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -91,15 +91,14 @@ public class RatingsApiTest
         Assert.NotNull(ratingsEpisode);
 
         //get rating episode
-        var url = $"https://localhost/api/user/{ratingsEpisode.UserId}/ratings/episode/{ratingsEpisode.EpisodeId}";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{ratingsEpisode.UserId}/ratings/episode/{ratingsEpisode.EpisodeId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(restResponse.Content);
         Assert.NotNull(body);
         Assert.Equal(ratingsEpisode.UserId, body.UserId);
         Assert.Equal(ratingsEpisode.EpisodeId, body.EpisodeId);
@@ -124,7 +123,7 @@ public class RatingsApiTest
 
         //get rating episode
         var url = $"https://localhost/api/user/{ratingsEpisode.UserId}/ratings/episode/tt11322924";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.NotFound, restResponse.StatusCode);
@@ -151,15 +150,14 @@ public class RatingsApiTest
 
         //update rating episode
         var ratingsEpisodeUpdate = BuildBodyRatingEpisode(bodyUser.Id!, 1);
-        var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/episode/{ratingsEpisode.EpisodeId}";
-        var restResponse = request.PutRestRequest(url, ratingsEpisodeUpdate, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{bodyUser.Id}/ratings/episode/{ratingsEpisode.EpisodeId}";
+        var restResponse = request.PutRestRequest(url, ratingsEpisodeUpdate, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(restResponse.Content);
         Assert.NotNull(body);
         Assert.Equal(ratingsEpisode.UserId, body.UserId);
         Assert.Equal(ratingsEpisode.EpisodeId, body.EpisodeId);
@@ -185,8 +183,9 @@ public class RatingsApiTest
 
         //update rating episode
         var ratingsEpisodeUpdate = BuildBodyRatingEpisode(bodyUser.Id!, 0);
-        var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/episode/{ratingsEpisode.EpisodeId}";
-        var restResponse = request.PutRestRequest(url, ratingsEpisodeUpdate, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{bodyUser.Id}/ratings/episode/{ratingsEpisode.EpisodeId}";
+        var restResponse = request.PutRestRequest(url, ratingsEpisodeUpdate, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -212,8 +211,9 @@ public class RatingsApiTest
         Assert.NotNull(ratingsEpisode);
 
         //delete rating episode
-        var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/episode/{ratingsEpisode.EpisodeId}";
-        var restResponse = request.DeleteRestRequest(url, ratingsEpisode, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{bodyUser.Id}/ratings/episode/{ratingsEpisode.EpisodeId}";
+        var restResponse = request.DeleteRestRequest(url, ratingsEpisode, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
@@ -240,7 +240,7 @@ public class RatingsApiTest
 
         //delete rating episode
         var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/episode/td11322924";
-        var restResponse = request.DeleteRestRequest(url, ratingsEpisode, bodyUser.Token!);
+        var restResponse = request.DeleteRestRequest(url, ratingsEpisode, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -252,10 +252,10 @@ public class RatingsApiTest
     }
 
     ///////////////////////////////////////////////////////////////////rating/movie///////////////////////////////////////////////////////////////////
-    
+
     [Fact]
     public void Test9_CreateRatingMovie()
-    {   
+    {
         //create user
         userApiTests.Create_User();
 
@@ -268,13 +268,13 @@ public class RatingsApiTest
 
         var ratingsMovie = BuildBodyRatingMovie(bodyUser.Id!);
 
-        var restResponse = request.PostRestRequest(url, ratingsMovie, bodyUser.Token!);
+        var restResponse = request.PostRestRequest(url, ratingsMovie, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
         var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
-            restResponse.Content!
+            restResponse.Content
         );
         Assert.NotNull(bodyWatchlistEpisode);
         Assert.Equal(ratingsMovie.UserId, bodyWatchlistEpisode.UserId);
@@ -298,7 +298,7 @@ public class RatingsApiTest
 
         var ratingsMovie = BuildBodyRatingMovie("æ", 3);
 
-        var restResponse = request.PostRestRequest(url, ratingsMovie, bodyUser.Token!);
+        var restResponse = request.PostRestRequest(url, ratingsMovie, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -324,15 +324,14 @@ public class RatingsApiTest
         Assert.NotNull(ratingsMovie);
 
         //get rating movie
-        var url = $"https://localhost/api/user/{ratingsMovie.UserId}/ratings/movie/{ratingsMovie.MovieId}";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{ratingsMovie.UserId}/ratings/movie/{ratingsMovie.MovieId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(restResponse.Content);
         Assert.NotNull(body);
         Assert.Equal(ratingsMovie.UserId, body.UserId);
         Assert.Equal(ratingsMovie.MovieId, body.MovieId);
@@ -358,7 +357,7 @@ public class RatingsApiTest
         //get rating movie
         string null_movieId = "''";
         var url = $"https://localhost/api/user/{ratingsMovie.UserId}/ratings/movie/{null_movieId}";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine("restResponse.Content: " + restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -386,14 +385,12 @@ public class RatingsApiTest
         //update rating movie
         var ratingsMovieUpdate = BuildBodyRatingMovie(bodyUser.Id!, 1);
         var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/movie/{ratingsMovie.MovieId}";
-        var restResponse = request.PutRestRequest(url, ratingsMovieUpdate, bodyUser.Token!);
+        var restResponse = request.PutRestRequest(url, ratingsMovieUpdate, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(restResponse.Content);
         Assert.NotNull(body);
         Assert.Equal(ratingsMovie.UserId, body.UserId);
         Assert.Equal(ratingsMovie.MovieId, body.MovieId);
@@ -420,8 +417,9 @@ public class RatingsApiTest
         //update rating movie
         string sql_injection = $"ur00OR1=1";
         var ratingsMovieUpdate = BuildBodyRatingMovie(bodyUser.Id!, 4);
-        var url = $"https://localhost/api/user/{sql_injection}/ratings/movie/{ratingsMovie.MovieId}";
-        var restResponse = request.PutRestRequest(url, ratingsMovieUpdate, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{sql_injection}/ratings/movie/{ratingsMovie.MovieId}";
+        var restResponse = request.PutRestRequest(url, ratingsMovieUpdate, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -448,7 +446,7 @@ public class RatingsApiTest
 
         //delete rating movie
         var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/movie/{ratingsMovie.MovieId}";
-        var restResponse = request.DeleteRestRequest(url, ratingsMovie, bodyUser.Token!);
+        var restResponse = request.DeleteRestRequest(url, ratingsMovie, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
@@ -465,8 +463,8 @@ public class RatingsApiTest
         //create user
         userApiTests.Create_User();
 
-        //create another user 
-        
+        //create another user
+
 
         //login user
         var bodyUser = userApiTests.Login();
@@ -477,7 +475,8 @@ public class RatingsApiTest
         Assert.NotNull(ratingsMovie);
 
         //delete rating movie
-        var url = $"https://localhost/api/user/{ratingsMovie.UserId}/ratings/movie/{ratingsMovie.MovieId}";
+        var url =
+            $"https://localhost/api/user/{ratingsMovie.UserId}/ratings/movie/{ratingsMovie.MovieId}";
         var fake_token = $"{bodyUser.Token}fake";
         var restResponse = request.DeleteRestRequest(url, ratingsMovie, fake_token);
         _testOutputHelper.WriteLine(restResponse.ErrorException?.Message);
@@ -487,12 +486,12 @@ public class RatingsApiTest
         //delete user wich deletes all ratings and watchlist
         userApiTests.Delet_User();
     }
-    
+
     ///////////////////////////////////////////////////////////////////rating/series//////////////////////////////////////////////////////////////////
-    
+
     [Fact]
     public void Test17_CreateRatingSeries()
-    {   
+    {
         //create user
         userApiTests.Create_User();
 
@@ -505,13 +504,13 @@ public class RatingsApiTest
 
         var ratingsSeries = BuildBodyRatingSeries(bodyUser.Id!);
 
-        var restResponse = request.PostRestRequest(url, ratingsSeries, bodyUser.Token!);
+        var restResponse = request.PostRestRequest(url, ratingsSeries, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
         var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
-            restResponse.Content!
+            restResponse.Content
         );
         Assert.NotNull(bodyWatchlistEpisode);
         Assert.Equal(ratingsSeries.UserId, bodyWatchlistEpisode.UserId);
@@ -535,7 +534,7 @@ public class RatingsApiTest
 
         var ratingsSeries = BuildBodyRatingSeries("", 3);
 
-        var restResponse = request.PostRestRequest(url, ratingsSeries, bodyUser.Token!);
+        var restResponse = request.PostRestRequest(url, ratingsSeries, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -561,15 +560,14 @@ public class RatingsApiTest
         Assert.NotNull(ratingsSeries);
 
         //get rating series
-        var url = $"https://localhost/api/user/{ratingsSeries.UserId}/ratings/series/{ratingsSeries.SeriesId}";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{ratingsSeries.UserId}/ratings/series/{ratingsSeries.SeriesId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(restResponse.Content);
         Assert.NotNull(body);
         Assert.Equal(ratingsSeries.UserId, body.UserId);
         Assert.Equal(ratingsSeries.SeriesId, body.SeriesId);
@@ -594,8 +592,9 @@ public class RatingsApiTest
 
         //get rating series
         string null_seriesId = "!@#$%^&*()";
-        var url = $"https://localhost/api/user/{ratingsSeries.UserId}/ratings/series/{null_seriesId}";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{ratingsSeries.UserId}/ratings/series/{null_seriesId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine("restResponse.Content: " + restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -622,15 +621,14 @@ public class RatingsApiTest
 
         //update rating series
         var ratingsSeriesUpdate = BuildBodyRatingSeries(bodyUser.Id!, 1);
-        var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/series/{ratingsSeries.SeriesId}";
-        var restResponse = request.PutRestRequest(url, ratingsSeriesUpdate, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{bodyUser.Id}/ratings/series/{ratingsSeries.SeriesId}";
+        var restResponse = request.PutRestRequest(url, ratingsSeriesUpdate, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(restResponse.Content);
         Assert.NotNull(body);
         Assert.Equal(ratingsSeries.UserId, body.UserId);
         Assert.Equal(ratingsSeries.SeriesId, body.SeriesId);
@@ -657,8 +655,9 @@ public class RatingsApiTest
         //update rating series
         var invalidUserId = "'; DROP TABLE Users; --";
         var ratingsSeriesUpdate = BuildBodyRatingSeries(bodyUser.Id!, 4);
-        var url = $"https://localhost/api/user/{invalidUserId}/ratings/series/{ratingsSeries.SeriesId}";
-        var restResponse = request.PutRestRequest(url, ratingsSeriesUpdate, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{invalidUserId}/ratings/series/{ratingsSeries.SeriesId}";
+        var restResponse = request.PutRestRequest(url, ratingsSeriesUpdate, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -684,8 +683,9 @@ public class RatingsApiTest
         Assert.NotNull(ratingsSeries);
 
         //delete rating series
-        var url = $"https://localhost/api/user/{bodyUser.Id}/ratings/series/{ratingsSeries.SeriesId}";
-        var restResponse = request.DeleteRestRequest(url, ratingsSeries, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{bodyUser.Id}/ratings/series/{ratingsSeries.SeriesId}";
+        var restResponse = request.DeleteRestRequest(url, ratingsSeries, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
@@ -702,8 +702,8 @@ public class RatingsApiTest
         //create user
         userApiTests.Create_User();
 
-        //create another user 
-        
+        //create another user
+
 
         //login user
         var bodyUser = userApiTests.Login();
@@ -716,8 +716,9 @@ public class RatingsApiTest
         //delete rating series
         var invalidSeriesId = new string('a', 1000); //Excessively Long String: String with 1000 'a's
 
-        var url = $"https://localhost/api/user/{ratingsSeries.UserId}/ratings/series/{invalidSeriesId}";
-        var restResponse = request.DeleteRestRequest(url, ratingsSeries, bodyUser.Token!);
+        var url =
+            $"https://localhost/api/user/{ratingsSeries.UserId}/ratings/series/{invalidSeriesId}";
+        var restResponse = request.DeleteRestRequest(url, ratingsSeries, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.ErrorException?.Message);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -729,7 +730,7 @@ public class RatingsApiTest
     }
 
     ///////////////////////////////////////////////////////////////////rating/"ALL"///////////////////////////////////////////////////////////////////
-    
+
     [Fact]
     public void Test25_GetAllRatings()
     {
@@ -754,7 +755,7 @@ public class RatingsApiTest
 
         //get all ratings
         var url = $"https://localhost/api/user/{bodyUser.Id}/ratings";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
@@ -779,7 +780,7 @@ public class RatingsApiTest
 
         //get all ratings
         var url = $"https://localhost/api/user/{bodyUser.Id}/ratings";
-        var restResponse = request.GetRestRequest(url, bodyUser.Token!);
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
@@ -794,17 +795,32 @@ public class RatingsApiTest
 
     internal static RatingsEpisodeSchema BuildBodyRatingEpisode(string userId, short rating = 5)
     {
-        return new RatingsEpisodeSchema { UserId = userId, EpisodeId = "tt0959621", Rating = rating};
+        return new RatingsEpisodeSchema
+        {
+            UserId = userId,
+            EpisodeId = "tt0959621",
+            Rating = rating,
+        };
     }
 
     internal static RatingsMovieSchema BuildBodyRatingMovie(string userId, short rating = 5)
     {
-        return new RatingsMovieSchema { UserId = userId, MovieId = "tt1596363", Rating = rating};
+        return new RatingsMovieSchema
+        {
+            UserId = userId,
+            MovieId = "tt1596363",
+            Rating = rating,
+        };
     }
 
     internal static RatingsSeriesSchema BuildBodyRatingSeries(string userId, short rating = 5)
     {
-        return new RatingsSeriesSchema { UserId = userId, SeriesId = "tt20877972", Rating = rating};
+        return new RatingsSeriesSchema
+        {
+            UserId = userId,
+            SeriesId = "tt20877972",
+            Rating = rating,
+        };
     }
 
     internal RatingsEpisodeSchema Create_RatingEpisode(UserSchema user)
@@ -815,9 +831,7 @@ public class RatingsApiTest
 
         var restResponse = request.PostRestRequest(url, ratingsEpisode, user.Token!);
 
-        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(restResponse.Content);
         return body!;
     }
 
@@ -829,9 +843,7 @@ public class RatingsApiTest
 
         var restResponse = request.PostRestRequest(url, ratingsMovie, user.Token!);
 
-        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(restResponse.Content);
         return body!;
     }
 
@@ -843,10 +855,7 @@ public class RatingsApiTest
 
         var restResponse = request.PostRestRequest(url, ratingsSeries, user.Token!);
 
-        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(
-            restResponse.Content!
-        );
+        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(restResponse.Content);
         return body!;
     }
-
 }

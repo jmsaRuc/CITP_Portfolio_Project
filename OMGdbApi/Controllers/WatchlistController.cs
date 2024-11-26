@@ -20,11 +20,17 @@ namespace OMGdbApi.Controllers
     {
         private readonly OMGdbContext _context;
 
-        public WatchlistController(OMGdbContext context)
+        private readonly ValidateIDs _validateIDs = new(); 
+
+        public WatchlistController(OMGdbContext context, ValidateIDs validateIDs)
         {
             _context = context;
+            
+            _validateIDs = validateIDs;
         }
 
+        ///////////////////////////////////////////////watchlist/"ALL"////////////////////////////////////////////////////////////////////////////
+        
         // GET: api/user/{UserId}/watchlist
         [HttpGet("{UserId}/watchlist")]
         [Authorize]
@@ -34,9 +40,9 @@ namespace OMGdbApi.Controllers
             int? pageNumber
         )
         {
-            if (UserId == null)
+            if (!_validateIDs.ValidateUserId(UserId))
             {
-                return BadRequest("UserId is null");
+                return BadRequest("Invalid UserId");
             }
 
             if (!UserExists(UserId))
@@ -84,9 +90,14 @@ namespace OMGdbApi.Controllers
             string EpisodeId
         )
         {
-            if (UserId == null || EpisodeId == null)
+            if (!_validateIDs.ValidateUserId(UserId))
             {
-                return BadRequest("UserId or EpisodeId is null");
+                return BadRequest("Invalid UserId");
+            }
+
+            if (!_validateIDs.ValidateTitleId(EpisodeId))
+            {
+                return BadRequest("Invalid EpisodeId");
             }
 
             if (!UserExists(UserId))
@@ -94,16 +105,16 @@ namespace OMGdbApi.Controllers
                 return BadRequest("User dose not exist");
             }
 
+            if (!EpisodeExists(EpisodeId))
+            {
+                return BadRequest("Episode dose not exist");
+            }
+
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
-            }
-
-            if (!EpisodeExists(EpisodeId))
-            {
-                return BadRequest("Episode dose not exist");
             }
 
             var watchlistEpisode = await _context.WatchlistEpisode.FindAsync(UserId, EpisodeId);
@@ -124,14 +135,24 @@ namespace OMGdbApi.Controllers
             WatchlistEpisode watchlistEpisode
         )
         {
-            if (watchlistEpisode.UserId == null || watchlistEpisode.EpisodeId == null)
+            if (!_validateIDs.ValidateUserId(watchlistEpisode.UserId))
             {
-                return BadRequest("UserId or EpisodeId is null");
+                return BadRequest("Invalid UserId");
             }
 
-            if (!UserExists(watchlistEpisode.UserId))
+            if (!_validateIDs.ValidateTitleId(watchlistEpisode.EpisodeId))
+            {
+                return BadRequest("Invalid EpisodeId");
+            }
+
+            if (!UserExists(watchlistEpisode.UserId!))
             {
                 return BadRequest("User dose not exist");
+            }
+
+            if (!EpisodeExists(watchlistEpisode.EpisodeId!))
+            {
+                return BadRequest("Episode dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -141,11 +162,6 @@ namespace OMGdbApi.Controllers
                 return Unauthorized("Unauthorized");
             }
 
-            if (!EpisodeExists(watchlistEpisode.EpisodeId))
-            {
-                return BadRequest("Episode dose not exist");
-            }
-
             _context.WatchlistEpisode.Add(watchlistEpisode);
             try
             {
@@ -153,7 +169,7 @@ namespace OMGdbApi.Controllers
             }
             catch (DbUpdateException)
             {
-                if (WatchlistEpisodeExists(watchlistEpisode.UserId, watchlistEpisode.EpisodeId))
+                if (WatchlistEpisodeExists(watchlistEpisode.UserId!, watchlistEpisode.EpisodeId!))
                 {
                     return Conflict("Episode already in User watchlist");
                 }
@@ -175,9 +191,14 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteWatchlistEpisode(string UserId, string EpisodeId)
         {
-            if (UserId == null || EpisodeId == null)
+            if (!_validateIDs.ValidateUserId(UserId))
             {
-                return BadRequest("UserId or EpisodeId is null");
+                return BadRequest("Invalid UserId");
+            }
+
+            if (!_validateIDs.ValidateTitleId(EpisodeId))
+            {
+                return BadRequest("Invalid EpisodeId");
             }
 
             if (!UserExists(UserId))
@@ -185,16 +206,16 @@ namespace OMGdbApi.Controllers
                 return BadRequest("User dose not exist");
             }
 
+            if (!EpisodeExists(EpisodeId))
+            {
+                return BadRequest("Episode dose not exist");
+            }
+
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
-            }
-
-            if (!EpisodeExists(EpisodeId))
-            {
-                return BadRequest("Episode dose not exist");
             }
 
             var watchlistEpisode = await _context.WatchlistEpisode.FindAsync(UserId, EpisodeId);
@@ -219,9 +240,14 @@ namespace OMGdbApi.Controllers
             string MovieId
         )
         {
-            if (UserId == null || MovieId == null)
+            if (!_validateIDs.ValidateUserId(UserId))
             {
-                return BadRequest("UserId or MovieId is null");
+                return BadRequest("Invalid UserId");
+            }
+
+            if (!_validateIDs.ValidateTitleId(MovieId))
+            {
+                return BadRequest("Invalid MovieId");
             }
 
             if (!UserExists(UserId))
@@ -229,16 +255,16 @@ namespace OMGdbApi.Controllers
                 return BadRequest("User dose not exist");
             }
 
+            if (!MovieExists(MovieId))
+            {
+                return BadRequest("Movie dose not exist");
+            }
+
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
-            }
-
-            if (!MovieExists(MovieId))
-            {
-                return BadRequest("Movie dose not exist");
             }
 
             var watchlistMovie = await _context.WatchlistMovie.FindAsync(UserId, MovieId);
@@ -258,14 +284,24 @@ namespace OMGdbApi.Controllers
             WatchlistMovie watchlistMovie
         )
         {
-            if (watchlistMovie.UserId == null || watchlistMovie.MovieId == null)
+            if (!_validateIDs.ValidateUserId(watchlistMovie.UserId))
             {
-                return BadRequest("UserId or MovieId is null");
+                return BadRequest("Invalid UserId");
             }
 
-            if (!UserExists(watchlistMovie.UserId))
+            if (!_validateIDs.ValidateTitleId(watchlistMovie.MovieId))
+            {
+                return BadRequest("Invalid MovieId");
+            }
+
+            if (!UserExists(watchlistMovie.UserId!))
             {
                 return BadRequest("User dose not exist");
+            }
+
+            if (!MovieExists(watchlistMovie.MovieId!))
+            {
+                return BadRequest("Movie dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -275,11 +311,6 @@ namespace OMGdbApi.Controllers
                 return Unauthorized("Unauthorized");
             }
 
-            if (!MovieExists(watchlistMovie.MovieId))
-            {
-                return BadRequest("Movie dose not exist");
-            }
-
             _context.WatchlistMovie.Add(watchlistMovie);
             try
             {
@@ -287,7 +318,7 @@ namespace OMGdbApi.Controllers
             }
             catch (DbUpdateException)
             {
-                if (WatchlistMovieExists(watchlistMovie.UserId, watchlistMovie.MovieId))
+                if (WatchlistMovieExists(watchlistMovie.UserId!, watchlistMovie.MovieId!))
                 {
                     return Conflict("Movie already in User watchlist");
                 }
@@ -309,9 +340,14 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteWatchlistMovie(string UserId, string MovieId)
         {
-            if (UserId == null || MovieId == null)
+            if (!_validateIDs.ValidateUserId(UserId))
             {
-                return BadRequest("UserId or MovieId is null");
+                return BadRequest("Invalid UserId");
+            }
+
+            if (!_validateIDs.ValidateTitleId(MovieId))
+            {
+                return BadRequest("Invalid MovieId");
             }
 
             if (!UserExists(UserId))
@@ -319,16 +355,16 @@ namespace OMGdbApi.Controllers
                 return BadRequest("User dose not exist");
             }
 
+            if (!MovieExists(MovieId))
+            {
+                return BadRequest("Movie dose not exist");
+            }
+
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
-            }
-
-            if (!MovieExists(MovieId))
-            {
-                return BadRequest("Movie dose not exist");
             }
 
             var watchlistMovie = await _context.WatchlistMovie.FindAsync(UserId, MovieId);
@@ -353,9 +389,14 @@ namespace OMGdbApi.Controllers
             string SeriesId
         )
         {
-            if (UserId == null || SeriesId == null)
+            if (!_validateIDs.ValidateUserId(UserId))
             {
-                return BadRequest("UserId or SeriesId is null");
+                return BadRequest("Invalid UserId");
+            }
+
+            if (!_validateIDs.ValidateTitleId(SeriesId))
+            {
+                return BadRequest("Invalid SeriesId");
             }
 
             if (!UserExists(UserId))
@@ -363,16 +404,16 @@ namespace OMGdbApi.Controllers
                 return BadRequest("User dose not exist");
             }
 
+            if (!SeriesExists(SeriesId))
+            {
+                return BadRequest("Series dose not exist");
+            }
+
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
-            }
-
-            if (!SeriesExists(SeriesId))
-            {
-                return BadRequest("Series dose not exist");
             }
 
             var watchlistSeries = await _context.WatchlistSeries.FindAsync(UserId, SeriesId);
@@ -392,14 +433,24 @@ namespace OMGdbApi.Controllers
             WatchlistSeries watchlistSeries
         )
         {
-            if (watchlistSeries.UserId == null || watchlistSeries.SeriesId == null)
+            if (!_validateIDs.ValidateUserId(watchlistSeries.UserId))
             {
-                return BadRequest("UserId or SeriesId is null");
+                return BadRequest("Invalid UserId");
             }
 
-            if (!UserExists(watchlistSeries.UserId))
+            if (!_validateIDs.ValidateTitleId(watchlistSeries.SeriesId))
+            {
+                return BadRequest("Invalid SeriesId");
+            }
+
+            if (!UserExists(watchlistSeries.UserId!))
             {
                 return BadRequest("User dose not exist");
+            }
+
+            if (!SeriesExists(watchlistSeries.SeriesId!))
+            {
+                return BadRequest("Series dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -409,11 +460,6 @@ namespace OMGdbApi.Controllers
                 return Unauthorized("Unauthorized");
             }
 
-            if (!SeriesExists(watchlistSeries.SeriesId))
-            {
-                return BadRequest("Series dose not exist");
-            }
-
             _context.WatchlistSeries.Add(watchlistSeries);
             try
             {
@@ -421,7 +467,7 @@ namespace OMGdbApi.Controllers
             }
             catch (DbUpdateException)
             {
-                if (WatchlistSeriesExists(watchlistSeries.UserId, watchlistSeries.SeriesId))
+                if (WatchlistSeriesExists(watchlistSeries.UserId!, watchlistSeries.SeriesId!))
                 {
                     return Conflict("Series already in User watchlist");
                 }
@@ -443,9 +489,15 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteWatchlistSeries(string UserId, string SeriesId)
         {
-            if (UserId == null || SeriesId == null)
+            
+            if (!_validateIDs.ValidateUserId(UserId))
             {
-                return BadRequest("UserId or SeriesId is null");
+                return BadRequest("Invalid UserId");
+            }
+
+            if (!_validateIDs.ValidateTitleId(SeriesId))
+            {
+                return BadRequest("Invalid SeriesId");
             }
 
             if (!UserExists(UserId))
@@ -453,16 +505,16 @@ namespace OMGdbApi.Controllers
                 return BadRequest("User dose not exist");
             }
 
+            if (!SeriesExists(SeriesId))
+            {
+                return BadRequest("Series dose not exist");
+            }
+
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (token_id != UserId)
             {
                 return Unauthorized("Unauthorized");
-            }
-
-            if (!SeriesExists(SeriesId))
-            {
-                return BadRequest("Series dose not exist");
             }
 
             var watchlistSeries = await _context.WatchlistSeries.FindAsync(UserId, SeriesId);

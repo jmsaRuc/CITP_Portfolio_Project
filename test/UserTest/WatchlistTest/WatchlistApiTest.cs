@@ -1,10 +1,9 @@
 using System.Net;
 using System.Text.Json;
+using OMGdbApi.Models.Users.Watchlist;
 using RestSharp;
 using RestSharp.Authenticators;
 using Xunit.Abstractions;
-using test.UserTest;
-
 namespace test.UserTest.WatchlistTest;
 
 public class WatchlistApiTest
@@ -21,7 +20,7 @@ public class WatchlistApiTest
 
     readonly RequestClass request = new();
 
-    //////////////////////////////////////////Test WatchlistEpisode//////////////////////////////////////////
+    ///////////////////////////////////////////////watchlist/episode///////////////////////////////////////////////
 
     [Fact]
     public void Test1_CreateWatchlistEpisode()
@@ -36,15 +35,15 @@ public class WatchlistApiTest
         //create watchlist episode
         string url = "https://localhost/api/user/watchlist/episode";
 
-        var watchlistEpisode = BuildBodyEpisode(bodyUser.Id!);
+        var watchlistEpisode = BuildBodyWatchlistEpisode(bodyUser.Id!);
 
-        RestResponse restResponse = request.PostRestRequest(url, watchlistEpisode, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
+        RestResponse restResponse = request.PostRestRequest(url, watchlistEpisode, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
         var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
-            restResponse.Content!
+            restResponse.Content
         );
         Assert.NotNull(bodyWatchlistEpisode);
         Assert.Equal(watchlistEpisode.EpisodeId, bodyWatchlistEpisode.EpisodeId);
@@ -66,19 +65,21 @@ public class WatchlistApiTest
         //create watchlist episode
         string url = "https://localhost/api/user/watchlist/episode";
 
-        var watchlistEpisode = BuildBodyEpisode("1231231231312312313"!);
+        var watchlistEpisode = BuildBodyWatchlistEpisode("1231231231312312313");
 
         RestResponse restResponse = request.PostRestRequest(url, watchlistEpisode, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
+        _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid UserId", restResponse.Content);
 
         //delete user
         userApiTests.Delet_User();
     }
 
     [Fact]
-    public void Test3_DeleteWatchlistEpisode()
+    public void Test3_GetWatchlistEpisode()
     {
         //create user
         userApiTests.Create_User();
@@ -87,39 +88,26 @@ public class WatchlistApiTest
         var bodyUser = userApiTests.Login();
 
         //create watchlist episode
-        string url = "https://localhost/api/user/watchlist/episode";
+        var watchlistEpisode = Create_WatchlistEpisode(bodyUser);
+        Assert.NotNull(watchlistEpisode);
 
-        var watchlistEpisode = BuildBodyEpisode(bodyUser.Id!);
+        //get watchlist episode
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/episode/{watchlistEpisode.EpisodeId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
 
-        RestResponse restResponse = request.PostRestRequest(url, watchlistEpisode, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistEpisode);
-        Assert.Equal(watchlistEpisode.EpisodeId, bodyWatchlistEpisode.EpisodeId);
-
-        //delete watchlist episode
-        string urlDelete =
-            $"https://localhost/api/user/{bodyUser.Id}/watchlist/episode/{bodyWatchlistEpisode.EpisodeId}";
-        RestResponse restResponseDelete = request.DeleteRestRequest(
-            urlDelete,
-            watchlistEpisode,
-            bodyUser.Token!
-        );
-        _testOutputHelper.WriteLine(restResponseDelete.Content!);
-
-        Assert.Equal(HttpStatusCode.OK, restResponseDelete.StatusCode);
-        Assert.NotNull(restResponseDelete.Content);
-        //delete user
+        var body = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(watchlistEpisode.EpisodeId, body.EpisodeId);
+        Assert.Equal(watchlistEpisode.UserId, body.UserId);
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
         userApiTests.Delet_User();
     }
 
     [Fact]
-    public void Test4_DeleteWatchlistEpisodeInvalid()
+    public void Test4_GetWatchlistEpisodeInvalid()
     {
         //create user
         userApiTests.Create_User();
@@ -128,408 +116,525 @@ public class WatchlistApiTest
         var bodyUser = userApiTests.Login();
 
         //create watchlist episode
-        string url = "https://localhost/api/user/watchlist/episode";
+        var watchlistEpisode = Create_WatchlistEpisode(bodyUser);
+        Assert.NotNull(watchlistEpisode);
 
-        var watchlistEpisode = BuildBodyEpisode(bodyUser.Id!);
-
-        RestResponse restResponse = request.PostRestRequest(url, watchlistEpisode, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
-        Assert.NotNull(restResponse.Content);
-        var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistEpisode);
-        Assert.Equal(watchlistEpisode.EpisodeId, bodyWatchlistEpisode.EpisodeId);
-
-        //delete watchlist episode
-        string urlDelete =
-            $"https://localhost/api/user/{bodyUser.Id}/watchlist/episode/123123123123123123";
-        RestResponse restResponseDelete = request.DeleteRestRequest(
-            urlDelete,
-            watchlistEpisode,
-            bodyUser.Token!
-        );
-        _testOutputHelper.WriteLine(restResponseDelete.Content!);
-
-        Assert.Equal(HttpStatusCode.BadRequest, restResponseDelete.StatusCode);
-        Assert.NotNull(restResponseDelete.Content);
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    //////////////////////////////////////////Test WatchlistMovie//////////////////////////////////////////
-
-    [Fact]
-    public void Test5_CreateWatchlistMovie()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-        Assert.NotNull(bodyUser.Token);
-
-        //create watchlist movie
-        string url = "https://localhost/api/user/watchlist/movie";
-
-        var watchlistMovie = BuildBodyMovie(bodyUser.Id!);
-        _testOutputHelper.WriteLine(watchlistMovie.MovieId);
-        RestResponse restResponse = request.PostRestRequest(url, watchlistMovie, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
-        Assert.NotNull(restResponse.Content);
-        var bodyWatchlistMovie = JsonSerializer.Deserialize<WatchlistMovieSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistMovie);
-        Assert.Equal(watchlistMovie.MovieId, bodyWatchlistMovie.MovieId);
-
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    [Fact]
-    public void Test6_CreateWatchlistMovieInvalid()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-        Assert.NotNull(bodyUser.Token);
-
-        //create watchlist movie
-        string url = "https://localhost/api/user/watchlist/movie";
-
-        var watchlistMovie = BuildBodyMovie("1231231231312312313"!);
-
-        RestResponse restResponse = request.PostRestRequest(url, watchlistMovie, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
+        //get watchlist episode
+        watchlistEpisode.EpisodeId = "%02%03";
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/episode/{watchlistEpisode.EpisodeId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.ErrorException!.Message);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
-
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    [Fact]
-    public void Test7_DeleteWatchlistMovie()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-
-        //create watchlist movie
-        string url = "https://localhost/api/user/watchlist/movie";
-
-        var watchlistMovie = BuildBodyMovie(bodyUser.Id!);
-
-        RestResponse restResponse = request.PostRestRequest(url, watchlistMovie, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var bodyWatchlistMovie = JsonSerializer.Deserialize<WatchlistMovieSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistMovie);
-        Assert.Equal(watchlistMovie.MovieId, bodyWatchlistMovie.MovieId);
+        Assert.Contains("Invalid EpisodeId", restResponse.Content);
 
-        //delete watchlist movie
-        string urlDelete =
-            $"https://localhost/api/user/{bodyUser.Id}/watchlist/movie/{bodyWatchlistMovie.MovieId}";
-        RestResponse restResponseDelete = request.DeleteRestRequest(
-            urlDelete,
-            watchlistMovie,
-            bodyUser.Token!
-        );
-        _testOutputHelper.WriteLine(restResponseDelete.Content!);
-
-        Assert.Equal(HttpStatusCode.OK, restResponseDelete.StatusCode);
-        Assert.NotNull(restResponseDelete.Content);
-        //delete user
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
         userApiTests.Delet_User();
     }
+    
 
     [Fact]
-    public void Test8_DeleteWatchlistMovieInvalid()
+    public void Test5_DeleteWatchlistEpisode()
     {
         //create user
         userApiTests.Create_User();
 
         //login
         var bodyUser = userApiTests.Login();
-
-        //create watchlist movie
-        string url = "https://localhost/api/user/watchlist/movie";
-
-        var watchlistMovie = (WatchlistMovieSchema)BuildBodyMovie(bodyUser.Id!);
-
-        RestResponse restResponse = request.PostRestRequest(url, watchlistMovie, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
-        Assert.NotNull(restResponse.Content);
-        var bodyWatchlistMovie = JsonSerializer.Deserialize<WatchlistMovieSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistMovie);
-        Assert.Equal(watchlistMovie.MovieId, bodyWatchlistMovie.MovieId);
-
-        //delete watchlist movie
-        string urlDelete =
-            $"https://localhost/api/user/{bodyUser.Id}/watchlist/movie/123123123123123123";
-        RestResponse restResponseDelete = request.DeleteRestRequest(
-            urlDelete,
-            watchlistMovie,
-            bodyUser.Token!
-        );
-        _testOutputHelper.WriteLine(restResponseDelete.Content!);
-
-        Assert.Equal(HttpStatusCode.BadRequest, restResponseDelete.StatusCode);
-        Assert.NotNull(restResponseDelete.Content);
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    //////////////////////////////////////////Test WatchlistSeries//////////////////////////////////////////
-
-
-    [Fact]
-    public void Test9_CreateWatchlistSeries()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-        Assert.NotNull(bodyUser.Token);
-
-        //create watchlist series
-        string url = "https://localhost/api/user/watchlist/series";
-
-        var watchlistSeries = (WatchlistSeriesSchema)BuildBodySeries(bodyUser.Id!);
-        _testOutputHelper.WriteLine(watchlistSeries.SeriesId);
-        RestResponse restResponse = request.PostRestRequest(url, watchlistSeries, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
-        Assert.NotNull(restResponse.Content);
-        var bodyWatchlistSeries = JsonSerializer.Deserialize<WatchlistSeriesSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistSeries);
-        Assert.Equal(watchlistSeries.SeriesId, bodyWatchlistSeries.SeriesId);
-
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    [Fact]
-    public void Test10_CreateWatchlistSeriesInvalid()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-        Assert.NotNull(bodyUser.Token);
-
-        //create watchlist series
-        string url = "https://localhost/api/user/watchlist/series";
-
-        var watchlistSeries = (WatchlistSeriesSchema)BuildBodySeries("1231231231312312313"!);
-
-        RestResponse restResponse = request.PostRestRequest(url, watchlistSeries, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
-
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    [Fact]
-    public void Test11_DeleteWatchlistSeries()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-
-        //create watchlist series
-        string url = "https://localhost/api/user/watchlist/series";
-
-        var watchlistSeries = (WatchlistSeriesSchema)BuildBodySeries(bodyUser.Id!);
-
-        RestResponse restResponse = request.PostRestRequest(url, watchlistSeries, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
-        Assert.NotNull(restResponse.Content);
-        var bodyWatchlistSeries = JsonSerializer.Deserialize<WatchlistSeriesSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistSeries);
-        Assert.Equal(watchlistSeries.SeriesId, bodyWatchlistSeries.SeriesId);
-
-        //delete watchlist series
-        string urlDelete =
-            $"https://localhost/api/user/{bodyUser.Id}/watchlist/series/{bodyWatchlistSeries.SeriesId}";
-        RestResponse restResponseDelete = request.DeleteRestRequest(
-            urlDelete,
-            watchlistSeries,
-            bodyUser.Token!
-        );
-        _testOutputHelper.WriteLine(restResponseDelete.Content!);
-
-        Assert.Equal(HttpStatusCode.OK, restResponseDelete.StatusCode);
-        Assert.NotNull(restResponseDelete.Content);
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    [Fact]
-    public void Test12_DeleteWatchlistSeriesInvalid()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-
-        //create watchlist series
-        string url = "https://localhost/api/user/watchlist/series";
-
-        var watchlistSeries = (WatchlistSeriesSchema)BuildBodySeries(bodyUser.Id!);
-
-        RestResponse restResponse = request.PostRestRequest(url, watchlistSeries, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
-        Assert.NotNull(restResponse.Content);
-        var bodyWatchlistSeries = JsonSerializer.Deserialize<WatchlistSeriesSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistSeries);
-        Assert.Equal(watchlistSeries.SeriesId, bodyWatchlistSeries.SeriesId);
-
-        //delete watchlist series
-        string urlDelete =
-            $"https://localhost/api/user/{bodyUser.Id}/watchlist/series/123123123123123123";
-        RestResponse restResponseDelete = request.DeleteRestRequest(
-            urlDelete,
-            watchlistSeries,
-            bodyUser.Token!
-        );
-        _testOutputHelper.WriteLine(restResponseDelete.Content!);
-
-        Assert.Equal(HttpStatusCode.BadRequest, restResponseDelete.StatusCode);
-        Assert.NotNull(restResponseDelete.Content);
-        //delete user
-        userApiTests.Delet_User();
-    }
-
-    //////////////////////////////////////////Test Watchlist get all//////////////////////////////////////////
-    ///
-    [Fact]
-    public void Test13_GetAllWatchlist()
-    {
-        //create user
-        userApiTests.Create_User();
-
-        //login
-        var bodyUser = userApiTests.Login();
-        Assert.NotNull(bodyUser.Token);
-
-        //create watchlist series
-        string urlSeries = "https://localhost/api/user/watchlist/series";
-
-        var watchlistSeries = (WatchlistSeriesSchema)BuildBodySeries(bodyUser.Id!);
-
-        RestResponse restResponse = request.PostRestRequest(urlSeries, watchlistSeries, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponse.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
-        Assert.NotNull(restResponse.Content);
-        var bodyWatchlistSeries = JsonSerializer.Deserialize<WatchlistSeriesSchema>(
-            restResponse.Content!
-        );
-        Assert.NotNull(bodyWatchlistSeries);
-        Assert.Equal(watchlistSeries.SeriesId, bodyWatchlistSeries.SeriesId);
-
-        //create watchlist movie
-        string urlMovie = "https://localhost/api/user/watchlist/movie";
-
-        var watchlistMovie = (WatchlistMovieSchema)BuildBodyMovie(bodyUser.Id!);
-        _testOutputHelper.WriteLine(watchlistMovie.MovieId);
-        RestResponse restResponseMovie = request.PostRestRequest(urlMovie, watchlistMovie, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponseMovie.Content!);
-
-        Assert.Equal(HttpStatusCode.Created, restResponseMovie.StatusCode);
-        Assert.NotNull(restResponseMovie.Content);
-        var bodyWatchlistMovie = JsonSerializer.Deserialize<WatchlistMovieSchema>(
-            restResponseMovie.Content!
-        );
-        Assert.NotNull(bodyWatchlistMovie);
-        Assert.Equal(watchlistMovie.MovieId, bodyWatchlistMovie.MovieId);
+        Assert.NotNull(bodyUser);
 
         //create watchlist episode
-        string urlEpisode = "https://localhost/api/user/watchlist/episode";
+        var watchlistEpisode = Create_WatchlistEpisode(bodyUser);
+        Assert.NotNull(watchlistEpisode);  
+  
+        //delete WatchlistEpisode
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/episode/{watchlistEpisode.EpisodeId}";
+        var restResponse = request.DeleteRestRequest(url, watchlistEpisode, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
 
-        var watchlistEpisode = BuildBodyEpisode(bodyUser.Id!);
-        _testOutputHelper.WriteLine(watchlistEpisode.EpisodeId);
-        RestResponse restResponseEpisode = request.PostRestRequest(urlEpisode, watchlistEpisode, bodyUser.Token!);
-        _testOutputHelper.WriteLine(restResponseEpisode.Content!);
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Episode removed from User watchlist", restResponse.Content);
 
-        Assert.Equal(HttpStatusCode.Created, restResponseEpisode.StatusCode);
-        Assert.NotNull(restResponseEpisode.Content);
-        var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
-            restResponseEpisode.Content!
+        
+        //delete user
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test6_DeleteWatchlistEpisodeInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist episode
+        var watchlistEpisode = Create_WatchlistEpisode(bodyUser);
+        Assert.NotNull(watchlistEpisode);
+
+        //delete WatchlistEpisode
+        var invalidUserId = "用户ID";
+        string url = $"https://localhost/api/user/{invalidUserId}/watchlist/episode/{watchlistEpisode.EpisodeId}";
+        var restResponse = request.DeleteRestRequest(url, watchlistEpisode, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid UserId", restResponse.Content);
+
+        //delete user
+        userApiTests.Delet_User();
+    }
+
+    //////////////////////////////////////////////////////////watchlist/movie//////////////////////////////////////////////////////////
+    
+    [Fact]
+    public void Test7_CreateWatchlistMovie()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser.Token);
+
+        //create watchlist movie
+        string url = "https://localhost/api/user/watchlist/movie";
+
+        var watchlistMovie = BuildBodyWatchlistMovie(bodyUser.Id!);
+
+        RestResponse restResponse = request.PostRestRequest(url, watchlistMovie, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var bodyWatchlistMovie = JsonSerializer.Deserialize<WatchlistMovieSchema>(
+            restResponse.Content
         );
-        Assert.NotNull(bodyWatchlistEpisode);
-        Assert.Equal(watchlistEpisode.EpisodeId, bodyWatchlistEpisode.EpisodeId);
+        Assert.NotNull(bodyWatchlistMovie);
+        Assert.Equal(watchlistMovie.MovieId, bodyWatchlistMovie.MovieId);
 
-        //get all watchlist
+        //delete user
+        userApiTests.Delet_User();
+    }
 
-        string urlGetAll =
-            $"https://localhost/api/user/{bodyUser.Id}/watchlist?pageSize=1&pageNumber=3";
+    [Fact]
+    public void Test8_CreateWatchlistMovieInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
 
-        var Authenticator = new JwtAuthenticator(bodyUser.Token!);
-        var options = new RestClientOptions(urlGetAll) { Authenticator = Authenticator };
-        RestClient client = new RestClient(options);
+        //login
+        var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser.Token);
 
-        RestRequest restRequest = new RestRequest(urlGetAll, Method.Get);
-        RestResponse restResponseGetAll = client.Execute(restRequest);
-        _testOutputHelper.WriteLine(restResponseGetAll.Content!);
+        //create watchlist movie
+        string url = "https://localhost/api/user/watchlist/movie";
 
-        Assert.Equal(HttpStatusCode.OK, restResponseGetAll.StatusCode);
-        Assert.NotNull(restResponseGetAll.Content);
-        Assert.NotNull(watchlistEpisode.EpisodeId);
-        Assert.Contains(watchlistEpisode.EpisodeId, restResponseGetAll.Content);
+         var invalidUserId = "{\"$ne\":null}";
+
+        var watchlistMovie = BuildBodyWatchlistMovie(invalidUserId);
+
+        RestResponse restResponse = request.PostRestRequest(url, watchlistMovie, bodyUser.Token!);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid UserId", restResponse.Content);
+
+        //delete user
+        userApiTests.Delet_User();
+    }
+    
+    [Fact]
+    public void Test9_GetWatchlistMovie()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist movie
+        var watchlistMovie = Create_WatchlistMovie(bodyUser);
+        Assert.NotNull(watchlistMovie);
+
+        //get watchlist movie
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/movie/{watchlistMovie.MovieId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<WatchlistMovieSchema>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(watchlistMovie.MovieId, body.MovieId);
+        Assert.Equal(watchlistMovie.UserId, body.UserId);
 
         //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
         userApiTests.Delet_User();
     }
 
-    private static WatchlistEpisodeSchema BuildBodyEpisode(string userId)
+    [Fact]
+    public void Test10_GetWatchlistMovieInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist movie
+        var watchlistMovie = Create_WatchlistMovie(bodyUser);
+        Assert.NotNull(watchlistMovie);
+
+        //get watchlist movie
+        var MovieId = "'%00%01%02'";
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/movie/{MovieId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.ErrorException!.Message);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test11_DeleteWatchlistMovie()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser);
+
+        //create watchlist movie
+        var watchlistMovie = Create_WatchlistMovie(bodyUser);
+        Assert.NotNull(watchlistMovie);  
+  
+        //delete WatchlistMovie
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/movie/{watchlistMovie.MovieId}";
+        var restResponse = request.DeleteRestRequest(url, watchlistMovie, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Movie removed from User watchlist", restResponse.Content);
+
+        
+        //delete user
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test12_DeleteWatchlistMovieInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist movie
+        var watchlistMovie = Create_WatchlistMovie(bodyUser);
+        Assert.NotNull(watchlistMovie);
+
+        //delete WatchlistMovie
+        var invalidEpisodeId = "tt11043522";
+        string url = $"https://localhost/api/user/{watchlistMovie.UserId}/watchlist/movie/{invalidEpisodeId}";
+        var restResponse = request.DeleteRestRequest(url, watchlistMovie, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.NotFound, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Movie not in User watchlist", restResponse.Content);
+
+        //delete user
+        userApiTests.Delet_User();
+    }
+
+    //////////////////////////////////////////////////////////watchlist/series//////////////////////////////////////////////////////////
+    
+    [Fact]
+    public void Test13_CreateWatchlistSeries()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser.Token);
+
+        //create watchlist series
+        string url = "https://localhost/api/user/watchlist/series";
+
+        var watchlistSeries = BuildBodyWatchlistSeries(bodyUser.Id!);
+
+        RestResponse restResponse = request.PostRestRequest(url, watchlistSeries, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var bodyWatchlistSeries = JsonSerializer.Deserialize<WatchlistSeriesSchema>(
+            restResponse.Content
+        );
+        Assert.NotNull(bodyWatchlistSeries);
+        Assert.Equal(watchlistSeries.SeriesId, bodyWatchlistSeries.SeriesId);
+
+        //delete user
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test14_CreateWatchlistSeriesInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser.Token);
+
+        //create watchlist series
+        string url = "https://localhost/api/user/watchlist/series";
+
+        var watchlistSeries = BuildBodyWatchlistSeries("1231231231312312313");
+
+        RestResponse restResponse = request.PostRestRequest(url, watchlistSeries, bodyUser.Token!);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid UserId", restResponse.Content);
+
+        //delete user
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test15_GetWatchlistSeries()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist series
+        var watchlistSeries = Create_WatchlistSeries(bodyUser);
+        Assert.NotNull(watchlistSeries);
+
+        //get watchlist series
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/series/{watchlistSeries.SeriesId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<WatchlistSeriesSchema>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(watchlistSeries.SeriesId, body.SeriesId);
+        Assert.Equal(watchlistSeries.UserId, body.UserId);
+
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test16_GetWatchlistSeriesInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist series
+        var watchlistSeries = Create_WatchlistSeries(bodyUser);
+        Assert.NotNull(watchlistSeries);
+
+        //get watchlist series
+        watchlistSeries.SeriesId = "%02%03";
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/series/{watchlistSeries.SeriesId}";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.ErrorException!.Message);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test17_DeleteWatchlistSeries()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser);
+
+        //create watchlist series
+        var watchlistSeries = Create_WatchlistSeries(bodyUser);
+        Assert.NotNull(watchlistSeries);  
+  
+        //delete WatchlistSeries
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist/series/{watchlistSeries.SeriesId}";
+        var restResponse = request.DeleteRestRequest(url, watchlistSeries, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Series removed from User watchlist", restResponse.Content);
+
+        
+        //delete user
+        userApiTests.Delet_User();
+    }
+
+    [Fact]
+    public void Test18_DeleteWatchlistSeriesInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist series
+        var watchlistSeries = Create_WatchlistSeries(bodyUser);
+        Assert.NotNull(watchlistSeries);
+
+        //delete WatchlistSeries
+        var invalidUserId = "tt11573284";
+        string url = $"https://localhost/api/user/{invalidUserId}/watchlist/series/{watchlistSeries.SeriesId}";
+        var restResponse = request.DeleteRestRequest(url, watchlistSeries, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid UserId", restResponse.Content);
+
+        //delete user
+        userApiTests.Delet_User();
+    }
+    
+    /////////////////////////////////////////////////////////////////watchlist/"ALL"///////////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test19_GetWatchlistAll()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //create watchlist episode
+        var watchlistEpisode = Create_WatchlistEpisode(bodyUser);
+        Assert.NotNull(watchlistEpisode);
+
+        //create watchlist movie
+        var watchlistMovie = Create_WatchlistMovie(bodyUser);
+        Assert.NotNull(watchlistMovie);
+
+        //create watchlist series
+        var watchlistSeries = Create_WatchlistSeries(bodyUser);
+        Assert.NotNull(watchlistSeries);
+
+        //get watchlist all
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains(watchlistEpisode.EpisodeId!, restResponse.Content);
+        Assert.Contains(watchlistMovie.MovieId!, restResponse.Content);
+        Assert.Contains(watchlistSeries.SeriesId!, restResponse.Content);
+
+
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
+        userApiTests.Delet_User();
+    }  
+
+    [Fact]
+    public void Test20_GetWatchlistAllInvalid()
+    {
+        //create user
+        userApiTests.Create_User();
+
+        //login
+        var bodyUser = userApiTests.Login();
+
+        //get watchlist all
+        string url = $"https://localhost/api/user/{bodyUser.Id}/watchlist";
+        var restResponse = request.GetRestRequest(url, bodyUser.Token);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.DoesNotContain("EpisodeId", restResponse.Content);
+        Assert.DoesNotContain("MovieId", restResponse.Content);
+        Assert.DoesNotContain("SeriesId", restResponse.Content);
+
+        //delete user and watchlist (when user is deleted, watchlist is deleted too because of cascade)
+        userApiTests.Delet_User();
+    }
+    private static WatchlistEpisodeSchema BuildBodyWatchlistEpisode(string userId)
     {
         return new WatchlistEpisodeSchema { UserId = userId, EpisodeId = "tt0959621" };
     }
 
-    public static WatchlistMovieSchema BuildBodyMovie(string userId)
+    public static WatchlistMovieSchema BuildBodyWatchlistMovie(string userId)
     {
         return new WatchlistMovieSchema { UserId = userId, MovieId = "tt1596363" };
     }
 
-    public static WatchlistSeriesSchema BuildBodySeries(string userId)
+    public static WatchlistSeriesSchema BuildBodyWatchlistSeries(string userId)
     {
         return new WatchlistSeriesSchema { UserId = userId, SeriesId = "tt20877972" };
+    }
+
+    internal WatchlistEpisodeSchema Create_WatchlistEpisode(UserSchema user)
+    {
+        var url = "https://localhost/api/user/watchlist/episode";
+
+        var watchlistEpisode = BuildBodyWatchlistEpisode(user.Id!);
+
+        var restResponse = request.PostRestRequest(url, watchlistEpisode, user.Token!);
+
+        var body = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(restResponse.Content!);
+        return body!;
+    }
+
+    internal WatchlistMovieSchema Create_WatchlistMovie(UserSchema user)
+    {
+        var url = "https://localhost/api/user/watchlist/movie";
+
+        var watchlistMovie = BuildBodyWatchlistMovie(user.Id!);
+
+        var restResponse = request.PostRestRequest(url, watchlistMovie, user.Token!);
+
+        var body = JsonSerializer.Deserialize<WatchlistMovieSchema>(restResponse.Content!);
+        return body!;
+    }
+
+    internal WatchlistSeriesSchema Create_WatchlistSeries(UserSchema user)
+    {
+        var url = "https://localhost/api/user/watchlist/series";
+
+        var watchlistSeries = BuildBodyWatchlistSeries(user.Id!);
+
+        var restResponse = request.PostRestRequest(url, watchlistSeries, user.Token!);
+
+        var body = JsonSerializer.Deserialize<WatchlistSeriesSchema>(restResponse.Content!);
+        return body!;
     }
 }

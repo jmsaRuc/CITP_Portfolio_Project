@@ -33,6 +33,7 @@ namespace OMGdbApi.Controllers
 
         ///////////////////////////////////////////////////////////////////rating/"ALL"///////////////////////////////////////////////////////////////////
 
+        // GET: api/user/{UserId}/ratings
         [HttpGet("{UserId}/ratings")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<RatingALL>>> GetRatings(
@@ -83,6 +84,7 @@ namespace OMGdbApi.Controllers
 
         ///////////////////////////////////////////////////////////////////rating/episode///////////////////////////////////////////////////////////////////
 
+        // GET: api/user/{UserId}/ratings/episode/{EpisodeId}
         [HttpGet("{UserId}/ratings/episode/{EpisodeId}")]
         [Authorize]
         public async Task<ActionResult<RatingEpisode>> GetRatingEpisode(
@@ -127,6 +129,7 @@ namespace OMGdbApi.Controllers
             return ratingEpisode;
         }
 
+        // POST: api/user/ratings/episode
         [HttpPost("ratings/episode")]
         [Authorize]
         public async Task<ActionResult<RatingEpisode>> PostRatingEpisode(
@@ -189,6 +192,7 @@ namespace OMGdbApi.Controllers
             );
         }
 
+        // PUT: api/user/{UserId}/ratings/episode/{EpisodeId}
         [HttpPut("{UserId}/ratings/episode/{EpisodeId}")]
         [Authorize]
         public async Task<ActionResult<RatingEpisode>> PutRatingEpisode(
@@ -248,6 +252,7 @@ namespace OMGdbApi.Controllers
             );
         }
 
+        // DELETE: api/user/{UserId}/ratings/episode/{EpisodeId}
         [HttpDelete("{UserId}/ratings/episode/{EpisodeId}")]
         [Authorize]
         public async Task<IActionResult> DeleteRatingEpisode(string UserId, string EpisodeId)
@@ -293,7 +298,8 @@ namespace OMGdbApi.Controllers
         }
 
         ///////////////////////////////////////////////////////////////////rating/movie///////////////////////////////////////////////////////////////////
-        ///
+        
+        // GET: api/user/{UserId}/ratings/movie/{MovieId}
         [HttpGet("{UserId}/ratings/movie/{MovieId}")]
         [Authorize]
         public async Task<ActionResult<RatingMovie>> GetRatingMovie(string UserId, string MovieId)
@@ -335,6 +341,7 @@ namespace OMGdbApi.Controllers
             return ratingMovie;
         }
 
+        // POST: api/user/ratings/movie
         [HttpPost("ratings/movie")]
         [Authorize]
         public async Task<ActionResult<RatingMovie>> PostRatingMovie(RatingMovie ratingMovie)
@@ -395,6 +402,7 @@ namespace OMGdbApi.Controllers
             );
         }
 
+        // PUT: api/user/{UserId}/ratings/movie/{MovieId}
         [HttpPut("{UserId}/ratings/movie/{MovieId}")]
         [Authorize]
         public async Task<ActionResult<RatingMovie>> PutRatingMovie(
@@ -454,6 +462,7 @@ namespace OMGdbApi.Controllers
             );
         }
 
+        // DELETE: api/user/{UserId}/ratings/movie/{MovieId}
         [HttpDelete("{UserId}/ratings/movie/{MovieId}")]
         [Authorize]
         public async Task<IActionResult> DeleteRatingMovie(string UserId, string MovieId)
@@ -499,8 +508,8 @@ namespace OMGdbApi.Controllers
         }
 
         ///////////////////////////////////////////////////////////////////rating/series///////////////////////////////////////////////////////////////////
-        ///
 
+        // GET: api/user/{UserId}/ratings/series/{SeriesId}
         [HttpGet("{UserId}/ratings/series/{SeriesId}")]
         [Authorize]
         public async Task<ActionResult<RatingSeries>> GetRatingSeries(
@@ -544,7 +553,8 @@ namespace OMGdbApi.Controllers
 
             return ratingSeries;
         }
-
+        
+        // POST: api/user/ratings/series
         [HttpPost("ratings/series")]
         [Authorize]
         public async Task<ActionResult<RatingSeries>> PostRatingSeries(RatingSeries ratingSeries)
@@ -605,6 +615,7 @@ namespace OMGdbApi.Controllers
             );
         }
 
+        // PUT: api/user/{UserId}/ratings/series/{SeriesId}
         [HttpPut("{UserId}/ratings/series/{SeriesId}")]
         [Authorize]
         public async Task<ActionResult<RatingSeries>> PutRatingSeries(
@@ -664,6 +675,7 @@ namespace OMGdbApi.Controllers
             );
         }
 
+        // DELETE: api/user/{UserId}/ratings/series/{SeriesId}
         [HttpDelete("{UserId}/ratings/series/{SeriesId}")]
         [Authorize]
         public async Task<IActionResult> DeleteRatingSeries(string UserId, string SeriesId)
