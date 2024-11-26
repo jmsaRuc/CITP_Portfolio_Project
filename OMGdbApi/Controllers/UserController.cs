@@ -20,7 +20,7 @@ namespace OMGdbApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly OMGdbContext _context;
-        private readonly Hashing _hasing = new Hashing();
+        private readonly Hashing _hasing = new();
 
         public UserController(OMGdbContext context, Hashing hasing)
         {

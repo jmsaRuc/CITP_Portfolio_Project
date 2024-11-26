@@ -22,8 +22,6 @@ namespace test.UserTest
 
         readonly RequestClassUser request = new();
 
-        private UserSchema user = new UserSchema();
-
         internal UserSchema Login()
         {
             var user = (UserSchema)RequestClassUser.BuildBodyUser();

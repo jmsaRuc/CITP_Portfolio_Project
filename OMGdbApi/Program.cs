@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton(new Hashing());
+builder.Services.AddSingleton(new ValidateIDs());
 var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
 if (string.IsNullOrEmpty(secret))
 {
