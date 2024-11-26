@@ -1,18 +1,31 @@
+-- Active: 1727253378954@@127.0.0.1@5532@portf_1
 
 
 
 ------- misc test queries -------
 SELECT *
 FROM public."movie"
-WHERE average_rating != NULL
+WHERE average_rating is not NULL and popularity > 0
+
 
 SELECT *
 FROM public.string_search ('the biG short');
 
 SELECT *
-FROM public."episode"
-WHERE "episode_id" = 'tt0959621';
+FROM public.episode
+WHERE episode_id = 'tt0959621';
 
+SELECT  episode_id , rating
+FROM public.user_episode_rating
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
+ORDER BY episode_id DESC
+LIMIT 1;
+
+SELECT *
+FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
+WHERE title_type = 'episode'
+ORDER BY title_id DESC
+LIMIT 1;
 
 ----test get user rating
 SELECT  movie_id, rating

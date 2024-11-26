@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace test.UserTest;
+namespace test.UserTest.RatingsTest;
 
-public class WatchlistEpisodeSchema
+public class RatingsEpisodeSchema
 {   
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
@@ -10,6 +10,7 @@ public class WatchlistEpisodeSchema
     [JsonPropertyName("episodeId")]
     public string? EpisodeId { get; set; }
 
-    [JsonPropertyName("watchlist_order")]
-    public long? Watchlist_order { get; set; }
+    [JsonPropertyName("rating")]
+    public short? Rating { get; set; }
+
 }

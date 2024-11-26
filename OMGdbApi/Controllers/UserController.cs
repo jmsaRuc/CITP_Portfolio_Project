@@ -98,7 +98,7 @@ namespace OMGdbApi.Controllers
 
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(id))
             {
-                return BadRequest();
+                return BadRequest("Name, email or id is null");
             }
 
             
@@ -106,27 +106,26 @@ namespace OMGdbApi.Controllers
 
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User not found");
             } 
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             
             if (token_id != user.Id)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             user.Name = name;
             user.Email = email;
             
-
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException) when (!UserExists(id))
             {
-               return NotFound();
+               return NotFound("User not found");
             }
 
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, UserDTO(user));
@@ -145,7 +144,7 @@ namespace OMGdbApi.Controllers
                 || string.IsNullOrEmpty(userCreate.Email)
             )
             {
-                return BadRequest();
+                return BadRequest("Name, password or email is null");
             }
 
             // Check if email already exists
@@ -175,7 +174,7 @@ namespace OMGdbApi.Controllers
             {
                 if (user.Id != null && UserExists(user.Id))
                 {
-                    return Conflict();
+                    return Conflict("User already exists.");
                 }
                 else
                 {

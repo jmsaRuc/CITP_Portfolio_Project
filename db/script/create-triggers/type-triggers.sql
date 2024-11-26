@@ -213,7 +213,7 @@ CREATE OR REPLACE TRIGGER after_delete_recent_view
     FOR EACH ROW
     EXECUTE FUNCTION public.update_popularity_after_delete();
 
---------------------------------------------------- rating insert triggers ---------------------------------------------------
+--------------------------------------------------- rating insert or update triggers ---------------------------------------------------
 
 -- movie
 
@@ -235,7 +235,7 @@ END;
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE TRIGGER after_insert_movie_rating
-    AFTER INSERT
+    AFTER INSERT OR UPDATE
     ON public.user_movie_rating
     FOR EACH ROW
     EXECUTE FUNCTION public.update_movie_average_rating_after_insert();
@@ -259,7 +259,7 @@ END;
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE TRIGGER after_insert_episode_rating
-    AFTER INSERT
+    AFTER INSERT OR UPDATE
     ON public.user_episode_rating
     FOR EACH ROW
     EXECUTE FUNCTION public.update_episode_average_rating_after_insert();
@@ -283,12 +283,10 @@ END;
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE TRIGGER after_insert_series_rating
-    AFTER INSERT
+    AFTER INSERT OR UPDATE 
     ON public.user_series_rating
     FOR EACH ROW
     EXECUTE FUNCTION public.update_series_average_rating_after_insert();
-
-
 
 --------------------------------------------------- rating insert triggers on delet ---------------------------------------------------    
 

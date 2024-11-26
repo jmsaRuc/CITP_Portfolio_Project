@@ -11,7 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (43);
+SELECT pgtap.plan (44);
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -405,7 +405,29 @@ SELECT pgtap.ok (
                         username = 'test_user'
                 )
                 AND movie_id = 'tt18339924'
-        ) >= 5, 'movie rating test'
+        ) = 5, 'movie rating test'
+    );
+
+---------------test rating update trigger ----------------------------   
+
+UPDATE public.user_movie_rating
+SET rating = 3
+WHERE
+    user_id = (
+        SELECT user_id
+        FROM public.user
+        WHERE
+            username = 'test_user'
+    )
+    AND movie_id = 'tt18339924';
+
+SELECT pgtap.ok (
+        (
+            SELECT average_rating
+            FROM public.movie
+            WHERE
+                movie_id = 'tt18339924'
+        ) = 3, 'movie rating trigger'
     );
 
 --------------------------------------- delete user test -----------------------------------------

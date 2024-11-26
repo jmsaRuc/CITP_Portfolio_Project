@@ -55,4 +55,3 @@ DROP FUNCTION IF EXISTS update_episode_average_rating_after_delete CASCADE;
 DROP TRIGGER IF EXISTS after_delete_series_rating ON public.user_series_rating;
 
 DROP FUNCTION IF EXISTS update_series_average_rating_after_delete CASCADE;
-

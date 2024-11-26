@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +5,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OMGdbApi.Models;
@@ -18,11 +18,11 @@ namespace OMGdbApi.Controllers
 {
     [Route("api/user/")]
     [ApiController]
-    public class RatingController : ControllerBase
-    {   
+    public class RatingsController : ControllerBase
+    {
         private readonly OMGdbContext _context;
 
-        public RatingController(OMGdbContext context)
+        public RatingsController(OMGdbContext context)
         {
             _context = context;
         }
@@ -60,7 +60,7 @@ namespace OMGdbApi.Controllers
                 pageNumber = 1;
             }
             var totalRecords = await _context
-                .RatingALL.FromSqlInterpolated($"SELECT * FROM get_user_watchlist({UserId})")
+                .RatingALL.FromSqlInterpolated($"SELECT * FROM get_user_rating({UserId})")
                 .CountAsync();
 
             if ((int)((pageNumber - 1) * pageSize) > totalRecords)
@@ -69,11 +69,13 @@ namespace OMGdbApi.Controllers
             }
 
             return await _context
-                .RatingALL.FromSqlInterpolated($"SELECT * FROM get_user_watchlist({UserId})")
+                .RatingALL.FromSqlInterpolated($"SELECT * FROM get_user_rating({UserId})")
                 .Skip((int)((pageNumber - 1) * pageSize))
                 .Take((int)pageSize)
                 .ToListAsync();
         }
+
+        ///////////////////////////////////////////////////////////////////rating/episode///////////////////////////////////////////////////////////////////
 
         [HttpGet("{UserId}/ratings/episode/{EpisodeId}")]
         [Authorize]
@@ -114,48 +116,65 @@ namespace OMGdbApi.Controllers
             return ratingEpisode;
         }
 
-        [HttpPost("{UserId}/ratings/episode/{EpisodeId}")]
+        [HttpPost("ratings/episode")]
         [Authorize]
         public async Task<ActionResult<RatingEpisode>> PostRatingEpisode(
-            string UserId,
-            string EpisodeId,
             RatingEpisode ratingEpisode
         )
         {
-            if (UserId == null || EpisodeId == null)
+            if (
+                string.IsNullOrEmpty(ratingEpisode.UserId)
+                || string.IsNullOrEmpty(ratingEpisode.EpisodeId)
+                || ratingEpisode.Rating == null
+            )
             {
-                return BadRequest("UserId or EpisodeId is null");
+                return BadRequest("UserId, EpisodeId or rating is null or empty");
             }
 
-            if (!UserExists(UserId))
+            if (ratingEpisode.Rating < 1 || ratingEpisode.Rating > 10)
+            {
+                return BadRequest("Rating must be between 1 and 10");
+            }
+
+            if (!UserExists(ratingEpisode.UserId))
             {
                 return BadRequest("User dose not exist");
             }
 
-            if (!EpisodeExists(EpisodeId))
+            if (!EpisodeExists(ratingEpisode.EpisodeId))
             {
                 return BadRequest("Episode dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (token_id != UserId)
+            if (token_id != ratingEpisode.UserId)
             {
                 return Unauthorized("Unauthorized");
             }
 
-            if (RatingEpisodeExists(UserId, EpisodeId))
+            _context.RatingEpisode.Add(ratingEpisode);
+            try
             {
-                return BadRequest("User has already rated this episode");
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (RatingEpisodeExists(ratingEpisode.UserId, ratingEpisode.EpisodeId))
+                {
+                    return Conflict("User has already rated this episode");
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            ratingEpisode.UserId = UserId;
-            ratingEpisode.EpisodeId = EpisodeId;
-
-            _context.RatingEpisode.Add(ratingEpisode);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetRatingEpisode", new { UserId = ratingEpisode.UserId, EpisodeId = ratingEpisode.EpisodeId }, ratingEpisode);
+            return CreatedAtAction(
+                nameof(GetRatingEpisode),
+                new { ratingEpisode.UserId, ratingEpisode.EpisodeId },
+                ratingEpisode
+            );
         }
 
         [HttpPut("{UserId}/ratings/episode/{EpisodeId}")]
@@ -166,19 +185,23 @@ namespace OMGdbApi.Controllers
             RatingEpisode ratingEpisode
         )
         {
-            if (UserId == null || EpisodeId == null)
+            if (
+                string.IsNullOrEmpty(ratingEpisode.UserId)
+                || string.IsNullOrEmpty(ratingEpisode.EpisodeId)
+                || ratingEpisode.Rating == null
+            )
             {
-                return BadRequest("UserId or EpisodeId is null");
+                return BadRequest("UserId, EpisodeId or rating is null or empty");
             }
 
-            if (!UserExists(UserId))
+            if (ratingEpisode.Rating < 1 || ratingEpisode.Rating > 10)
+            {
+                return BadRequest("Rating must be between 1 and 10");
+            }
+
+            if (!UserExists(ratingEpisode.UserId))
             {
                 return BadRequest("User dose not exist");
-            }
-
-            if (!EpisodeExists(EpisodeId))
-            {
-                return BadRequest("Episode dose not exist");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -188,33 +211,29 @@ namespace OMGdbApi.Controllers
                 return Unauthorized("Unauthorized");
             }
 
-            if (!RatingEpisodeExists(UserId, EpisodeId))
-            {
-                return NotFound("User has not rated this episode");
-            }
-
             _context.Entry(ratingEpisode).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException) when (!UserExists(UserId) || !EpisodeExists(EpisodeId))
+            catch (DbUpdateConcurrencyException) when (!RatingEpisodeExists(UserId, EpisodeId))
             {
                 return NotFound("User has not rated this episode");
             }
 
-            return Ok("Rating updated");
+            return CreatedAtAction(
+                nameof(GetRatingEpisode),
+                new { ratingEpisode.UserId, ratingEpisode.EpisodeId },
+                ratingEpisode
+            );
         }
 
         [HttpDelete("{UserId}/ratings/episode/{EpisodeId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteRatingEpisode(
-            string UserId,
-            string EpisodeId
-        )
+        public async Task<IActionResult> DeleteRatingEpisode(string UserId, string EpisodeId)
         {
-            if (UserId == null || EpisodeId == null)
+            if (string.IsNullOrEmpty(UserId) || string.IsNullOrEmpty(EpisodeId))
             {
                 return BadRequest("UserId or EpisodeId is null");
             }
@@ -283,7 +302,5 @@ namespace OMGdbApi.Controllers
         {
             return _context.Series.Any(e => e.Id == SeriesId);
         }
-
-
     }
 }
