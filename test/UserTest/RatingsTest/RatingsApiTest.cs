@@ -831,7 +831,7 @@ public class RatingsApiTest
 
         var restResponse = request.PostRestRequest(url, ratingsEpisode, user.Token!);
 
-        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(restResponse.Content);
+        var body = JsonSerializer.Deserialize<RatingsEpisodeSchema>(restResponse.Content!);
         return body!;
     }
 
@@ -843,7 +843,7 @@ public class RatingsApiTest
 
         var restResponse = request.PostRestRequest(url, ratingsMovie, user.Token!);
 
-        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(restResponse.Content);
+        var body = JsonSerializer.Deserialize<RatingsMovieSchema>(restResponse.Content!);
         return body!;
     }
 
@@ -855,7 +855,7 @@ public class RatingsApiTest
 
         var restResponse = request.PostRestRequest(url, ratingsSeries, user.Token!);
 
-        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(restResponse.Content);
+        var body = JsonSerializer.Deserialize<RatingsSeriesSchema>(restResponse.Content!);
         return body!;
     }
 }
