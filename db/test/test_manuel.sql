@@ -27,6 +27,19 @@ WHERE title_type = 'episode'
 ORDER BY title_id DESC
 LIMIT 1;
 
+----test get user recent view
+SELECT "type_id", max(view_ordering)
+FROM public.recent_view
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
+GROUP BY "type_id"
+ORDER BY max(view_ordering) DESC
+LIMIT 1;
+
+SELECT *
+FROM public.get_user_recent_view((SELECT "user_id" FROM public."user" LIMIT 1))
+ORDER BY view_order DESC
+LIMIT 1;
+
 ----test get user rating
 SELECT  movie_id, rating
 FROM public.user_movie_rating

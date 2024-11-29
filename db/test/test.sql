@@ -11,7 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (44);
+SELECT pgtap.plan (45);
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -408,10 +408,11 @@ SELECT pgtap.ok (
         ) = 5, 'movie rating test'
     );
 
----------------test rating update trigger ----------------------------   
+---------------test rating update trigger ----------------------------
 
 UPDATE public.user_movie_rating
-SET rating = 3
+SET
+    rating = 3
 WHERE
     user_id = (
         SELECT user_id
@@ -784,6 +785,34 @@ SELECT pgtap.is (
             ORDER BY title_id DESC
             LIMIT 1
         ), 'get_user_rating'
+    );
+-----------------------test get user recent view -----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT "type_id"
+            FROM public.recent_view
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                "type_id"
+            ORDER BY max(view_ordering) DESC
+            LIMIT 1
+        ), (
+            SELECT "type_id_of"
+            FROM public.get_user_recent_view (
+                    (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            ORDER BY view_order DESC
+            LIMIT 1
+        ), 'get_user_recent_view'
     );
 -----------------------------------test rating insert triggers when meny --------------------------------------------
 SELECT pgtap.is (

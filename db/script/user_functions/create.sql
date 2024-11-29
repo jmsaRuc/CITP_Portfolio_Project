@@ -186,3 +186,91 @@ BEGIN
         ORDER BY user_rating_v DESC; 
 END;
 $$ LANGUAGE plpgsql;
+
+--------------------------------------------------recent_view------------------------------------------------------------
+CREATE OR REPLACE FUNCTION Public.get_user_recent_view(user_id_v VARCHAR)
+    RETURNS TABLE (type_id_of VARCHAR, "type" VARCHAR, title_of VARCHAR, 
+    poster_of VARCHAR, average_r NUMERIC, imdb_r NUMERIC, view_order BIGINT) AS $$
+BEGIN
+    RETURN QUERY
+                WITH
+            recent_view_filtered AS (
+                SELECT
+                    "user_id",
+                    "type_id" as type_id_v,
+                    view_ordering
+                FROM recent_view
+                WHERE
+                    "user_id" = user_id_v
+            ),
+            combined_type AS (
+                SELECT
+                    episode_id AS type_id_v,
+                    title,
+                    poster,
+                    average_rating,
+                    imdb_rating,
+                    'episode'::varchar AS title_type_v
+                FROM episode
+                WHERE
+                    episode_id IN (
+                        SELECT type_id_v
+                        FROM recent_view_filtered 
+                    )
+                UNION ALL
+                SELECT
+                    series_id AS type_id_v,
+                    title,
+                    poster,
+                    average_rating,
+                    imdb_rating,
+                    'series'::varchar AS title_type_v
+                FROM series
+                WHERE
+                    series_id IN (
+                        SELECT type_id_v
+                        FROM recent_view_filtered 
+                    )
+                UNION ALL
+                SELECT
+                    movie_id AS type_id_v,
+                    title,
+                    poster,
+                    average_rating,
+                    imdb_rating,
+                    'movie'::varchar AS title_type_v
+                FROM movie
+                WHERE
+                    movie_id IN (
+                        SELECT type_id_v
+                        FROM recent_view_filtered
+                    )
+                UNION ALL
+                SELECT
+                    person_id AS type_id_v,
+                    "name" AS title,
+                    NULL AS poster,
+                    NULL AS average_rating,
+                    NULL AS imdb_rating,
+                    'person'::varchar AS title_type_v
+                FROM person
+                WHERE
+                    person_id IN (
+                        SELECT type_id_v
+                        FROM recent_view_filtered
+                    )
+            )
+        SELECT
+            type_id_v,
+            title_type_v,
+            title,
+            poster,
+            average_rating,
+            imdb_rating,
+            view_ordering
+        FROM
+            recent_view_filtered 
+            NATURAL JOIN combined_type
+        ORDER BY view_ordering DESC;
+END;
+$$ LANGUAGE plpgsql;
