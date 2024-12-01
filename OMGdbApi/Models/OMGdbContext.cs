@@ -4,6 +4,8 @@ using Npgsql;
 using OMGdbApi.Models.Users;
 using OMGdbApi.Models.Users.Watchlist;
 using OMGdbApi.Models.Users.Ratings;
+using OMGdbApi.Models.Users.Recent_View;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace OMGdbApi.Models;
 
@@ -40,6 +42,10 @@ public class OMGdbContext : DbContext
     public DbSet<RatingMovie> RatingMovie { get; set; } = null!;
 
     public DbSet<RatingSeries> RatingSeries { get; set; } = null!;
+
+    public DbSet<RecentViewAll> RecentViewAll { get; set; } = null!;
+
+    public DbSet<RecentView> RecentView { get; set; } = null!;
 
 
 
@@ -151,6 +157,28 @@ public class OMGdbContext : DbContext
 
         //RatingSeries
         modelBuilder.Entity<RatingSeries>()
-            .HasKey(b => new { b.UserId, b.SeriesId });                           
+            .HasKey(b => new { b.UserId, b.SeriesId });
+
+        //RecentViewAll
+        modelBuilder.Entity<RecentViewAll>(e=>
+        {
+            e.HasNoKey();
+        });
+
+        //RecentView
+        modelBuilder.Entity<RecentView>(e =>
+    {
+        e.HasKey(b => new { b.UserId, b.TypeId });
+
+        e.Property(b => b.ViewOrdering)
+        .HasColumnName("view_ordering")
+        .HasColumnType("bigint")
+        .ValueGeneratedOnAdd()
+        .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+                
+        e.Property(b => b.ViewOrdering)
+            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+    });
+                          
     }
 } 

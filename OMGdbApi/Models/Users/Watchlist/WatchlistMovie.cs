@@ -1,4 +1,4 @@
-using System;
+
 using System.ComponentModel.DataAnnotations.Schema;
 namespace OMGdbApi.Models.Users.Watchlist;
 
