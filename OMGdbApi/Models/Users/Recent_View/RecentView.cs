@@ -1,6 +1,5 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel;
 namespace OMGdbApi.Models.Users.Recent_View;
 
 [Table("recent_view")]

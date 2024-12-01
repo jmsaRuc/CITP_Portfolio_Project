@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace test.UserTest;
+namespace test.UserTest.WatchlistTest;
 
 public class WatchlistEpisodeSchema
 {   

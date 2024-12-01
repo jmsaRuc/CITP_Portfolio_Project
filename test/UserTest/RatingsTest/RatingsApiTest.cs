@@ -1,8 +1,7 @@
 using System.Net;
 using System.Text.Json;
-using RestSharp;
-using RestSharp.Authenticators;
 using Xunit.Abstractions;
+
 
 namespace test.UserTest.RatingsTest;
 
@@ -41,11 +40,11 @@ public class RatingsApiTest
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
+        var bodyRatingsEpisode = JsonSerializer.Deserialize<RatingsEpisodeSchema>(
             restResponse.Content
         );
-        Assert.NotNull(bodyWatchlistEpisode);
-        Assert.Equal(ratingsEpisode.UserId, bodyWatchlistEpisode.UserId);
+        Assert.NotNull(bodyRatingsEpisode);
+        Assert.Equal(ratingsEpisode.UserId, bodyRatingsEpisode.UserId);
 
         //delete user
         userApiTests.Delet_User();
@@ -273,11 +272,11 @@ public class RatingsApiTest
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
+        var bodyRatingsMovie = JsonSerializer.Deserialize<RatingsMovieSchema>(
             restResponse.Content
         );
-        Assert.NotNull(bodyWatchlistEpisode);
-        Assert.Equal(ratingsMovie.UserId, bodyWatchlistEpisode.UserId);
+        Assert.NotNull(bodyRatingsMovie);
+        Assert.Equal(ratingsMovie.UserId, bodyRatingsMovie.UserId);
 
         //delete user
         userApiTests.Delet_User();
@@ -509,11 +508,11 @@ public class RatingsApiTest
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var bodyWatchlistEpisode = JsonSerializer.Deserialize<WatchlistEpisodeSchema>(
+        var bodyRatingsSeries = JsonSerializer.Deserialize<RatingsSeriesSchema>(
             restResponse.Content
         );
-        Assert.NotNull(bodyWatchlistEpisode);
-        Assert.Equal(ratingsSeries.UserId, bodyWatchlistEpisode.UserId);
+        Assert.NotNull(bodyRatingsSeries);
+        Assert.Equal(ratingsSeries.UserId, bodyRatingsSeries.UserId);
 
         //delete user
         userApiTests.Delet_User();

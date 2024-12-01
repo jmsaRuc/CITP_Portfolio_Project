@@ -1,8 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using OMGdbApi.Models.Users.Watchlist;
 using RestSharp;
-using RestSharp.Authenticators;
 using Xunit.Abstractions;
 namespace test.UserTest.WatchlistTest;
 
@@ -86,6 +84,8 @@ public class WatchlistApiTest
 
         //login
         var bodyUser = userApiTests.Login();
+        Assert.NotNull(bodyUser.Token);
+        Assert.NotNull(bodyUser.Id);
 
         //create watchlist episode
         var watchlistEpisode = Create_WatchlistEpisode(bodyUser);
