@@ -55,6 +55,11 @@ namespace OMGdbApi.Controllers
 
             return episodes;
         }
+
+        private bool EpisodesExists(string id)
+        {
+            return _context.Episodes.Any(e => e.Id == id);
+        }
     }
 
 }  

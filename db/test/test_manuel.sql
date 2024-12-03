@@ -1,6 +1,78 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1@public
+-- Active: 1727253378954@@127.0.0.1@5532@portf_1
 
--- test Function to create a user sequens. d1
+
+
+------- misc test queries -------
+SELECT *
+FROM public."movie"
+WHERE average_rating is not NULL and popularity > 0
+
+
+SELECT *
+FROM public.string_search ('the biG short');
+
+SELECT *
+FROM public.episode
+WHERE episode_id = 'tt0959621';
+
+SELECT  episode_id , rating
+FROM public.user_episode_rating
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
+ORDER BY episode_id DESC
+LIMIT 1;
+
+SELECT *
+FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
+WHERE title_type = 'episode'
+ORDER BY title_id DESC
+LIMIT 1;
+
+----test get user recent view
+SELECT "type_id", max(view_ordering)
+FROM public.recent_view
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
+GROUP BY "type_id"
+ORDER BY max(view_ordering) DESC
+LIMIT 1;
+
+SELECT *
+FROM public.get_user_recent_view((SELECT "user_id" FROM public."user" LIMIT 1))
+ORDER BY view_order DESC
+LIMIT 1;
+
+----test get user rating
+SELECT  movie_id, rating
+FROM public.user_movie_rating
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1)
+ORDER BY movie_id DESC
+LIMIT 1;
+
+SELECT title_id, user_rating
+FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
+WHERE title_type = 'movie'
+ORDER BY title_id DESC
+LIMIT 1;
+
+-- test rating trigger
+
+
+
+SELECT movie_id
+FROM public."movie"
+WHERE "movie_id" = 'tt0280079'
+GROUP BY movie_id 
+ORDER BY max(average_rating) DESC
+
+-- test get user watchlist
+
+SELECT max(watchlist)
+FROM public.user_movie_watchlist
+WHERE "user_id" = (SELECT "user_id" FROM public."user" LIMIT 1);
+
+SELECT *
+FROM public.get_user_watchlist((SELECT "user_id" FROM public."user" LIMIT 1))
+WHERE title_type = 'movie';
+
 
 INSERT INTO
     public.user (username, password, salt, email)
@@ -57,59 +129,59 @@ WHERE
     type_id = 'tt18339924';
 
 
--- test whatchlist movie
+-- test watchlist movie
 INSERT INTO
-    public.user_movie_whatchlist ("user_id", movie_id)
+    public.user_movie_watchlist ("user_id", movie_id)
 VALUES ('ur00000004', 'tt18339924');
 
 
 
 INSERT INTO
-    public.user_movie_whatchlist ("user_id", movie_id)
+    public.user_movie_watchlist ("user_id", movie_id)
 VALUES ('ur00000004', 'tt21217874');
 
 
-SELECT whatchlist
-FROM public.user_movie_whatchlist
+SELECT watchlist
+FROM public.user_movie_watchlist
 WHERE
     user_id = 'ur00000004'
     AND
     movie_id = 'tt21217874';
 
 
--- test whatchlist series
+-- test watchlist series
 
 INSERT INTO
-    public.user_series_whatchlist ("user_id", series_id)
+    public.user_series_watchlist ("user_id", series_id)
 VALUES ('ur00000004', 'tt0903747');
 
 INSERT INTO
-    public.user_series_whatchlist ("user_id", series_id)
+    public.user_series_watchlist ("user_id", series_id)
 VALUES ('ur00000004', 'tt28638980');
 
--- should be higer then select movie_whatchlist
-SELECT whatchlist
-FROM public.user_series_whatchlist
+-- should be higer then select movie_watchlist
+SELECT watchlist
+FROM public.user_series_watchlist
 WHERE
     user_id = 'ur00000004'
     AND
     series_id = 'tt28638980';
 
 
--- test whatchlist episode
+-- test watchlist episode
 
 INSERT INTO
-    public.user_episode_whatchlist ("user_id", episode_id)
+    public.user_episode_watchlist ("user_id", episode_id)
 VALUES ('ur00000004', 'tt11437568');
 
 INSERT INTO
-    public.user_episode_whatchlist ("user_id", episode_id)
+    public.user_episode_watchlist ("user_id", episode_id)
 VALUES ('ur00000004', 'tt11576414');
 
--- should be higher then select series_whatchlist
+-- should be higher then select series_watchlist
 
-SELECT whatchlist
-FROM public.user_episode_whatchlist
+SELECT watchlist
+FROM public.user_episode_watchlist
 WHERE
     user_id = 'ur00000004'
     AND
@@ -200,7 +272,7 @@ BEGIN
 
         -- Insert 10 user_movie_interactions
         FOR j IN 1..10 LOOP
-            INSERT INTO public.user_movie_interaction (user_id, movie_id, rating, whatchlist) 
+            INSERT INTO public.user_movie_interaction (user_id, movie_id, rating, watchlist) 
             VALUES (
                 new_user_id,
                 movie_ids[(random() * array_length(movie_ids, 1) + 1)::int],
@@ -208,12 +280,12 @@ BEGIN
                 (random() * 10 + 1)::int
             ) ON CONFLICT (user_id, movie_id) DO UPDATE SET
                 rating = EXCLUDED.rating,
-                whatchlist = EXCLUDED.whatchlist;
+                watchlist = EXCLUDED.watchlist;
         END LOOP;
 
         -- Insert 10 user_series_interactions
         FOR j IN 1..10 LOOP
-            INSERT INTO public.user_series_interaction (user_id, series_id, rating, whatchlist)
+            INSERT INTO public.user_series_interaction (user_id, series_id, rating, watchlist)
             VALUES (
                 new_user_id,
                 series_ids[(random() * array_length(series_ids, 1) + 1)::int],
@@ -221,12 +293,12 @@ BEGIN
                 (random() * 10 + 1)::int
             ) ON CONFLICT (user_id, series_id) DO UPDATE SET
                 rating = EXCLUDED.rating,
-                whatchlist = EXCLUDED.whatchlist;
+                watchlist = EXCLUDED.watchlist;
         END LOOP;
 
         -- Insert 10 user_episode_interactions
         FOR j IN 1..10 LOOP
-            INSERT INTO public.user_episode_interaction (user_id, episode_id, rating, whatchlist)
+            INSERT INTO public.user_episode_interaction (user_id, episode_id, rating, watchlist)
              VALUES (
                 new_user_id,
                 episode_ids[(random() * array_length(episode_ids, 1) + 1)::int],
@@ -234,7 +306,7 @@ BEGIN
                 (random() * 10 + 1)::int
             ) ON CONFLICT (user_id, episode_id) DO UPDATE SET
                 rating = EXCLUDED.rating,
-                whatchlist = EXCLUDED.whatchlist; 
+                watchlist = EXCLUDED.watchlist; 
         END LOOP;
 
         -- Insert 10 recent_views
@@ -251,7 +323,7 @@ BEGIN
 END $$ LANGUAGE plpgsql;
 
 
-SELECT * FROM public.user_episode_whatchlist where user_id = 'ur00002833';
+SELECT * FROM public.user_episode_watchlist where user_id = 'ur00002833';
 -----test duymmy users
 SELECT * FROM public.user LIMIT 5;
 
@@ -356,27 +428,27 @@ SELECT public.create_user (
         'test_user', sha256('foo'::bytea), 'test_user@gmail.com'
     );
 
-SELECT new_whatchlist_movie ('ur00000101', 'tt32459823');
+SELECT new_watchlist_movie ('ur00000101', 'tt32459823');
 
-SELECT new_whatchlist_movie ('ur00000101', 'tt1596363');
+SELECT new_watchlist_movie ('ur00000101', 'tt1596363');
 
 SELECT *
 FROM public.user_movie_interaction
 WHERE
     user_id = 'ur00000101';
 
-SELECT new_whatchlist_series ('ur00000101', 'tt0903747');
+SELECT new_watchlist_series ('ur00000101', 'tt0903747');
 
-SELECT new_whatchlist_series ('ur00000101', 'tt4574334');
+SELECT new_watchlist_series ('ur00000101', 'tt4574334');
 
 SELECT *
 FROM public.user_series_interaction
 WHERE
     user_id = 'ur00000101';
 
-SELECT new_whatchlist_episode ('ur00000101', 'tt0959621');
+SELECT new_watchlist_episode ('ur00000101', 'tt0959621');
 
-SELECT new_whatchlist_episode ('ur00000101', 'tt4593118');
+SELECT new_watchlist_episode ('ur00000101', 'tt4593118');
 
 SELECT *
 FROM public.user_episode_interaction

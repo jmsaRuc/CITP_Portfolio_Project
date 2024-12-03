@@ -1,7 +1,10 @@
 -- Active: 1727253378954@@127.0.0.1@5532@portf_1
+
 ------------------------------------------------------------------------------------------
 --multi user test
 ------------------------------------------------------------------------------------------
+
+
 DO $$
 BEGIN
     FOR i IN 1..100 LOOP
@@ -33,9 +36,9 @@ BEGIN
     FOR i IN 1..100 LOOP
         new_user_id := (SELECT "user_id" FROM public."user" WHERE username = 'user' || i);
 
-        -- Insert 10 user_movie_whatchlist
+        -- Insert 10 user_movie_watchlist
         FOR j IN 1..100 LOOP
-            INSERT INTO public.user_movie_whatchlist("user_id", movie_id) 
+            INSERT INTO public.user_movie_watchlist("user_id", movie_id) 
             VALUES (
                 new_user_id,
                 movie_ids[(i+j)::int]
@@ -44,9 +47,9 @@ BEGIN
                 movie_id = movie_ids[(i+j)::int];
         END LOOP;
 
-        -- Insert 10 user_series_whatchlist
+        -- Insert 10 user_series_watchlist
         FOR j IN 1..100 LOOP
-            INSERT INTO public.user_series_whatchlist("user_id", series_id)
+            INSERT INTO public.user_series_watchlist("user_id", series_id)
             VALUES (
                 new_user_id,
                 series_ids[( i + j)::int]
@@ -55,9 +58,9 @@ BEGIN
                 series_id = series_ids[(i+j)::int];
         END LOOP;
 
-        -- Insert 10 user_episode_whatchlist
+        -- Insert 10 user_episode_watchlist
         FOR j IN 1..100 LOOP
-            INSERT INTO public.user_episode_whatchlist("user_id", episode_id)
+            INSERT INTO public.user_episode_watchlist("user_id", episode_id)
              VALUES (
                 new_user_id,
                 episode_ids[(i+j)::int]

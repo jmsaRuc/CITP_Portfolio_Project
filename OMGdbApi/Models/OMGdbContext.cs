@@ -2,6 +2,11 @@ using OMGdbApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OMGdbApi.Models.Users;
+using OMGdbApi.Models.Users.Watchlist;
+using OMGdbApi.Models.Users.Ratings;
+using OMGdbApi.Models.Users.Recent_View;
+using Microsoft.EntityFrameworkCore.Metadata;
+
 namespace OMGdbApi.Models;
 
 public class OMGdbContext : DbContext
@@ -21,7 +26,28 @@ public class OMGdbContext : DbContext
     public DbSet<Series> Series { get; set; } = null!;
 
     public DbSet<Person> Person { get; set; } = null!;
-       
+
+    public DbSet<WatchlistAll> WatchlistAll { get; set; } = null!;
+
+    public DbSet<WatchlistEpisode> WatchlistEpisode { get; set; } = null!;   
+
+    public DbSet<WatchlistMovie> WatchlistMovie { get; set; } = null!;
+
+    public DbSet<WatchlistSeries> WatchlistSeries { get; set; } = null!;
+
+    public DbSet<RatingALL> RatingALL { get; set; } = null!;
+
+    public DbSet<RatingEpisode> RatingEpisode { get; set; } = null!;
+
+    public DbSet<RatingMovie> RatingMovie { get; set; } = null!;
+
+    public DbSet<RatingSeries> RatingSeries { get; set; } = null!;
+
+    public DbSet<RecentViewAll> RecentViewAll { get; set; } = null!;
+
+    public DbSet<RecentView> RecentView { get; set; } = null!;
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,33 +110,75 @@ public class OMGdbContext : DbContext
 
         modelBuilder.Entity<Person>()
             .HasIndex(b => b.Popularity);
+
+        //WatchlistAll
+        modelBuilder.Entity<WatchlistAll>(e=>
+        {
+            e.HasNoKey();
+        });   
+        
+        //WatchlistEpisode
+        modelBuilder.Entity<WatchlistEpisode>()
+            .HasKey(b => new { b.UserId, b.EpisodeId });
+
+        modelBuilder.Entity<WatchlistEpisode>()
+            .Property(b => b.Watchlist_order)
+            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");
+
+        //WatchlistMovie
+        modelBuilder.Entity<WatchlistMovie>()
+            .HasKey(b => new { b.UserId, b.MovieId });
+
+        modelBuilder.Entity<WatchlistMovie>()
+            .Property(b => b.Watchlist_order)
+            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");
+
+       //WatchlistSeries
+        modelBuilder.Entity<WatchlistSeries>()
+            .HasKey(b => new { b.UserId, b.SeriesId });
+
+        modelBuilder.Entity<WatchlistSeries>()
+            .Property(b => b.Watchlist_order)
+            .HasDefaultValueSql("nextval('public.watchlist_seq'::regclass)");
+
+       //RatingAll
+           modelBuilder.Entity<RatingALL>(e=>
+            {
+                e.HasNoKey();
+            });   
+    
+        //RatingEpisode
+        modelBuilder.Entity<RatingEpisode>()
+            .HasKey(b => new { b.UserId, b.EpisodeId });    
+
+        //RatingMovie
+        modelBuilder.Entity<RatingMovie>()
+            .HasKey(b => new { b.UserId, b.MovieId });
+
+        //RatingSeries
+        modelBuilder.Entity<RatingSeries>()
+            .HasKey(b => new { b.UserId, b.SeriesId });
+
+        //RecentViewAll
+        modelBuilder.Entity<RecentViewAll>(e=>
+        {
+            e.HasNoKey();
+        });
+
+        //RecentView
+        modelBuilder.Entity<RecentView>(e =>
+    {
+        e.HasKey(b => new { b.UserId, b.TypeId });
+
+        e.Property(b => b.ViewOrdering)
+        .HasColumnName("view_ordering")
+        .HasColumnType("bigint")
+        .ValueGeneratedOnAdd()
+        .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+                
+        e.Property(b => b.ViewOrdering)
+            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+    });
+                          
     }
-
-     
-}  
-   // public async Task<bool> CreateUser(string name, byte[] password, string email)
-   // {
-   //     try {
-   //         await using var dataSource = Database.GetDbConnection();
-   //         await using var cmd = dataSource.CreateCommand();
-   //         cmd.CommandText = "SELECT create_user($1, $2, $3)";
-//
-   //         cmd.Parameters.Add(new NpgsqlParameter("1", name));
-   //         cmd.Parameters.Add(new NpgsqlParameter("2", password));
-   //         cmd.Parameters.Add(new NpgsqlParameter("3", email));
-//
-   //         await using var reader = await cmd.ExecuteReaderAsync();
-//
-   //         if (await reader.ReadAsync())
-   //         {
-   //             return reader.GetBoolean(0);
-   //         }
-//
-   //     } 
-   //     catch (Exception e)
-   //     {
-   //         Console.WriteLine(e);
-   //     }
-   //     return false;
-   // }
-
+} 

@@ -20,6 +20,9 @@ namespace OMGdbApi.Models
 
         public string? RunTime { get; set; }
 
+        [Column("poster")]
+        public string? Poster { get; set; }
+
         [Column("plot")]
 
         public string? Plot { get; set; }
@@ -27,6 +30,9 @@ namespace OMGdbApi.Models
         [Column("relese_date")]
 
         public DateTime? ReleaseDate { get; set; }
+        
+        [Column("average_rating")]
+        public decimal? AverageRating { get; set; }
 
         [Column("imdb_rating")]
 

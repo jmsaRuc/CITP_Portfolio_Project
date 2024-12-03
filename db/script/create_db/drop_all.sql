@@ -2,9 +2,9 @@
 
 SET search_path TO public, pgtap;
 
-DROP TABLE IF EXISTS public.user_movie_whatchlist CASCADE;
-DROP TABLE IF EXISTS public.user_series_whatchlist CASCADE;
-DROP TABLE IF EXISTS public.user_episode_whatchlist CASCADE;
+DROP TABLE IF EXISTS public.user_movie_watchlist CASCADE;
+DROP TABLE IF EXISTS public.user_series_watchlist CASCADE;
+DROP TABLE IF EXISTS public.user_episode_watchlist CASCADE;
 
 DROP TABLE IF EXISTS public.user_movie_rating CASCADE;
 DROP TABLE IF EXISTS public.user_series_rating CASCADE;
@@ -36,7 +36,7 @@ DROP SEQUENCE IF EXISTS public.title_seq CASCADE;
 DROP SEQUENCE IF EXISTS public.user_seq CASCADE;
 DROP SEQUENCE IF EXISTS public.person_seq CASCADE;
 
-DROP SEQUENCE IF EXISTS public.whatchlist_seq CASCADE;
+DROP SEQUENCE IF EXISTS public.watchlist_seq CASCADE;
 
 DROP EXTENSION IF EXISTS pgtap
     SCHEMA pgtap

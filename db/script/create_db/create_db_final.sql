@@ -16,7 +16,7 @@ NO MAXVALUE;
 
 CREATE SEQUENCE IF NOT EXISTS public.person_seq INCREMENT BY 1 NO MINVALUE NO MAXVALUE;
 
-CREATE SEQUENCE IF NOT EXISTS public.whatchlist_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE;
+CREATE SEQUENCE IF NOT EXISTS public.watchlist_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE;
 
 CREATE TABLE IF NOT EXISTS public.movie (
     movie_id character varying(10) NOT NULL DEFAULT 'tt' || to_char(
@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS public.movie (
     poster character varying(180),
     plot TEXT,
     release_date date,
+    average_rating numeric(5, 1),
+    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
     imdb_rating numeric(5, 1),
     CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
@@ -43,8 +45,11 @@ CREATE TABLE IF NOT EXISTS public.episode (
     title character varying(256) NOT NULL,
     re_year character varying(4),
     run_time character varying(80),
+    poster character varying(180),
     plot TEXT,
     relese_date date,
+    average_rating numeric(5, 1),
+    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
     imdb_rating numeric(5, 1),
     CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
@@ -61,6 +66,8 @@ CREATE TABLE IF NOT EXISTS public.series (
     end_year character varying(4),
     poster character varying(180),
     plot TEXT,
+    average_rating numeric(5, 1),
+    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
     imdb_rating numeric(5, 1),
     CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
@@ -93,25 +100,25 @@ CREATE TABLE IF NOT EXISTS public.person (
     CONSTRAINT popularity_check CHECK ((popularity >= (0)::BIGINT))
 );
 
-CREATE TABLE IF NOT EXISTS public.user_movie_whatchlist (
+CREATE TABLE IF NOT EXISTS public.user_movie_watchlist (
     user_id character varying(10) NOT NULL,
     movie_id character varying(10) NOT NULL,
-    whatchlist BIGINT NOT NULL DEFAULT nextval('public.whatchlist_seq'::regclass),
-    CONSTRAINT whatchlist_check CHECK ((whatchlist > (0)::BIGINT))
+    watchlist BIGINT NOT NULL DEFAULT nextval('public.watchlist_seq'::regclass),
+    CONSTRAINT watchlist_check CHECK ((watchlist > (0)::BIGINT))
 );
 
-CREATE TABLE IF NOT EXISTS public.user_series_whatchlist (
+CREATE TABLE IF NOT EXISTS public.user_series_watchlist (
     user_id character varying(10) NOT NULL,
     series_id character varying(10) NOT NULL,
-    whatchlist BIGINT NOT NULL DEFAULT nextval('public.whatchlist_seq'::regclass),
-    CONSTRAINT whatchlist_check CHECK ((whatchlist > (0)::BIGINT))
+    watchlist BIGINT NOT NULL DEFAULT nextval('public.watchlist_seq'::regclass),
+    CONSTRAINT watchlist_check CHECK ((watchlist > (0)::BIGINT))
 );
 
-CREATE TABLE IF NOT EXISTS public.user_episode_whatchlist (
+CREATE TABLE IF NOT EXISTS public.user_episode_watchlist (
     user_id character varying(10) NOT NULL,
     episode_id character varying(10) NOT NULL,
-    whatchlist BIGINT NOT NULL DEFAULT nextval('public.whatchlist_seq'::regclass),
-    CONSTRAINT whatchlist_check CHECK ((whatchlist > (0)::BIGINT))
+    watchlist BIGINT NOT NULL DEFAULT nextval('public.watchlist_seq'::regclass),
+    CONSTRAINT watchlist_check CHECK ((watchlist > (0)::BIGINT))
 );
 CREATE TABLE IF NOT EXISTS public.user_movie_rating (
     user_id character varying(10) NOT NULL,
@@ -380,6 +387,7 @@ WITH
 UPDATE episode
 SET
     run_time = runtime,
+    poster = omdb_data.poster,
     plot = omdb_data.plot,
     relese_date = date_not_na.release_date
 FROM omdb_data, an_epi, date_not_na
@@ -693,14 +701,14 @@ ADD CONSTRAINT movie_pkey PRIMARY KEY (movie_id);
 ALTER TABLE IF EXISTS public.type
 ADD CONSTRAINT type_pkey PRIMARY KEY (type_id);
 
-ALTER TABLE IF EXISTS public.user_movie_whatchlist
-ADD CONSTRAINT user_movie_whatchlist_pkey PRIMARY KEY (user_id, movie_id);
+ALTER TABLE IF EXISTS public.user_movie_watchlist
+ADD CONSTRAINT user_movie_watchlist_pkey PRIMARY KEY (user_id, movie_id);
 
-ALTER TABLE IF EXISTS public.user_series_whatchlist
-ADD CONSTRAINT user_series_whatchlist_pkey PRIMARY KEY (user_id, series_id);
+ALTER TABLE IF EXISTS public.user_series_watchlist
+ADD CONSTRAINT user_series_watchlist_pkey PRIMARY KEY (user_id, series_id);
 
-ALTER TABLE IF EXISTS public.user_episode_whatchlist
-ADD CONSTRAINT user_episode_whatchlist_pkey PRIMARY KEY (user_id, episode_id);
+ALTER TABLE IF EXISTS public.user_episode_watchlist
+ADD CONSTRAINT user_episode_watchlist_pkey PRIMARY KEY (user_id, episode_id);
 
 ALTER TABLE IF EXISTS public.user_movie_rating
 ADD CONSTRAINT user_movie_rating_pkey PRIMARY KEY (user_id, movie_id);
@@ -780,23 +788,23 @@ ADD CONSTRAINT user_pkey PRIMARY KEY (user_id);
 ALTER TABLE IF EXISTS public.recent_view
 ADD CONSTRAINT recent_view_pkey PRIMARY KEY (user_id, type_id);
 
-ALTER TABLE IF EXISTS public.user_movie_whatchlist
-ADD CONSTRAINT user_movie_whatchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_movie_watchlist
+ADD CONSTRAINT user_movie_watchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_series_whatchlist
-ADD CONSTRAINT user_series_whatchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_series_watchlist
+ADD CONSTRAINT user_series_watchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_episode_whatchlist
-ADD CONSTRAINT user_episode_whatchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_episode_watchlist
+ADD CONSTRAINT user_episode_watchlist_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_movie_whatchlist
-ADD CONSTRAINT user_movie_whatchlist_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_movie_watchlist
+ADD CONSTRAINT user_movie_watchlist_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_series_whatchlist
-ADD CONSTRAINT user_series_whatchlist_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_series_watchlist
+ADD CONSTRAINT user_series_watchlist_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.user_episode_whatchlist
-ADD CONSTRAINT user_episode_whatchlist_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE IF EXISTS public.user_episode_watchlist
+ADD CONSTRAINT user_episode_watchlist_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE IF EXISTS public.user_movie_rating
 ADD CONSTRAINT user_movie_rating_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user (user_id) ON UPDATE CASCADE ON DELETE CASCADE;

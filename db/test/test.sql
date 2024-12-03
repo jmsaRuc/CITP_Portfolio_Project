@@ -11,7 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (35);
+SELECT pgtap.plan (45);
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -87,7 +87,9 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ),'tt18339924');
+        ),
+        'tt18339924'
+    );
 
 INSERT INTO
     public.recent_view ("user_id", "type_id")
@@ -97,7 +99,9 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ),'tt26476058');
+        ),
+        'tt26476058'
+    );
 
 -- should be 2
 SELECT pgtap.ok (
@@ -222,9 +226,9 @@ SELECT pgtap.ok (
         ) >= 3, 'Recent view test'
     );
 
--- test whatchlist movie
+-- test watchlist movie
 INSERT INTO
-    public.user_movie_whatchlist ("user_id", movie_id)
+    public.user_movie_watchlist ("user_id", movie_id)
 VALUES (
         (
             SELECT user_id
@@ -236,7 +240,7 @@ VALUES (
     );
 
 INSERT INTO
-    public.user_movie_whatchlist ("user_id", movie_id)
+    public.user_movie_watchlist ("user_id", movie_id)
 VALUES (
         (
             SELECT user_id
@@ -249,8 +253,8 @@ VALUES (
 
 SELECT pgtap.ok (
         (
-            SELECT whatchlist
-            FROM public.user_movie_whatchlist
+            SELECT watchlist
+            FROM public.user_movie_watchlist
             WHERE
                 user_id = (
                     SELECT user_id
@@ -259,13 +263,13 @@ SELECT pgtap.ok (
                         username = 'test_user'
                 )
                 AND movie_id = 'tt21217874'
-        ) >= 2, 'movie Whatchlist test'
+        ) >= 2, 'movie watchlist test'
     );
 
--- test whatchlist series
+-- test watchlist series
 
 INSERT INTO
-    public.user_series_whatchlist ("user_id", series_id)
+    public.user_series_watchlist ("user_id", series_id)
 VALUES (
         (
             SELECT user_id
@@ -277,7 +281,7 @@ VALUES (
     );
 
 INSERT INTO
-    public.user_series_whatchlist ("user_id", series_id)
+    public.user_series_watchlist ("user_id", series_id)
 VALUES (
         (
             SELECT user_id
@@ -288,11 +292,11 @@ VALUES (
         'tt28638980'
     );
 
--- should be higer then select movie_whatchlist
+-- should be higer then select movie_watchlist
 SELECT pgtap.ok (
         (
-            SELECT whatchlist
-            FROM public.user_series_whatchlist
+            SELECT watchlist
+            FROM public.user_series_watchlist
             WHERE
                 user_id = (
                     SELECT user_id
@@ -301,13 +305,13 @@ SELECT pgtap.ok (
                         username = 'test_user'
                 )
                 AND series_id = 'tt28638980'
-        ) >= 4, 'series Whatchlist test'
+        ) >= 4, 'series watchlist test'
     );
 
--- test whatchlist episode
+-- test watchlist episode
 
 INSERT INTO
-    public.user_episode_whatchlist ("user_id", episode_id)
+    public.user_episode_watchlist ("user_id", episode_id)
 VALUES (
         (
             SELECT user_id
@@ -319,7 +323,7 @@ VALUES (
     );
 
 INSERT INTO
-    public.user_episode_whatchlist ("user_id", episode_id)
+    public.user_episode_watchlist ("user_id", episode_id)
 VALUES (
         (
             SELECT user_id
@@ -330,12 +334,12 @@ VALUES (
         'tt11576414'
     );
 
--- should be higher then select series_whatchlist
+-- should be higher then select series_watchlist
 
 SELECT pgtap.ok (
         (
-            SELECT whatchlist
-            FROM public.user_episode_whatchlist
+            SELECT watchlist
+            FROM public.user_episode_watchlist
             WHERE
                 user_id = (
                     SELECT user_id
@@ -344,10 +348,10 @@ SELECT pgtap.ok (
                         username = 'test_user'
                 )
                 AND episode_id = 'tt11576414'
-        ) >= 6, 'episode Whatchlist test'
+        ) >= 6, 'episode watchlist test'
     );
 
--- test rating movie/series/episode
+-------------------------- test rating movie/series/episode
 
 INSERT INTO
     public.user_movie_rating ("user_id", movie_id, rating)
@@ -401,10 +405,33 @@ SELECT pgtap.ok (
                         username = 'test_user'
                 )
                 AND movie_id = 'tt18339924'
-        ) >= 5, 'movie rating test'
+        ) = 5, 'movie rating test'
     );
 
-------------- delete user test ------------------------------
+---------------test rating update trigger ----------------------------
+
+UPDATE public.user_movie_rating
+SET
+    rating = 3
+WHERE
+    user_id = (
+        SELECT user_id
+        FROM public.user
+        WHERE
+            username = 'test_user'
+    )
+    AND movie_id = 'tt18339924';
+
+SELECT pgtap.ok (
+        (
+            SELECT average_rating
+            FROM public.movie
+            WHERE
+                movie_id = 'tt18339924'
+        ) = 3, 'movie rating trigger'
+    );
+
+--------------------------------------- delete user test -----------------------------------------
 
 DELETE FROM public."user" WHERE username = 'test_user';
 
@@ -427,22 +454,22 @@ SELECT pgtap.ok (
 SELECT pgtap.ok (
         (
             SELECT count(*)
-            FROM public.user_movie_whatchlist
-        ) = 0, 'movie whatchlist deleted'
+            FROM public.user_movie_watchlist
+        ) = 0, 'movie watchlist deleted'
     );
 
 SELECT pgtap.ok (
         (
             SELECT count(*)
-            FROM public.user_series_whatchlist
-        ) = 0, 'series whatchlist deleted'
+            FROM public.user_series_watchlist
+        ) = 0, 'series watchlist deleted'
     );
 
 SELECT pgtap.ok (
         (
             SELECT count(*)
-            FROM public.user_episode_whatchlist
-        ) = 0, 'episode whatchlist deleted'
+            FROM public.user_episode_watchlist
+        ) = 0, 'episode watchlist deleted'
     );
 
 SELECT pgtap.ok (
@@ -464,6 +491,33 @@ SELECT pgtap.ok (
             SELECT count(*)
             FROM public.user_episode_rating
         ) = 0, 'episode rating deleted'
+    );
+------------------------rating delet trigger test --------------------------------------------
+SELECT pgtap.is (
+        (
+            SELECT average_rating
+            FROM public.movie
+            WHERE
+                movie_id = 'tt18339924'
+        ), NULL, 'movie rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT average_rating
+            FROM public.series
+            WHERE
+                series_id = 't11437568'
+        ), NULL, 'series rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT average_rating
+            FROM public.episode
+            WHERE
+                episode_id = 'tt11437568'
+        ), NULL, 'episode rating trigger'
     );
 ------------------------------------------------------------------------------------------
 --multi user test
@@ -499,9 +553,9 @@ BEGIN
     FOR i IN 1..100 LOOP
         new_user_id := (SELECT "user_id" FROM public."user" WHERE username = 'user' || i);
 
-        -- Insert 10 user_movie_whatchlist
+        -- Insert 10 user_movie_watchlist
         FOR j IN 1..100 LOOP
-            INSERT INTO public.user_movie_whatchlist("user_id", movie_id) 
+            INSERT INTO public.user_movie_watchlist("user_id", movie_id) 
             VALUES (
                 new_user_id,
                 movie_ids[(i+j)::int]
@@ -510,9 +564,9 @@ BEGIN
                 movie_id = movie_ids[(i+j)::int];
         END LOOP;
 
-        -- Insert 10 user_series_whatchlist
+        -- Insert 10 user_series_watchlist
         FOR j IN 1..100 LOOP
-            INSERT INTO public.user_series_whatchlist("user_id", series_id)
+            INSERT INTO public.user_series_watchlist("user_id", series_id)
             VALUES (
                 new_user_id,
                 series_ids[( i + j)::int]
@@ -521,9 +575,9 @@ BEGIN
                 series_id = series_ids[(i+j)::int];
         END LOOP;
 
-        -- Insert 10 user_episode_whatchlist
+        -- Insert 10 user_episode_watchlist
         FOR j IN 1..100 LOOP
-            INSERT INTO public.user_episode_whatchlist("user_id", episode_id)
+            INSERT INTO public.user_episode_watchlist("user_id", episode_id)
              VALUES (
                 new_user_id,
                 episode_ids[(i+j)::int]
@@ -606,9 +660,9 @@ SELECT pgtap.ok (
 SELECT pgtap.is (
         (
             SELECT count(*)
-            FROM public.user_movie_whatchlist
+            FROM public.user_movie_watchlist
             GROUP BY
-                "user_id", movie_id, whatchlist
+                "user_id", movie_id, watchlist
             HAVING
                 count(*) > 1
         ), NULL, 'No duplicate entries in user_movie_interaction'
@@ -617,9 +671,9 @@ SELECT pgtap.is (
 SELECT pgtap.is (
         (
             SELECT count(*)
-            FROM public.user_series_whatchlist
+            FROM public.user_series_watchlist
             GROUP BY
-                "user_id", series_id, whatchlist
+                "user_id", series_id, watchlist
             HAVING
                 count(*) > 1
         ), NULL, 'No duplicate entries in user_series_interaction'
@@ -628,9 +682,9 @@ SELECT pgtap.is (
 SELECT pgtap.is (
         (
             SELECT count(*)
-            FROM public.user_episode_whatchlist
+            FROM public.user_episode_watchlist
             GROUP BY
-                "user_id", episode_id, whatchlist
+                "user_id", episode_id, watchlist
             HAVING
                 count(*) > 1
         ), NULL, 'No duplicate entries in user_episode_interaction'
@@ -678,6 +732,201 @@ SELECT pgtap.is (
             HAVING
                 count(*) > 1
         ), NULL, 'No duplicate entries in user_episode_rating'
+    );
+-- test get user watchlist-----------------------------------
+
+SELECT pgtap.ok (
+        (
+            SELECT max(watchlist)
+            FROM public.user_movie_watchlist
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+        ) = (
+            SELECT max(watchlist_order)
+            FROM public.get_user_watchlist (
+                    (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            WHERE
+                title_type = 'movie'
+        ), 'get_user_watchlist'
+    );
+--- test get user rating -----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT movie_id
+            FROM public.user_movie_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            ORDER BY movie_id DESC
+            LIMIT 1
+        ), (
+            SELECT title_id
+            FROM public.get_user_rating (
+                    (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            WHERE
+                title_type = 'movie'
+            ORDER BY title_id DESC
+            LIMIT 1
+        ), 'get_user_rating'
+    );
+-----------------------test get user recent view -----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT "type_id"
+            FROM public.recent_view
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                "type_id"
+            ORDER BY max(view_ordering) DESC
+            LIMIT 1
+        ), (
+            SELECT "type_id_of"
+            FROM public.get_user_recent_view (
+                    (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            ORDER BY view_order DESC
+            LIMIT 1
+        ), 'get_user_recent_view'
+    );
+-----------------------------------test rating insert triggers when meny --------------------------------------------
+SELECT pgtap.is (
+        (
+            SELECT movie_id
+            FROM public.user_movie_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                movie_id
+            ORDER BY max(rating) DESC
+            LIMIT 1
+        ), (
+            SELECT movie_id
+            FROM public."movie"
+            WHERE
+                "movie_id" = (
+                    SELECT movie_id
+                    FROM public.user_movie_rating
+                    WHERE
+                        "user_id" = (
+                            SELECT "user_id"
+                            FROM public."user"
+                            LIMIT 1
+                        )
+                    GROUP BY
+                        movie_id
+                    ORDER BY max(rating) DESC
+                    LIMIT 1
+                )
+            GROUP BY
+                movie_id
+            ORDER BY max(average_rating) DESC
+        ), 'movie rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT series_id
+            FROM public.user_series_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                series_id
+            ORDER BY max(rating) DESC
+            LIMIT 1
+        ), (
+            SELECT series_id
+            FROM public."series"
+            WHERE
+                "series_id" = (
+                    SELECT series_id
+                    FROM public.user_series_rating
+                    WHERE
+                        "user_id" = (
+                            SELECT "user_id"
+                            FROM public."user"
+                            LIMIT 1
+                        )
+                    GROUP BY
+                        series_id
+                    ORDER BY max(rating) DESC
+                    LIMIT 1
+                )
+            GROUP BY
+                series_id
+            ORDER BY max(average_rating) DESC
+        ), 'series rating trigger'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT episode_id
+            FROM public.user_episode_rating
+            WHERE
+                "user_id" = (
+                    SELECT "user_id"
+                    FROM public."user"
+                    LIMIT 1
+                )
+            GROUP BY
+                episode_id
+            ORDER BY max(rating) DESC
+            LIMIT 1
+        ), (
+            SELECT episode_id
+            FROM public."episode"
+            WHERE
+                "episode_id" = (
+                    SELECT episode_id
+                    FROM public.user_episode_rating
+                    WHERE
+                        "user_id" = (
+                            SELECT "user_id"
+                            FROM public."user"
+                            LIMIT 1
+                        )
+                    GROUP BY
+                        episode_id
+                    ORDER BY max(rating) DESC
+                    LIMIT 1
+                )
+            GROUP BY
+                episode_id
+            ORDER BY max(average_rating) DESC
+        ), 'episode rating trigger'
     );
 
 -- test type trigger --------------------------------------------
@@ -762,6 +1011,7 @@ INSERT INTO
         title,
         re_year,
         run_time,
+        poster,
         plot,
         relese_date,
         imdb_rating
@@ -770,6 +1020,7 @@ VALUES (
         'Chapter One: The Vanishing of Will Byers',
         2016,
         '48 m',
+        'https://m.media-amazon.com/images/M/MV5BMTUwNTE0ODYzOF5BMl5BanBnXkFtZTgwOTc0ODE0OTE@._V1_FMjpg_UX480_.jpg',
         'On his way home from a friend''s house, young Will sees something terrifying. Nearby, a sinister secret lurks in the depths of a government lab.',
         '2016-07-15',
         8.4
