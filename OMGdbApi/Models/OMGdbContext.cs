@@ -27,6 +27,8 @@ public class OMGdbContext : DbContext
 
     public DbSet<Person> Person { get; set; } = null!;
 
+    public DbSet<Actor> Actor { get; set; } = null!;
+
     public DbSet<WatchlistAll> WatchlistAll { get; set; } = null!;
 
     public DbSet<WatchlistEpisode> WatchlistEpisode { get; set; } = null!;   
@@ -110,6 +112,13 @@ public class OMGdbContext : DbContext
 
         modelBuilder.Entity<Person>()
             .HasIndex(b => b.Popularity);
+
+        //Actor
+        modelBuilder.Entity<Actor>(e=>
+        {
+            e.HasNoKey();
+        });
+               
 
         //WatchlistAll
         modelBuilder.Entity<WatchlistAll>(e=>

@@ -2,6 +2,8 @@ using System.Net;
 using System.Text.Json;
 using RestSharp;
 using Xunit.Abstractions;
+using test;
+
 namespace test.UserTest.WatchlistTest;
 
 public class WatchlistApiTest

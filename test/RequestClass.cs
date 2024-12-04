@@ -2,7 +2,7 @@
 using RestSharp;
 using RestSharp.Authenticators;
 
-namespace test.UserTest;
+namespace test;
 
 public class RequestClass
 { 

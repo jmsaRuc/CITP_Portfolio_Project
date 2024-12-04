@@ -45,7 +45,7 @@ dotnet dev-certs https --clean
 1.b **Create a self-signed certificate:**
 
 ```sh
-dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p { PASSWORD }
+dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p '<password>'
 ```
 
 1.c **Trust the certificate:**

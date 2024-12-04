@@ -1,8 +1,23 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1
-
-
 
 ------- misc test queries -------
+SELECT *
+FROM public.is_in_movie
+WHERE movie_id = 'tt1596363'
+ORDER BY cast_order ASC
+
+SELECT *
+FROM public.get_top_actors_in_movie('tt1596363');
+
+SELECT *
+FROM is_in_series
+WHERE series_id = 'tt20877972'
+ORDER BY cast_order ASC
+
+
+SELECT *
+FROM get_top_actors_in_series('tt20877972')
+LIMIT 1;
+
 SELECT *
 FROM public."movie"
 WHERE average_rating is not NULL and popularity > 0
@@ -26,6 +41,7 @@ FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
 WHERE title_type = 'episode'
 ORDER BY title_id DESC
 LIMIT 1;
+
 
 ----test get user recent view
 SELECT "type_id", max(view_ordering)

@@ -1,7 +1,5 @@
-using System;
-using OMGdbApi.Models;
+
 using RestSharp;
-using Xunit.Sdk;
 using RestSharp.Authenticators;
 using System.Text.Json;
 

@@ -1,7 +1,7 @@
 
 services:
   web_api:
-    container_name: OMGDB-web_api
+    container_name: omgdb_web_api
     build: 
       context: .
       dockerfile: omgdb_web_api.Dockerfile

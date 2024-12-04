@@ -11,7 +11,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (45);
+SELECT pgtap.plan (48);
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -518,6 +518,59 @@ SELECT pgtap.is (
             WHERE
                 episode_id = 'tt11437568'
         ), NULL, 'episode rating trigger'
+    );
+
+------------------------------------------------------------------------------------------
+-- test person functions
+------------------------------------------------------------------------------------------
+
+--------------------------------------------get_top_actors------------------------------------------------------------
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_movie
+            WHERE
+                movie_id = 'tt1596363'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_top_actors_in_movie ('tt1596363')
+            LIMIT 1
+        ), 'get_top_actors_in_movie'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_top_actors_in_series ('tt20877972')
+            LIMIT 1
+        ), 'get_top_actors_in_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_episode
+            WHERE
+                episode_id = 'tt0959621'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_top_actors_in_episode ('tt0959621')
+            LIMIT 1
+        ), 'get_top_actors_in_episode'
     );
 ------------------------------------------------------------------------------------------
 --multi user test
