@@ -45,9 +45,14 @@ namespace OMGdbApi.Controllers
             }
             var totalRecords = await _context.Users.CountAsync();
             
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }
 
             return await _context.Users

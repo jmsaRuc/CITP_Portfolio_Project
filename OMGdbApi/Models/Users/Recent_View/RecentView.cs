@@ -12,6 +12,6 @@ public class RecentView
     public required string TypeId { get; set; }
 
     [Column("view_ordering")]
-    public long? ViewOrdering { get; private set; }
+    public long ViewOrdering { get; private set; }
 
 }

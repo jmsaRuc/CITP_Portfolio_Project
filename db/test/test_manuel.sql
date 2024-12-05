@@ -1,12 +1,15 @@
 
 ------- misc test queries -------
-SELECT *
-FROM public.is_in_movie
-WHERE movie_id = 'tt1596363'
-ORDER BY cast_order ASC
+SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
 
 SELECT *
-FROM public.get_top_actors_in_movie('tt1596363');
+FROM public.get_top_actors_in_series('tt20877972');
 
 SELECT *
 FROM is_in_series
@@ -14,13 +17,15 @@ WHERE series_id = 'tt20877972'
 ORDER BY cast_order ASC
 
 
+
 SELECT *
 FROM get_top_actors_in_series('tt20877972')
 LIMIT 1;
 
 SELECT *
-FROM public."movie"
-WHERE average_rating is not NULL and popularity > 0
+FROM public.episode
+WHERE popularity is not NULL and popularity > 0
+ORDER BY popularity DESC
 
 
 SELECT *
@@ -73,10 +78,10 @@ LIMIT 1;
 
 
 
-SELECT movie_id
-FROM public."movie"
-WHERE "movie_id" = 'tt0280079'
-GROUP BY movie_id 
+SELECT *
+FROM public.series
+WHERE series_id = 'tt11437568'
+GROUP BY series_id 
 ORDER BY max(average_rating) DESC
 
 -- test get user watchlist

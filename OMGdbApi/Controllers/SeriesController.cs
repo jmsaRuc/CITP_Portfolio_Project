@@ -19,7 +19,7 @@ namespace OMGdbApi.Controllers
             _validateIDs = validateIDs;
         }
 
-        // GET: api/Series
+        // GET: api/series
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Series>>> GetSeries(int? pageSize, int? pageNumber)
         {
@@ -33,9 +33,14 @@ namespace OMGdbApi.Controllers
             }
             var totalRecords = await _context.Series.CountAsync();
             
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }   
 
             return await _context.Series
@@ -46,7 +51,7 @@ namespace OMGdbApi.Controllers
             .ToListAsync();
         }
 
-        // GET: api/Series/{id}
+        // GET: api/series/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Series>> GetSeries(string id)
         {   
@@ -65,7 +70,7 @@ namespace OMGdbApi.Controllers
             return series;
         }
 
-        // PUT: api/Series/{id}/actors
+        // PUT: api/series/{id}/actors
         [HttpGet("{id}/actors")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetActor(string id, int? pageSize, int? pageNumber)
         {
@@ -93,9 +98,14 @@ namespace OMGdbApi.Controllers
                 .Actor.FromSqlInterpolated($"SELECT * FROM get_top_actors_in_series({id})")
                 .CountAsync();
 
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }
 
             return await _context

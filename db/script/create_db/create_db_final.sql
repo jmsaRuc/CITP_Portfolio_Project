@@ -29,10 +29,10 @@ CREATE TABLE IF NOT EXISTS public.movie (
     poster character varying(180),
     plot TEXT,
     release_date date,
-    average_rating numeric(5, 1),
-    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    average_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT average_rating_check CHECK ((average_rating >= (0)::numeric)),
+    imdb_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating >= (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT popularity_check CHECK ((popularity >= (0)::BIGINT))
 );
@@ -48,10 +48,10 @@ CREATE TABLE IF NOT EXISTS public.episode (
     poster character varying(180),
     plot TEXT,
     relese_date date,
-    average_rating numeric(5, 1),
-    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    average_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT average_rating_check CHECK ((average_rating >= (0)::numeric)),
+    imdb_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating >= (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT popularity_check CHECK ((popularity >= (0)::BIGINT))
 );
@@ -66,10 +66,10 @@ CREATE TABLE IF NOT EXISTS public.series (
     end_year character varying(4),
     poster character varying(180),
     plot TEXT,
-    average_rating numeric(5, 1),
-    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    average_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT average_rating_check CHECK ((average_rating >= (0)::numeric)),
+    imdb_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating >= (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT popularity_check CHECK ((popularity >= (0)::BIGINT))
 );

@@ -1,4 +1,4 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1@public
+
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -428,7 +428,7 @@ SELECT pgtap.ok (
             FROM public.movie
             WHERE
                 movie_id = 'tt18339924'
-        ) = 3, 'movie rating trigger'
+        ) = 3, 'rating update trigger'
     );
 
 --------------------------------------- delete user test -----------------------------------------
@@ -493,31 +493,31 @@ SELECT pgtap.ok (
         ) = 0, 'episode rating deleted'
     );
 ------------------------rating delet trigger test --------------------------------------------
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.movie
             WHERE
                 movie_id = 'tt18339924'
-        ), NULL, 'movie rating trigger'
+        ) = 0.0, 'movie rating delet trigger '
     );
 
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.series
             WHERE
-                series_id = 't11437568'
-        ), NULL, 'series rating trigger'
+                series_id = 'tt0903747'
+        ) = 0.0, 'series rating delet trigger '
     );
 
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.episode
             WHERE
                 episode_id = 'tt11437568'
-        ), NULL, 'episode rating trigger'
+        ) = 0.0, 'episode rating delet trigger '
     );
 
 ------------------------------------------------------------------------------------------

@@ -63,9 +63,14 @@ namespace OMGdbApi.Controllers
                 .RatingALL.FromSqlInterpolated($"SELECT * FROM get_user_rating({UserId})")
                 .CountAsync();
 
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }
 
             return await _context
@@ -725,7 +730,7 @@ namespace OMGdbApi.Controllers
 
         private bool EpisodeExists(string EpisodeId)
         {
-            return _context.Episodes.Any(e => e.Id == EpisodeId);
+            return _context.Episode.Any(e => e.Id == EpisodeId);
         }
 
         private bool RatingMovieExists(string UserId, string MovieId)

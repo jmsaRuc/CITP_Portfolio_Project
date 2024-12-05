@@ -27,3 +27,17 @@ PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOS
 echo "\n"
 
 echo "DROPPING functions and triggers DONE"
+
+echo "\n"
+
+echo "DROPPING indexes...."
+
+PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/create_indexs/drop.sql > /dev/null
+
+echo "\n"
+
+echo "DROPPING indexes DONE"
+
+echo "\n"
+
+echo "--------------------------------------DELETING IMPORTED DATABASE DONE"

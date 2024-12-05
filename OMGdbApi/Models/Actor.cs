@@ -13,4 +13,7 @@ public class Actor
     [Column("character_v")]
     public string? Character { get; set; }
 
+    [Column("cast_order_v")]
+    public long? CastOrder { get; set; }
+
 }

@@ -4,25 +4,26 @@ using OMGdbApi.Models;
 using OMGdbApi.Service;
 namespace OMGdbApi.Controllers
 {
-    [Route("api/episodes")]
+    [Route("api/episode")]
     [ApiController]
-    public class EpisodesController : ControllerBase
+    public class EpisodeController : ControllerBase
     {
         private readonly OMGdbContext _context;
 
         private readonly ValidateIDs _validateIDs = new();
 
-        public EpisodesController(OMGdbContext context, ValidateIDs validateIDs)
+        public EpisodeController(OMGdbContext context, ValidateIDs validateIDs)
         {
             _context = context;
 
             _validateIDs = validateIDs;
         }
 
-        // GET: api/episodes
+        // GET: api/episode
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Episodes>>> GetEpisodes(int? pageSize, int? pageNumber)
+        public async Task<ActionResult<IEnumerable<Episode>>> GetEpisode(int? pageSize, int? pageNumber, string? sortBy)
         {    
+
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
@@ -31,41 +32,60 @@ namespace OMGdbApi.Controllers
             {
                 pageNumber = 1;
             }
-            var totalRecords = await _context.Episodes.CountAsync();
+            var totalRecords = await _context.Episode.CountAsync();
             
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
-            }   
+                
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
+            }
+
+            var episode = from e in _context.Episode select e;
+
+            switch (sortBy)
+            {
+                case "imdbRating":
+                    episode = episode.OrderByDescending(e => e.ImdbRating);
+                    break;
+                case "averageRating":
+                    episode = episode.OrderByDescending(e => e.AverageRating);
+                    break;    
+                default:
+                    episode = episode.OrderByDescending(e => e.Popularity);
+                    break;
+            }
             
-            return await _context.Episodes
+            return await episode
                 .AsNoTracking()
-                .OrderByDescending(x => x.Popularity)
                 .Skip((int)((pageNumber - 1) * pageSize))
                 .Take((int)pageSize)
                 .ToListAsync();
         }
 
-        // GET: api/episodes/5
+        // GET: api/episode/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Episodes>> GetEpisodes(string id)
+        public async Task<ActionResult<Episode>> GetEpisode(string id)
         {   
             if (!_validateIDs.ValidateTitleId(id))
             {
                 return BadRequest("Invalid title id");
             }
 
-            var episodes = await _context.Episodes.FindAsync(id);
+            var episode = await _context.Episode.FindAsync(id);
 
-            if (episodes == null)
+            if (episode == null)
             {
                 return NotFound("No episode found with this id");
             }
 
-            return episodes;
+            return episode;
         }
         
-        // GET: api/episodes/{id}/actors
+        // GET: api/episode/{id}/actors
         [HttpGet("{id}/actors")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetActor(string id, int? pageSize, int? pageNumber)
         {
@@ -74,7 +94,7 @@ namespace OMGdbApi.Controllers
                 return BadRequest("Invalid title id");
             }
 
-            if (!EpisodesExists(id))
+            if (!EpisodeExists(id))
             {
                 return BadRequest("Episode dose not exist");
             }
@@ -93,9 +113,13 @@ namespace OMGdbApi.Controllers
                 .Actor.FromSqlInterpolated($"SELECT * FROM get_top_actors_in_episode({id})")
                 .CountAsync();
 
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }
 
             return await _context
@@ -107,9 +131,9 @@ namespace OMGdbApi.Controllers
 
         }
 
-        private bool EpisodesExists(string id)
+        private bool EpisodeExists(string id)
         {
-            return _context.Episodes.Any(e => e.Id == id);
+            return _context.Episode.Any(e => e.Id == id);
         }
     }
 

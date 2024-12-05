@@ -19,7 +19,7 @@ public class OMGdbContext : DbContext
 
     public DbSet<User> Users { get; set; } = null!;
    
-    public DbSet<Episodes> Episodes { get; set; } = null!;
+    public DbSet<Episode> Episode { get; set; } = null!;
 
     public DbSet<Movie> Movie { get; set; } = null!;
 
@@ -65,17 +65,28 @@ public class OMGdbContext : DbContext
         modelBuilder.Entity<User>()
             .HasIndex(b => b.Created_at);     
 
-        //Episodes
-        modelBuilder.Entity<Episodes>()
+        //Episode
+        modelBuilder.Entity<Episode>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
 
-        modelBuilder.Entity<Episodes>()
-            .Property(b => b.Popularity)
-            .HasDefaultValueSql("0");    
+        modelBuilder.Entity<Episode>()
+            .Property(b => b.AverageRating)
+            .HasDefaultValue("0");
 
-        modelBuilder.Entity<Episodes>()
-            .HasIndex(b => b.Popularity);    
+        modelBuilder.Entity<Episode>()
+            .Property(b => b.ImdbRating)
+            .HasDefaultValue("0");        
+
+        modelBuilder.Entity<Episode>()
+            .Property(b => b.Popularity)
+            .HasDefaultValueSql("0");
+
+                
+        modelBuilder.Entity<Episode>()
+            .HasIndex(b => new {b.Popularity, b.AverageRating, b.ImdbRating})
+            .HasDatabaseName("IX_Episode_Popularity_AverageRating_ImdbRating")
+            .IsDescending();
 
         //Movie
         modelBuilder.Entity<Movie>()
@@ -117,8 +128,7 @@ public class OMGdbContext : DbContext
         modelBuilder.Entity<Actor>(e=>
         {
             e.HasNoKey();
-        });
-               
+        });  
 
         //WatchlistAll
         modelBuilder.Entity<WatchlistAll>(e=>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMGdbApi.Models;
-
+using OMGdbApi.Service;
 namespace OMGdbApi.Controllers
 {
     [Route("api/person")]
@@ -10,9 +10,12 @@ namespace OMGdbApi.Controllers
     {
         private readonly OMGdbContext _context;
 
-        public PersonController(OMGdbContext context)
+        private readonly ValidateIDs _validateIDs = new();
+
+        public PersonController(OMGdbContext context, ValidateIDs validateIDs)
         {
             _context = context;
+            _validateIDs = validateIDs;
         }
 
         // GET: api/Person
@@ -29,9 +32,14 @@ namespace OMGdbApi.Controllers
             }
             var totalRecords = await _context.Person.CountAsync();
             
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }   
 
             return await _context.Person
@@ -42,14 +50,20 @@ namespace OMGdbApi.Controllers
             .ToListAsync();
         }
 
+        // GET: api/Person/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Person>> GetPerson(string id)
-        {
+        {   
+
+            if (!_validateIDs.ValidatePersonId(id))
+            {
+                return BadRequest("Invalid person id");
+            }
             var person = await _context.Person.FindAsync(id);
 
             if (person == null)
             {
-                return NotFound();
+                return NotFound("Person does not exist");
             }
 
             return person;

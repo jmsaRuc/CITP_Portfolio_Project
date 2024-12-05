@@ -226,6 +226,11 @@ BEGIN
     FROM public.user_movie_rating
     WHERE movie_id = NEW."movie_id";
 
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
+
     UPDATE public.movie
     SET average_rating = rated_average
     WHERE "movie_id" = NEW."movie_id";
@@ -251,6 +256,11 @@ BEGIN
     FROM public.user_episode_rating
     WHERE episode_id = NEW."episode_id";
 
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
+
     UPDATE public.episode
     SET average_rating = rated_average
     WHERE "episode_id" = NEW."episode_id";
@@ -274,6 +284,11 @@ BEGIN
     SELECT avg(rating) INTO rated_average
     FROM public.user_series_rating
     WHERE series_id = NEW."series_id";
+
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
 
     UPDATE public.series
     SET average_rating = rated_average
@@ -299,6 +314,11 @@ BEGIN
     SELECT avg(rating) INTO rated_average
     FROM public.user_movie_rating
     WHERE movie_id = OLD."movie_id";
+
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
     
     UPDATE public.movie
     SET average_rating = rated_average
@@ -324,6 +344,11 @@ BEGIN
     FROM public.user_episode_rating
     WHERE episode_id = OLD."episode_id";
 
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
+
     UPDATE public.episode
     SET average_rating = rated_average
     WHERE "episode_id" = OLD."episode_id";
@@ -348,6 +373,11 @@ BEGIN
     SELECT avg(rating) INTO rated_average
     FROM public.user_series_rating
     WHERE series_id = OLD."series_id";
+
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
 
     UPDATE public.series
     SET average_rating = rated_average

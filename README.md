@@ -45,7 +45,7 @@ dotnet dev-certs https --clean
 1.b **Create a self-signed certificate:**
 
 ```sh
-dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p '<password>'
+dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p <password>
 ```
 
 1.c **Trust the certificate:**
@@ -62,7 +62,7 @@ dotnet dev-certs https --check
 1.d **Set the certificate password in the `.env` file:**
 
 ```sh
-OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password={ PASSWORD }
+OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=<password>
 ```
 
 **Importent: if you change the path or cert name, change it also in compose**
