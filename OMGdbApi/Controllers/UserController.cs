@@ -56,7 +56,7 @@ namespace OMGdbApi.Controllers
             }
 
             return await _context.Users
-            .OrderBy(x => x.Created_at)
+            .OrderByDescending(x => x.Created_at)
             .Skip((int)((pageNumber - 1) * pageSize))
             .Take((int)pageSize)
             .Select(x => UserDTO(x))     

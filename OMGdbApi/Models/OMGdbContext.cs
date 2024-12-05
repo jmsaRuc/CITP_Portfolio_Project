@@ -63,7 +63,9 @@ public class OMGdbContext : DbContext
            .HasDefaultValueSql("getdate()");
 
         modelBuilder.Entity<User>()
-            .HasIndex(b => b.Created_at);     
+            .HasIndex(b => b.Created_at)
+            .HasDatabaseName("ix_user_created_at")
+            .IsDescending();    
 
         //Episode
         modelBuilder.Entity<Episode>()
@@ -109,7 +111,7 @@ public class OMGdbContext : DbContext
             .HasIndex(b => new {b.Popularity, b.AverageRating, b.ImdbRating})
             .HasDatabaseName("ix_movie_pop_avg_and_imdb_rating")
             .IsDescending();
-            
+
         //Series
         modelBuilder.Entity<Series>()
             .Property(b => b.Id)

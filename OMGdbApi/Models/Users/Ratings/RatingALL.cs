@@ -14,9 +14,9 @@ public class RatingALL
     [Column("poster_of")]
     public string? Poster { get; set; }
     [Column("average_r")]
-    public decimal? AverageRating { get; set; }
+    public decimal AverageRating { get; set; }
     [Column("imdb_r")]
-    public decimal? ImdbRating { get; set; }
+    public decimal ImdbRating { get; set; }
     [Column("user_rating")]
-    public short? UserRating { get; set; }
+    public short UserRating { get; set; }
 }

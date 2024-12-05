@@ -60,7 +60,7 @@ namespace OMGdbApi.Controllers
             }
 
             var totalRecords = await _context
-                .WatchlistAll.FromSqlInterpolated($"SELECT * FROM get_user_recent_view({UserId})")
+                .RecentViewAll.FromSqlInterpolated($"SELECT * FROM get_user_recent_view({UserId})")
                 .CountAsync();
 
             if ((int)((pageNumber - 1) * pageSize) >= totalRecords)

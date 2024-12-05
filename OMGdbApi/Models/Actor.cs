@@ -14,6 +14,6 @@ public class Actor
     public string? Character { get; set; }
 
     [Column("cast_order_v")]
-    public long? CastOrder { get; set; }
+    public long CastOrder { get; set; }
 
 }

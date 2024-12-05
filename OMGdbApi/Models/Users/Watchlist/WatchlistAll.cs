@@ -13,10 +13,10 @@ public class WatchlistAll
     [Column("poster_of")]
     public string? Poster { get; set; }
     [Column("average_r")]
-    public decimal? AverageRating { get; set; }
+    public decimal AverageRating { get; set; }
     [Column("imdb_r")]
-    public decimal? ImdbRating { get; set; }
+    public decimal ImdbRating { get; set; }
     [Column("watchlist_order")]
-    public long? Watchlist_order { get; set; }
+    public long Watchlist_order { get; set; }
 
 }
