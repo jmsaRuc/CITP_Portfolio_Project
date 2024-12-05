@@ -85,7 +85,7 @@ public class OMGdbContext : DbContext
                 
         modelBuilder.Entity<Episode>()
             .HasIndex(b => new {b.Popularity, b.AverageRating, b.ImdbRating})
-            .HasDatabaseName("IX_Episode_Popularity_AverageRating_ImdbRating")
+            .HasDatabaseName("ix_episode_pop_avg_and_imdb_rating")
             .IsDescending();
 
         //Movie
@@ -94,24 +94,45 @@ public class OMGdbContext : DbContext
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
 
         modelBuilder.Entity<Movie>()
-            .Property(b => b.Popularity)
-            .HasDefaultValue("0");    
+            .Property(b => b.AverageRating)
+            .HasDefaultValue("0");
 
         modelBuilder.Entity<Movie>()
-            .HasIndex(b => b.Popularity);
+            .Property(b => b.ImdbRating)
+            .HasDefaultValue("0");     
 
+        modelBuilder.Entity<Movie>()
+            .Property(b => b.Popularity)
+            .HasDefaultValue("0"); 
+
+        modelBuilder.Entity<Movie>()
+            .HasIndex(b => new {b.Popularity, b.AverageRating, b.ImdbRating})
+            .HasDatabaseName("ix_movie_pop_avg_and_imdb_rating")
+            .IsDescending();
+            
         //Series
         modelBuilder.Entity<Series>()
             .Property(b => b.Id)
             .HasDefaultValueSql("('tt' || to_char(nextval('public.title_seq'::regclass),'FM00000000'))");
 
         modelBuilder.Entity<Series>()
-            .Property(b => b.Popularity)
+            .Property(b => b.AverageRating)
+            .HasDefaultValue("0");
+
+        modelBuilder.Entity<Series>()
+            .Property(b => b.ImdbRating)
             .HasDefaultValue("0");    
 
         modelBuilder.Entity<Series>()
-            .HasIndex(b => b.Popularity);    
-            
+            .Property(b => b.Popularity)
+            .HasDefaultValue("0");
+
+        modelBuilder.Entity<Series>()
+            .HasIndex(b => new {b.Popularity, b.AverageRating, b.ImdbRating})
+            .HasDatabaseName("ix_series_pop_avg_and_imdb_rating")
+            .IsDescending();        
+
+        
         //Person
         modelBuilder.Entity<Person>()
             .Property(b => b.Id)
@@ -122,7 +143,9 @@ public class OMGdbContext : DbContext
             .HasDefaultValue("0");
 
         modelBuilder.Entity<Person>()
-            .HasIndex(b => b.Popularity);
+            .HasIndex(b => b.Popularity)
+            .HasDatabaseName("ix_person_popularity")
+            .IsDescending();
 
         //Actor
         modelBuilder.Entity<Actor>(e=>

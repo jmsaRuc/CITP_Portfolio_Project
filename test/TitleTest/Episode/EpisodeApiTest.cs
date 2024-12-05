@@ -36,7 +36,23 @@ public class EpisodeApiTest
     }
 
     [Fact]
-    public void Test2_GetEpisodeId(){
+    public void Test2_GetEpisodesSortedImdb(){
+
+        var url = $"https://localhost/api/episode?sortBy=imdbRating";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<EpisodeSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.NotNull(body[0].ImdbRating);
+        Assert.True(body[0].ImdbRating >= body[1].ImdbRating);
+    }
+
+    [Fact]
+    public void Test3_GetEpisodeId(){
 
         var url = $"https://localhost/api/episode/tt0959621";
 
@@ -56,7 +72,7 @@ public class EpisodeApiTest
     }
 
     [Fact]
-    public void Test3_GetEpisodeIdInvalid(){
+    public void Test4_GetEpisodeIdInvalid(){
         var invalID = "tt0and0>1";
         var url = $"https://localhost/api/episode/{invalID}";
 
@@ -73,7 +89,7 @@ public class EpisodeApiTest
     ///////////////////////////////////////////////////////////////////////episode/{id}/actors////////////////////////////////////////////////////
     
     [Fact]
-    public void Test4_GetEpisodeActors(){
+    public void Test5_GetEpisodeActors(){
 
         var url = $"https://localhost/api/episode/tt0959621/actors?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
@@ -91,7 +107,7 @@ public class EpisodeApiTest
     }
 
     [Fact]
-    public void Test5_GetEpisodeActorsInvalid(){
+    public void Test6_GetEpisodeActorsInvalid(){
 
         var invalID = "tt23452345";
         var url = $"https://localhost/api/episode/{invalID}/actors";

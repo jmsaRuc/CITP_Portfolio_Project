@@ -21,7 +21,7 @@ namespace OMGdbApi.Controllers
 
         // GET: api/series
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Series>>> GetSeries(int? pageSize, int? pageNumber)
+        public async Task<ActionResult<IEnumerable<Series>>> GetSeries(int? pageSize, int? pageNumber, string? sortBy)
         {
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
@@ -41,11 +41,25 @@ namespace OMGdbApi.Controllers
                 {
                     pageNumber = 1;
                 }
+            }
+
+            var series = from e in _context.Series select e;
+
+            switch (sortBy)
+            {
+                case "imdbRating":
+                    series = series.OrderByDescending(e => e.ImdbRating);
+                    break;
+                case "averageRating":
+                    series = series.OrderByDescending(e => e.AverageRating);
+                    break;    
+                default:
+                    series = series.OrderByDescending(e => e.Popularity);
+                    break;
             }   
 
-            return await _context.Series
+            return await series
             .AsNoTracking()
-            .OrderBy(x => x.Popularity)
             .Skip((int)((pageNumber - 1) * pageSize))
             .Take((int)pageSize)
             .ToListAsync();

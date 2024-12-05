@@ -35,7 +35,23 @@ public class MovieApiTest
     }
 
     [Fact]
-    public void Test2_GetMovieId(){
+    public void Test2_GetMoviesSortedImdb(){
+
+        var url = $"https://localhost/api/movie?sortBy=imdbRating";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<MovieSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.NotNull(body[0].ImdbRating);
+        Assert.True(body[0].ImdbRating >= body[1].ImdbRating);
+    }
+
+    [Fact]
+    public void Test3_GetMovieId(){
 
         var url = $"https://localhost/api/movie/tt1596363";
 
@@ -55,7 +71,7 @@ public class MovieApiTest
     }
 
     [Fact]
-    public void Test3_GetMovieIdInvalid(){
+    public void Test4_GetMovieIdInvalid(){
         var invalID = "tt0and0>1";
         var url = $"https://localhost/api/movie/{invalID}";
 
@@ -72,7 +88,7 @@ public class MovieApiTest
     ///////////////////////////////////////////////////////////////////////movie/{id}/actors////////////////////////////////////////////////////
     
     [Fact]
-    public void Test4_GetMovieActors(){
+    public void Test5_GetMovieActors(){
 
         var url = $"https://localhost/api/movie/tt1596363/actors?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
@@ -90,7 +106,7 @@ public class MovieApiTest
     }
 
     [Fact]
-    public void Test5_GetMovieActorsInvalid(){
+    public void Test6_GetMovieActorsInvalid(){
 
         var invalID = "tt20877972";
         var url = $"https://localhost/api/movie/{invalID}/actors";

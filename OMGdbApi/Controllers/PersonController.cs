@@ -44,7 +44,7 @@ namespace OMGdbApi.Controllers
 
             return await _context.Person
             .AsNoTracking()
-            .OrderBy(x => x.Popularity)
+            .OrderByDescending(x => x.Popularity)
             .Skip((int)((pageNumber - 1) * pageSize))
             .Take((int)pageSize)
             .ToListAsync();

@@ -21,7 +21,7 @@ namespace OMGdbApi.Controllers
 
         // GET: api/movie
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMovie(int? pageSize, int? pageNumber)
+        public async Task<ActionResult<IEnumerable<Movie>>> GetMovie(int? pageSize, int? pageNumber, string? sortBy)
         {
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
@@ -41,11 +41,25 @@ namespace OMGdbApi.Controllers
                 {
                     pageNumber = 1;
                 }
+            }
+
+             var movie = from e in _context.Movie select e;
+
+            switch (sortBy)
+            {
+                case "imdbRating":
+                    movie = movie.OrderByDescending(e => e.ImdbRating);
+                    break;
+                case "averageRating":
+                    movie = movie.OrderByDescending(e => e.AverageRating);
+                    break;    
+                default:
+                    movie = movie.OrderByDescending(e => e.Popularity);
+                    break;
             }   
 
-            return await _context.Movie
+            return await movie
             .AsNoTracking()
-            .OrderByDescending(x => x.Popularity)
             .Skip((int)((pageNumber - 1) * pageSize))
             .Take((int)pageSize)
             .ToListAsync();

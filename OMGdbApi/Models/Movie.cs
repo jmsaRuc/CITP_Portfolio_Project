@@ -31,10 +31,10 @@ namespace OMGdbApi.Models;
         public DateTime? ReleaseDate { get; set; }
 
         [Column("average_rating")]
-        public decimal? AverageRating { get; set; }
+        public decimal AverageRating { get; set; }
 
         [Column("imdb_rating")]
-        public decimal? ImdbRating { get; set; }
+        public decimal ImdbRating { get; set; }
 
         [Column("popularity")]
         public long Popularity { get; set; }

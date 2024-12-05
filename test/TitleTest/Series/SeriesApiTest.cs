@@ -35,7 +35,23 @@ public class SeriesApiTest
     }
 
     [Fact]
-    public void Test2_GetSeriesId(){
+    public void Test2_GetSeriessSortedImdb() {
+            
+            var url = $"https://localhost/api/series?sortBy=imdbRating";
+            var restResponse = request.GetRestRequest(url);
+            _testOutputHelper.WriteLine(restResponse.Content);
+    
+            Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+            Assert.NotNull(restResponse.Content);
+            var body = JsonSerializer.Deserialize<List<SeriesSchema>>(restResponse.Content);
+    
+            Assert.NotNull(body);
+            Assert.NotNull(body[0].ImdbRating);
+            Assert.True(body[0].ImdbRating >= body[1].ImdbRating);
+    }
+
+    [Fact]
+    public void Test3_GetSeriesId(){
 
         var url = $"https://localhost/api/series/tt20877972";
 
@@ -55,7 +71,7 @@ public class SeriesApiTest
     }
 
     [Fact]
-    public void Test3_GetSeriesIdInvalid(){
+    public void Test4_GetSeriesIdInvalid(){
         var invalID = "tt0and0>1";
         var url = $"https://localhost/api/series/{invalID}";
 
@@ -72,7 +88,7 @@ public class SeriesApiTest
     ///////////////////////////////////////////////////////////////////////series/{id}/actors////////////////////////////////////////////////////
     
     [Fact]
-    public void Test4_GetSeriesActors(){
+    public void Test5_GetSeriesActors(){
 
         var url = $"https://localhost/api/series/tt20877972/actors?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
@@ -90,7 +106,7 @@ public class SeriesApiTest
     }
 
     [Fact]
-    public void Test5_GetSeriesActorsInvalid(){
+    public void Test6_GetSeriesActorsInvalid(){
 
         var invalID = "tt1596363";
         var url = $"https://localhost/api/series/{invalID}/actors";

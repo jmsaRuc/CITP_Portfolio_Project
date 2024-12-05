@@ -28,11 +28,11 @@ namespace OMGdbApi.Models
         public string? Plot { get; set; }
 
         [Column("average_rating")]
-        public decimal? AverageRating { get; set; }
+        public decimal AverageRating { get; set; }
 
         [Column("imdb_rating")]
 
-        public decimal? ImdbRating { get; set; }
+        public decimal ImdbRating { get; set; }
 
         [Column("popularity")]
 
