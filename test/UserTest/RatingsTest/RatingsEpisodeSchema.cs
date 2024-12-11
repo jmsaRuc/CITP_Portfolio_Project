@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace test.UserTest.RatingsTest;
 
 public class RatingsEpisodeSchema
-{   
+{
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
 
@@ -12,5 +12,4 @@ public class RatingsEpisodeSchema
 
     [JsonPropertyName("rating")]
     public short? Rating { get; set; }
-
 }

@@ -24,7 +24,7 @@ public class RecentViewApiTest
     [Fact]
     public void Test1_CreateRecentView()
     {
-        //Create a new user 
+        //Create a new user
         userApiTests.Create_User();
 
         //login the user
@@ -55,7 +55,7 @@ public class RecentViewApiTest
     [Fact]
     public void Test2_CreateRecentViewInvalid()
     {
-        //Create a new user 
+        //Create a new user
         userApiTests.Create_User();
 
         //login the user
@@ -108,7 +108,7 @@ public class RecentViewApiTest
 
         //Delete the user and the recent view (when user is deleted, recentView is deleted too because of cascade)
         userApiTests.Delet_User();
-    }  
+    }
 
     [Fact]
     public void Test4_GetRecentViewInvalid()
@@ -185,7 +185,7 @@ public class RecentViewApiTest
         //Delete the recent view
         var invalidUserId = "用户ID";
         string url = $"https://localhost/api/user/{invalidUserId}/recentview/{recentView.TypeId}";
-        RestResponse restResponse = request.DeleteRestRequest(url,bodyUser, bodyUser.Token);
+        RestResponse restResponse = request.DeleteRestRequest(url, bodyUser, bodyUser.Token);
         _testOutputHelper.WriteLine(restResponse.Content);
 
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
@@ -197,7 +197,7 @@ public class RecentViewApiTest
     }
 
     ////////////////////////////////////////////////////////////////////////////////recentview/"ALL"////////////////////////////////////////////////////////////////////////////
-    
+
     [Fact]
     public void Test6_GetRecentViewAll()
     {
@@ -237,7 +237,6 @@ public class RecentViewApiTest
         Assert.NotNull(bodyUser.Token);
         Assert.NotNull(bodyUser.Id);
 
-
         //Get the recent view
         string url = $"https://localhost/api/user/{bodyUser.Id}/recentview";
         var restResponse = request.GetRestRequest(url, bodyUser.Token);
@@ -266,5 +265,4 @@ public class RecentViewApiTest
         var body = JsonSerializer.Deserialize<RecentViewSchema>(restResponse.Content!);
         return body!;
     }
-    
 }

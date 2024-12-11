@@ -250,7 +250,8 @@ CREATE TABLE IF NOT EXISTS public.recent_view (
     view_ordering bigint GENERATED ALWAYS AS IDENTITY,
     CONSTRAINT view_ordering CHECK (
         (view_ordering > (0)::bigint)
-    )
+    ),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS public.type (

@@ -1,4 +1,3 @@
-
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -296,7 +295,7 @@ namespace OMGdbApi.Controllers
         }
 
         ///////////////////////////////////////////////////////////////////rating/movie///////////////////////////////////////////////////////////////////
-        
+
         // GET: api/user/{UserId}/ratings/movie/{MovieId}
         [HttpGet("{UserId}/ratings/movie/{MovieId}")]
         [Authorize]
@@ -551,7 +550,7 @@ namespace OMGdbApi.Controllers
 
             return ratingSeries;
         }
-        
+
         // POST: api/user/ratings/series
         [HttpPost("ratings/series")]
         [Authorize]

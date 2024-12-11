@@ -1,7 +1,5 @@
-
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -41,38 +39,38 @@ builder
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
-    {
-        opt.SwaggerDoc("v1", new OpenApiInfo { Title = "OMGDB", Version = "v0.1.0" });
-        opt.AddSecurityDefinition(
-            "Bearer",
-            new OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Description = "Please enter token",
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
-                Scheme = "bearer",
-            }
-        );
+{
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "OMGDB", Version = "v0.1.0" });
+    opt.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please enter token",
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            BearerFormat = "JWT",
+            Scheme = "bearer",
+        }
+    );
 
-        opt.AddSecurityRequirement(
-            new OpenApiSecurityRequirement
+    opt.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
             {
+                new OpenApiSecurityScheme
                 {
-                    new OpenApiSecurityScheme
+                    Reference = new OpenApiReference
                     {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer",
-                        },
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
                     },
-                    new string[] { }
                 },
-            }
-        );
-    });
+                new string[] { }
+            },
+        }
+    );
+});
 
 var Configuration = builder.Configuration;
 string connection =
@@ -81,7 +79,7 @@ string connection =
 if (string.IsNullOrEmpty(connection))
 {
     throw new Exception("Connection string is not set");
-}    
+}
 builder.Services.AddDbContext<OMGdbContext>(options => options.UseNpgsql(connection));
 
 var app = builder.Build();
@@ -100,5 +98,4 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program {}
-
+public partial class Program { }

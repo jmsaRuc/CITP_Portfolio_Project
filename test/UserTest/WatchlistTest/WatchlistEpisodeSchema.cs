@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace test.UserTest.WatchlistTest;
 
 public class WatchlistEpisodeSchema
-{   
+{
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
 

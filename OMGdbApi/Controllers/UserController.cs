@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OMGdbApi.Models;
-using OMGdbApi.Service;
 using OMGdbApi.Models.Users;
+using OMGdbApi.Service;
 
 namespace OMGdbApi.Controllers
 {
@@ -32,19 +32,21 @@ namespace OMGdbApi.Controllers
         // GET: api/user
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers(int? pageSize, int? pageNumber)
-        {   
-            
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers(
+            int? pageSize,
+            int? pageNumber
+        )
+        {
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
-            if (pageNumber == null || pageNumber < 1) 
+            if (pageNumber == null || pageNumber < 1)
             {
                 pageNumber = 1;
             }
             var totalRecords = await _context.Users.CountAsync();
-            
+
             if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
@@ -55,27 +57,24 @@ namespace OMGdbApi.Controllers
                 }
             }
 
-            return await _context.Users
-            .OrderByDescending(x => x.Created_at)
-            .Skip((int)((pageNumber - 1) * pageSize))
-            .Take((int)pageSize)
-            .Select(x => UserDTO(x))     
-            .ToListAsync();
+            return await _context
+                .Users.OrderByDescending(x => x.Created_at)
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .Select(x => UserDTO(x))
+                .ToListAsync();
         }
-
-       
 
         // GET: api/user/5
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<UserDTO>> GetUser(string id)
-        {   
+        {
             if (string.IsNullOrEmpty(id))
             {
                 return BadRequest();
             }
 
-        
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
@@ -84,7 +83,7 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != user.Id)
             {
                 return Unauthorized();
@@ -98,24 +97,25 @@ namespace OMGdbApi.Controllers
         [HttpPut("{id}")]
         [Authorize]
         public async Task<ActionResult<UserDTO>> PutUser(string id, string name, string email)
-        {   
-            
-
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(id))
+        {
+            if (
+                string.IsNullOrEmpty(name)
+                || string.IsNullOrEmpty(email)
+                || string.IsNullOrEmpty(id)
+            )
             {
                 return BadRequest("Name, email or id is null");
             }
 
-            
-            var user = await _context.Users.FindAsync(id);                     
+            var user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
                 return NotFound("User not found");
-            } 
+            }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != user.Id)
             {
                 return Unauthorized("Unauthorized");
@@ -123,14 +123,14 @@ namespace OMGdbApi.Controllers
 
             user.Name = name;
             user.Email = email;
-            
+
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException) when (!UserExists(id))
             {
-               return NotFound("User not found");
+                return NotFound("User not found");
             }
 
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, UserDTO(user));
@@ -139,11 +139,9 @@ namespace OMGdbApi.Controllers
         // POST: api/user/create
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("create")]
-        public async Task<ActionResult<UserDTO>> CreateUser(UserCreate userCreate
-        )
+        public async Task<ActionResult<UserDTO>> CreateUser(UserCreate userCreate)
         {
             if (
-                
                 string.IsNullOrEmpty(userCreate.Name)
                 || string.IsNullOrEmpty(userCreate.Password)
                 || string.IsNullOrEmpty(userCreate.Email)
@@ -161,16 +159,14 @@ namespace OMGdbApi.Controllers
             (var hashedPWD, var salt) = _hasing.Hash(userCreate.Password);
 
             var user = new User
-                {
-                    Name = userCreate.Name,
-                    Password = hashedPWD,
-                    Salt = salt,
-                    Email = userCreate.Email,
-                };
+            {
+                Name = userCreate.Name,
+                Password = hashedPWD,
+                Salt = salt,
+                Email = userCreate.Email,
+            };
 
-            _context.Users.Add(
-                user
-            );
+            _context.Users.Add(user);
             try
             {
                 await _context.SaveChangesAsync();
@@ -190,30 +186,23 @@ namespace OMGdbApi.Controllers
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, UserDTO(user));
         }
 
-         // PUT: api/user/login
+        // PUT: api/user/login
         [HttpPut("login")]
-        public async Task<ActionResult<UserLogin>> Login(
-            string email,
-            string loginPassword
-        )
+        public async Task<ActionResult<UserLogin>> Login(string email, string loginPassword)
         {
-            if (
-                string.IsNullOrEmpty(email)
-                || string.IsNullOrEmpty(loginPassword)
-            )
-            {   
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(loginPassword))
+            {
                 return BadRequest();
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-            
 
             if (user == null || user.Email == null || user.Password == null || user.Salt == null)
             {
                 return NotFound();
             }
 
-            if  (user.Id != null && !UserExists(user.Id))
+            if (user.Id != null && !UserExists(user.Id))
             {
                 return NotFound();
             }
@@ -238,9 +227,9 @@ namespace OMGdbApi.Controllers
             var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
 
             if (string.IsNullOrEmpty(secret))
-            {   
+            {
                 Console.WriteLine("ERROR: JWT_SECRET is not set");
-                
+
                 return StatusCode(500);
             }
 
@@ -258,19 +247,14 @@ namespace OMGdbApi.Controllers
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return Ok(new UserLogin
-            {
-                Id = user.Id,
-                Token = jwt
-            });
+            return Ok(new UserLogin { Id = user.Id, Token = jwt });
         }
-
 
         // DELETE: api/User/5
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
-        {   
+        {
             if (string.IsNullOrEmpty(id))
             {
                 return BadRequest();
@@ -283,7 +267,7 @@ namespace OMGdbApi.Controllers
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (token_id != user.Id)
             {
                 return Unauthorized();
@@ -307,7 +291,6 @@ namespace OMGdbApi.Controllers
                 Name = user.Name,
                 Email = user.Email,
                 Created_at = user.Created_at,
-            };   
-
+            };
     }
 }

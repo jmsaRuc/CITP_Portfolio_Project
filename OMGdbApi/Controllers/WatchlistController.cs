@@ -1,9 +1,7 @@
-
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using OMGdbApi.Models;
 using OMGdbApi.Models.Users.Watchlist;
 using OMGdbApi.Service;
@@ -16,17 +14,17 @@ namespace OMGdbApi.Controllers
     {
         private readonly OMGdbContext _context;
 
-        private readonly ValidateIDs _validateIDs = new(); 
+        private readonly ValidateIDs _validateIDs = new();
 
         public WatchlistController(OMGdbContext context, ValidateIDs validateIDs)
         {
             _context = context;
-            
+
             _validateIDs = validateIDs;
         }
 
         ///////////////////////////////////////////////watchlist/"ALL"////////////////////////////////////////////////////////////////////////////
-        
+
         // GET: api/user/{UserId}/watchlist
         [HttpGet("{UserId}/watchlist")]
         [Authorize]
@@ -490,7 +488,6 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteWatchlistSeries(string UserId, string SeriesId)
         {
-            
             if (!_validateIDs.ValidateUserId(UserId))
             {
                 return BadRequest("Invalid UserId");

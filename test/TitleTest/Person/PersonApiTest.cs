@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Xunit.Abstractions;
+
 namespace test.TitleTest.Person;
 
 public class PersonApiTest
@@ -17,8 +18,8 @@ public class PersonApiTest
     ////////////////////////////////////////////////////////////////////person////////////////////////////////////////////////////
 
     [Fact]
-    public void Test1_GetPersons(){
-
+    public void Test1_GetPersons()
+    {
         var url = $"https://localhost/api/person?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
@@ -31,12 +32,11 @@ public class PersonApiTest
         Assert.Equal(3, body.Count);
         Assert.NotNull(body[0].PersonId);
         Assert.NotNull(body[0].Name);
-        
     }
 
     [Fact]
-    public void Test2_GetPersonId(){
-
+    public void Test2_GetPersonId()
+    {
         var url = $"https://localhost/api/person/nm0186505";
 
         var restResponse = request.GetRestRequest(url);
@@ -50,12 +50,11 @@ public class PersonApiTest
         Assert.NotNull(body);
         Assert.Equal("nm0186505", body.PersonId);
         Assert.NotNull(body.Name);
-    
-        
     }
 
     [Fact]
-    public void Test3_GetPersonIdInvalid(){
+    public void Test3_GetPersonIdInvalid()
+    {
         var invalID = "nm0and0>1";
         var url = $"https://localhost/api/person/{invalID}";
 

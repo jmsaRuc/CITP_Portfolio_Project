@@ -1,5 +1,5 @@
-
 using System.ComponentModel.DataAnnotations.Schema;
+
 namespace OMGdbApi.Models.Users.Recent_View;
 
 [Table("recent_view")]
@@ -14,4 +14,6 @@ public class RecentView
     [Column("view_ordering")]
     public long ViewOrdering { get; private set; }
 
+    [Column("created_at")]
+    public DateTime CreatedAt { get; private set; }
 }

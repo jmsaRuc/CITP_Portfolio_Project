@@ -21,18 +21,22 @@ namespace OMGdbApi.Controllers
 
         // GET: api/series
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Series>>> GetSeries(int? pageSize, int? pageNumber, string? sortBy)
+        public async Task<ActionResult<IEnumerable<Series>>> GetSeries(
+            int? pageSize,
+            int? pageNumber,
+            string? sortBy
+        )
         {
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
-            if (pageNumber == null || pageNumber < 1) 
+            if (pageNumber == null || pageNumber < 1)
             {
                 pageNumber = 1;
             }
             var totalRecords = await _context.Series.CountAsync();
-            
+
             if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
@@ -52,23 +56,23 @@ namespace OMGdbApi.Controllers
                     break;
                 case "averageRating":
                     series = series.OrderByDescending(e => e.AverageRating);
-                    break;    
+                    break;
                 default:
                     series = series.OrderByDescending(e => e.Popularity);
                     break;
-            }   
+            }
 
             return await series
-            .AsNoTracking()
-            .Skip((int)((pageNumber - 1) * pageSize))
-            .Take((int)pageSize)
-            .ToListAsync();
+                .AsNoTracking()
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .ToListAsync();
         }
 
         // GET: api/series/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Series>> GetSeries(string id)
-        {   
+        {
             if (!_validateIDs.ValidateTitleId(id))
             {
                 return BadRequest("Invalid title id");
@@ -86,7 +90,11 @@ namespace OMGdbApi.Controllers
 
         // PUT: api/series/{id}/actors
         [HttpGet("{id}/actors")]
-        public async Task<ActionResult<IEnumerable<Actor>>> GetActor(string id, int? pageSize, int? pageNumber)
+        public async Task<ActionResult<IEnumerable<Actor>>> GetActor(
+            string id,
+            int? pageSize,
+            int? pageNumber
+        )
         {
             if (!_validateIDs.ValidateTitleId(id))
             {
@@ -103,7 +111,7 @@ namespace OMGdbApi.Controllers
                 pageSize = 10;
             }
 
-            if (pageNumber == null || pageNumber < 1) 
+            if (pageNumber == null || pageNumber < 1)
             {
                 pageNumber = 1;
             }
@@ -128,9 +136,8 @@ namespace OMGdbApi.Controllers
                 .Skip((int)((pageNumber - 1) * pageSize))
                 .Take((int)pageSize)
                 .ToListAsync();
-
         }
-        
+
         private bool SeriesExists(string id)
         {
             return _context.Series.Any(e => e.Id == id);

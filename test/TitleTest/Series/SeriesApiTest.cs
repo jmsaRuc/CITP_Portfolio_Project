@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Xunit.Abstractions;
+
 namespace test.TitleTest.Series;
 
 public class SeriesApiTest
@@ -17,8 +18,8 @@ public class SeriesApiTest
     ////////////////////////////////////////////////////////////////////series////////////////////////////////////////////////////
 
     [Fact]
-    public void Test1_GetSeriess(){
-
+    public void Test1_GetSeriess()
+    {
         var url = $"https://localhost/api/series?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
@@ -31,28 +32,27 @@ public class SeriesApiTest
         Assert.Equal(3, body.Count);
         Assert.NotNull(body[0].SeriesId);
         Assert.NotNull(body[0].Title);
-        
     }
 
     [Fact]
-    public void Test2_GetSeriessSortedImdb() {
-            
-            var url = $"https://localhost/api/series?sortBy=imdbRating";
-            var restResponse = request.GetRestRequest(url);
-            _testOutputHelper.WriteLine(restResponse.Content);
-    
-            Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
-            Assert.NotNull(restResponse.Content);
-            var body = JsonSerializer.Deserialize<List<SeriesSchema>>(restResponse.Content);
-    
-            Assert.NotNull(body);
-            Assert.NotNull(body[0].ImdbRating);
-            Assert.True(body[0].ImdbRating >= body[1].ImdbRating);
+    public void Test2_GetSeriessSortedImdb()
+    {
+        var url = $"https://localhost/api/series?sortBy=imdbRating";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<SeriesSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.NotNull(body[0].ImdbRating);
+        Assert.True(body[0].ImdbRating >= body[1].ImdbRating);
     }
 
     [Fact]
-    public void Test3_GetSeriesId(){
-
+    public void Test3_GetSeriesId()
+    {
         var url = $"https://localhost/api/series/tt20877972";
 
         var restResponse = request.GetRestRequest(url);
@@ -66,12 +66,11 @@ public class SeriesApiTest
         Assert.NotNull(body);
         Assert.Equal("tt20877972", body.SeriesId);
         Assert.NotNull(body.Title);
-    
-        
     }
 
     [Fact]
-    public void Test4_GetSeriesIdInvalid(){
+    public void Test4_GetSeriesIdInvalid()
+    {
         var invalID = "tt0and0>1";
         var url = $"https://localhost/api/series/{invalID}";
 
@@ -84,12 +83,11 @@ public class SeriesApiTest
         Assert.Contains("Invalid title id", restResponse.Content);
     }
 
-    
     ///////////////////////////////////////////////////////////////////////series/{id}/actors////////////////////////////////////////////////////
-    
-    [Fact]
-    public void Test5_GetSeriesActors(){
 
+    [Fact]
+    public void Test5_GetSeriesActors()
+    {
         var url = $"https://localhost/api/series/tt20877972/actors?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
@@ -102,12 +100,11 @@ public class SeriesApiTest
         Assert.Equal(one, body.Count);
         Assert.NotNull(body[0].PersonId);
         Assert.NotNull(body[0].Name);
-        
     }
 
     [Fact]
-    public void Test6_GetSeriesActorsInvalid(){
-
+    public void Test6_GetSeriesActorsInvalid()
+    {
         var invalID = "tt1596363";
         var url = $"https://localhost/api/series/{invalID}/actors";
 

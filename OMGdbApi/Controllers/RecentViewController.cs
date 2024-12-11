@@ -158,7 +158,6 @@ namespace OMGdbApi.Controllers
                 return Unauthorized("Unauthorized");
             }
 
-
             if (RecentViewExists(recentView.UserId!, recentView.TypeId!))
             {
                 await DeleteRecentView(recentView.UserId!, recentView.TypeId!);
@@ -184,7 +183,7 @@ namespace OMGdbApi.Controllers
 
             return CreatedAtAction(
                 nameof(GetRecentView),
-                new {recentView.UserId, recentView.TypeId},
+                new { recentView.UserId, recentView.TypeId },
                 recentView
             );
         }

@@ -1,4 +1,3 @@
-
 using System.Text.Json.Serialization;
 
 namespace test.TitleTest.Series;
@@ -31,5 +30,4 @@ public class SeriesSchema
 
     [JsonPropertyName("popularity")]
     public long? Popularity { get; set; }
-
 }

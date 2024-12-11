@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OMGdbApi.Models;
 using OMGdbApi.Service;
+
 namespace OMGdbApi.Controllers
 {
     [Route("api/person")]
@@ -20,18 +21,21 @@ namespace OMGdbApi.Controllers
 
         // GET: api/Person
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Person>>> GetPerson(int? pageSize, int? pageNumber)
+        public async Task<ActionResult<IEnumerable<Person>>> GetPerson(
+            int? pageSize,
+            int? pageNumber
+        )
         {
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
-            if (pageNumber == null || pageNumber < 1) 
+            if (pageNumber == null || pageNumber < 1)
             {
                 pageNumber = 1;
             }
             var totalRecords = await _context.Person.CountAsync();
-            
+
             if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
@@ -40,21 +44,20 @@ namespace OMGdbApi.Controllers
                 {
                     pageNumber = 1;
                 }
-            }   
+            }
 
-            return await _context.Person
-            .AsNoTracking()
-            .OrderByDescending(x => x.Popularity)
-            .Skip((int)((pageNumber - 1) * pageSize))
-            .Take((int)pageSize)
-            .ToListAsync();
+            return await _context
+                .Person.AsNoTracking()
+                .OrderByDescending(x => x.Popularity)
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .ToListAsync();
         }
 
         // GET: api/Person/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Person>> GetPerson(string id)
-        {   
-
+        {
             if (!_validateIDs.ValidatePersonId(id))
             {
                 return BadRequest("Invalid person id");

@@ -1,5 +1,5 @@
-
 using System.Text.Json.Serialization;
+
 namespace test.UserTest.WatchlistTest;
 
 public class WatchlistMovieSchema
@@ -12,5 +12,4 @@ public class WatchlistMovieSchema
 
     [JsonPropertyName("watchlist_order")]
     public long? Watchlist_order { get; set; }
-
 }

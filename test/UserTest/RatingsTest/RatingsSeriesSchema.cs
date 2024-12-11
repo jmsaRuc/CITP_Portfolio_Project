@@ -12,5 +12,4 @@ public class RatingsSeriesSchema
 
     [JsonPropertyName("rating")]
     public short? Rating { get; set; }
-
 }

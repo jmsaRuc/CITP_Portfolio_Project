@@ -1,5 +1,4 @@
 using System;
-
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OMGdbApi.Models.Users.Ratings;
@@ -15,5 +14,4 @@ public class RatingSeries
 
     [Column("rating")]
     public short? Rating { get; set; }
-
 }

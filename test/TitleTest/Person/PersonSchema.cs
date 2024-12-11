@@ -21,6 +21,4 @@ public class PersonSchema
 
     [JsonPropertyName("popularity")]
     public long? Popularity { get; set; }
-
 }
-

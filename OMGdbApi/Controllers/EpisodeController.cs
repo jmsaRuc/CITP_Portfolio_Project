@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OMGdbApi.Models;
 using OMGdbApi.Service;
+
 namespace OMGdbApi.Controllers
 {
     [Route("api/episode")]
@@ -21,23 +22,26 @@ namespace OMGdbApi.Controllers
 
         // GET: api/episode
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Episode>>> GetEpisode(int? pageSize, int? pageNumber, string? sortBy)
-        {    
-
+        public async Task<ActionResult<IEnumerable<Episode>>> GetEpisode(
+            int? pageSize,
+            int? pageNumber,
+            string? sortBy
+        )
+        {
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
             }
-            if (pageNumber == null || pageNumber < 1) 
+            if (pageNumber == null || pageNumber < 1)
             {
                 pageNumber = 1;
             }
             var totalRecords = await _context.Episode.CountAsync();
-            
+
             if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
-                
+
                 if (pageNumber <= 0)
                 {
                     pageNumber = 1;
@@ -53,12 +57,12 @@ namespace OMGdbApi.Controllers
                     break;
                 case "averageRating":
                     episode = episode.OrderByDescending(e => e.AverageRating);
-                    break;    
+                    break;
                 default:
                     episode = episode.OrderByDescending(e => e.Popularity);
                     break;
             }
-            
+
             return await episode
                 .AsNoTracking()
                 .Skip((int)((pageNumber - 1) * pageSize))
@@ -69,7 +73,7 @@ namespace OMGdbApi.Controllers
         // GET: api/episode/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Episode>> GetEpisode(string id)
-        {   
+        {
             if (!_validateIDs.ValidateTitleId(id))
             {
                 return BadRequest("Invalid title id");
@@ -84,10 +88,14 @@ namespace OMGdbApi.Controllers
 
             return episode;
         }
-        
+
         // GET: api/episode/{id}/actors
         [HttpGet("{id}/actors")]
-        public async Task<ActionResult<IEnumerable<Actor>>> GetActor(string id, int? pageSize, int? pageNumber)
+        public async Task<ActionResult<IEnumerable<Actor>>> GetActor(
+            string id,
+            int? pageSize,
+            int? pageNumber
+        )
         {
             if (!_validateIDs.ValidateTitleId(id))
             {
@@ -104,7 +112,7 @@ namespace OMGdbApi.Controllers
                 pageSize = 10;
             }
 
-            if (pageNumber == null || pageNumber < 1) 
+            if (pageNumber == null || pageNumber < 1)
             {
                 pageNumber = 1;
             }
@@ -128,7 +136,6 @@ namespace OMGdbApi.Controllers
                 .Skip((int)((pageNumber - 1) * pageSize))
                 .Take((int)pageSize)
                 .ToListAsync();
-
         }
 
         private bool EpisodeExists(string id)
@@ -136,6 +143,4 @@ namespace OMGdbApi.Controllers
             return _context.Episode.Any(e => e.Id == id);
         }
     }
-
-}  
-
+}

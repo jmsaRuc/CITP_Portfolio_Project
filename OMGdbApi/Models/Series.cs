@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Numerics;
 
-
 namespace OMGdbApi.Models
 {
     [Table("series")]
@@ -24,18 +23,15 @@ namespace OMGdbApi.Models
         public string? Poster { get; set; }
 
         [Column("plot")]
-        
         public string? Plot { get; set; }
 
         [Column("average_rating")]
         public decimal AverageRating { get; set; }
 
         [Column("imdb_rating")]
-
         public decimal ImdbRating { get; set; }
 
         [Column("popularity")]
-
-       public long Popularity { get; set; }
+        public long Popularity { get; set; }
     }
 }

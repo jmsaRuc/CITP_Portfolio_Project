@@ -62,7 +62,6 @@ public class ValidateIDs
 
         return true;
     }
-    
 
     // General validation for all IDs
     private static bool GeneralValidate(string? Id)
@@ -97,7 +96,7 @@ public class ValidateIDs
             return false;
         }
 
-        string IdNumber = Id != null ? Id[2..] : string.Empty; 
+        string IdNumber = Id != null ? Id[2..] : string.Empty;
 
         if (!int.TryParse(IdNumber, out int _))
         {

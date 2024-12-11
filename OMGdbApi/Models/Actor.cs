@@ -1,5 +1,5 @@
-
 using System.ComponentModel.DataAnnotations.Schema;
+
 namespace OMGdbApi.Models;
 
 public class Actor
@@ -15,5 +15,4 @@ public class Actor
 
     [Column("cast_order_v")]
     public long CastOrder { get; set; }
-
 }

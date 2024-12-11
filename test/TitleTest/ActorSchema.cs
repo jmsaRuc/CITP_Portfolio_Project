@@ -14,8 +14,5 @@ public class ActorSchema
     public string? Character { get; set; }
 
     [JsonPropertyName("castOrder")]
-
     public long? CastOrder { get; set; }
-
 }
-

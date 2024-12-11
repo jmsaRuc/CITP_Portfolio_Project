@@ -18,8 +18,8 @@ public class EpisodeApiTest
     ////////////////////////////////////////////////////////////////////episodes////////////////////////////////////////////////////
 
     [Fact]
-    public void Test1_GetEpisodes(){
-
+    public void Test1_GetEpisodes()
+    {
         var url = $"https://localhost/api/episode?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
@@ -32,12 +32,11 @@ public class EpisodeApiTest
         Assert.Equal(3, body.Count);
         Assert.NotNull(body[0].EpisodeId);
         Assert.NotNull(body[0].Title);
-        
     }
 
     [Fact]
-    public void Test2_GetEpisodesSortedImdb(){
-
+    public void Test2_GetEpisodesSortedImdb()
+    {
         var url = $"https://localhost/api/episode?sortBy=imdbRating";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
@@ -52,8 +51,8 @@ public class EpisodeApiTest
     }
 
     [Fact]
-    public void Test3_GetEpisodeId(){
-
+    public void Test3_GetEpisodeId()
+    {
         var url = $"https://localhost/api/episode/tt0959621";
 
         var restResponse = request.GetRestRequest(url);
@@ -67,12 +66,11 @@ public class EpisodeApiTest
         Assert.NotNull(body);
         Assert.Equal("tt0959621", body.EpisodeId);
         Assert.NotNull(body.Title);
-    
-        
     }
 
     [Fact]
-    public void Test4_GetEpisodeIdInvalid(){
+    public void Test4_GetEpisodeIdInvalid()
+    {
         var invalID = "tt0and0>1";
         var url = $"https://localhost/api/episode/{invalID}";
 
@@ -85,12 +83,11 @@ public class EpisodeApiTest
         Assert.Contains("Invalid title id", restResponse.Content);
     }
 
-    
     ///////////////////////////////////////////////////////////////////////episode/{id}/actors////////////////////////////////////////////////////
-    
-    [Fact]
-    public void Test5_GetEpisodeActors(){
 
+    [Fact]
+    public void Test5_GetEpisodeActors()
+    {
         var url = $"https://localhost/api/episode/tt0959621/actors?pageSize=3&pageNumber=4";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
@@ -103,12 +100,11 @@ public class EpisodeApiTest
         Assert.Equal(2, body.Count);
         Assert.NotNull(body[0].PersonId);
         Assert.NotNull(body[0].Name);
-        
     }
 
     [Fact]
-    public void Test6_GetEpisodeActorsInvalid(){
-
+    public void Test6_GetEpisodeActorsInvalid()
+    {
         var invalID = "tt23452345";
         var url = $"https://localhost/api/episode/{invalID}/actors";
 
@@ -121,4 +117,3 @@ public class EpisodeApiTest
         Assert.Contains("Episode dose not exist", restResponse.Content);
     }
 }
-

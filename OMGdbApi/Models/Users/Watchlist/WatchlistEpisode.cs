@@ -1,9 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+
 namespace OMGdbApi.Models.Users.Watchlist;
 
 [Table("user_episode_watchlist")]
-
 public class WatchlistEpisode
 {
     [Column("user_id")]
