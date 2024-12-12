@@ -201,7 +201,7 @@ namespace OMGdbApi.Controllers
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(loginPassword))
             {
-                return BadRequest();
+                return BadRequest("Email or password is null or empty");
             }
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);

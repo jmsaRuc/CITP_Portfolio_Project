@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql;
-using OMGdbApi.Models;
+using OMGdbApi.Models.Generic;
 using OMGdbApi.Models.Users;
 using OMGdbApi.Models.Users.Ratings;
 using OMGdbApi.Models.Users.Recent_View;
@@ -14,7 +14,7 @@ public class OMGdbContext : DbContext
     public OMGdbContext(DbContextOptions<OMGdbContext> options)
         : base(options) { }
 
-    public DbSet<User> Users { get; set; } = null!;
+    ////// "Main" Entitys
 
     public DbSet<Episode> Episode { get; set; } = null!;
 
@@ -25,6 +25,9 @@ public class OMGdbContext : DbContext
     public DbSet<Person> Person { get; set; } = null!;
 
     public DbSet<Actor> Actor { get; set; } = null!;
+
+    ////// User
+    public DbSet<User> Users { get; set; } = null!;
 
     public DbSet<WatchlistAll> WatchlistAll { get; set; } = null!;
 
@@ -46,23 +49,13 @@ public class OMGdbContext : DbContext
 
     public DbSet<RecentView> RecentView { get; set; } = null!;
 
+    ////// Generic
+
+    public DbSet<TopWeeklyTitles> TopWeeklyTitles { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //User
-        modelBuilder
-            .Entity<User>()
-            .Property(b => b.Id)
-            .HasDefaultValueSql(
-                "('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))"
-            );
-
-        modelBuilder.Entity<User>().Property(b => b.Created_at).HasDefaultValueSql("getdate()");
-
-        modelBuilder
-            .Entity<User>()
-            .HasIndex(b => b.Created_at)
-            .HasDatabaseName("ix_user_created_at")
-            .IsDescending();
+        /////////////////////////////////////////"Main" Entitys/////////////////////////////////////////
 
         //Episode
         modelBuilder
@@ -161,6 +154,24 @@ public class OMGdbContext : DbContext
             e.HasNoKey();
         });
 
+        /////////////////////////////////////////////User/////////////////////////////////////////////
+
+        //User
+        modelBuilder
+            .Entity<User>()
+            .Property(b => b.Id)
+            .HasDefaultValueSql(
+                "('ur' || to_char(nextval('public.user_seq'::regclass), 'FM00000000'))"
+            );
+
+        modelBuilder.Entity<User>().Property(b => b.Created_at).HasDefaultValueSql("getdate()");
+
+        modelBuilder
+            .Entity<User>()
+            .HasIndex(b => b.Created_at)
+            .HasDatabaseName("ix_user_created_at")
+            .IsDescending();
+
         //WatchlistAll
         modelBuilder.Entity<WatchlistAll>(e =>
         {
@@ -225,5 +236,30 @@ public class OMGdbContext : DbContext
 
             e.Property(b => b.CreatedAt).HasDefaultValueSql("now()");
         });
+
+        ///////////////////////////////////////////////////Generic///////////////////////////////////////////////
+
+        //TopWeeklyTitles
+        modelBuilder.Entity<TopWeeklyTitles>(e =>
+        {
+            e.HasNoKey();
+        });
+
+        modelBuilder
+            .Entity<TopWeeklyTitles>()
+            .HasIndex(b => new
+            {
+                b.Popularity,
+                b.DailyTimeStampFromRecentV,
+                b.AverageRating,
+                b.ImdbRating,
+            })
+            .HasDatabaseName("ix_t_week_pop_avg_and_imdb_rating")
+            .IsDescending();
+
+        modelBuilder
+            .Entity<TopWeeklyTitles>()
+            .HasIndex(b => b.TitleId)
+            .HasDatabaseName("ix_t_week_type_id");
     }
 }

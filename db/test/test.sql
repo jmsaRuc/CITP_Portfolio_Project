@@ -1158,7 +1158,7 @@ WHERE
     );
 
 DELETE FROM public."user" WHERE username LIKE 'user%';
-
+REFRESH MATERIALIZED VIEW public.top_this_week;
 SELECT * FROM pgtap.finish ();
 
 END;

@@ -1,11 +1,10 @@
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OMGdbApi;
 using OMGdbApi.Models;
-using OMGdbApi.Models.Users;
 using OMGdbApi.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,7 +52,17 @@ builder
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "OMGDB", Version = "v0.1.0" });
+    opt.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
+        {
+            Title = "OMGDB API",
+            Version = "v0.1.0",
+            Description =
+                "The OMGDB API provides endpoints for interacting with the OMGDB database."
+                + " It uses JWT authentication for securing the endpoints and supports CORS for specified origins.",
+        }
+    );
     opt.AddSecurityDefinition(
         "Bearer",
         new OpenApiSecurityScheme
@@ -83,6 +92,9 @@ builder.Services.AddSwaggerGen(opt =>
             },
         }
     );
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    opt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 var Configuration = builder.Configuration;
@@ -99,8 +111,16 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "api/docs/{documentname}/swagger.json";
+});
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/api/docs/v1/swagger.json", "OMGDB API v0.1.0");
+    c.RoutePrefix = "api/docs";
+});
 
 app.UseHttpsRedirection();
 

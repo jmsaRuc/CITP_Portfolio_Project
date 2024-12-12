@@ -65,7 +65,8 @@ namespace test.UserTest
             Assert.NotNull(body.Id);
 
             //test
-
+            response = request.PostFakeApiRequest(url);
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
 
             //delet user
             user = (UserSchema)RequestClassUser.BuildBodyUser();
