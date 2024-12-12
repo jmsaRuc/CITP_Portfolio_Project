@@ -51,5 +51,12 @@ ON public.user_movie_watchlist (watchlist ASC);
 ------------------------------------------recent view------------------------------------------------------
 
 CREATE INDEX IF NOT EXISTS IX_recent_view_view_ordering
-ON public.recent_view (view_ordering DESC);
+ON public.recent_view (view_ordering DESC, created_at DESC);
 
+------------------------------------------top this week (materilized_views)------------------------------------------------------
+
+CREATE INDEX IF NOT EXISTS IX_T_week_pop_avg_and_imdb_rating
+ON public.top_this_week (popularity DESC, pop_created_at DESC, average_rating DESC, imdb_rating DESC);
+
+CREATE UNIQUE INDEX IF NOT EXISTS IX_T_week_type_id
+ON public.top_this_week (type_id_v);

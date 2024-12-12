@@ -1,5 +1,3 @@
-
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Data base test
@@ -11,7 +9,11 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (48);
+SELECT pgtap.plan (49);
+
+----clean up posibel dummmy users befor
+
+DELETE FROM public."user" WHERE username LIKE 'user%';
 
 --------------------------------------------------------------------------------
 -- singel user test
@@ -866,6 +868,17 @@ SELECT pgtap.is (
             ORDER BY view_order DESC
             LIMIT 1
         ), 'get_user_recent_view'
+    );
+--------------------------------------------test top week (materualized_views) -----------------------------------
+REFRESH MATERIALIZED VIEW CONCURRENTLY public.top_this_week;
+
+SELECT pgtap.ok (
+        (
+            SELECT popularity
+            FROM public.top_this_week
+            ORDER BY popularity ASC
+            LIMIT 1
+        ) >= 1, 'top_this_week'
     );
 -----------------------------------test rating insert triggers when meny --------------------------------------------
 SELECT pgtap.is (

@@ -40,4 +40,14 @@ echo "DROPPING indexes DONE"
 
 echo "\n"
 
+echo "DROPPING Materialized_views...."
+
+PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/create_materialized_views/drop.sql > /dev/null
+
+echo "\n"
+
+echo "DROPPING Materialized_views DONE"
+
+echo "\n"
+
 echo "--------------------------------------DELETING IMPORTED DATABASE DONE"

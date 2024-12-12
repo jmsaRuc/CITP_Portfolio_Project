@@ -29,11 +29,13 @@ services:
     hostname: localhost
     ports:
       - "5532:5432"
+    shm_size: '1gb'  
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: ${OMGDB_POSTGRES_PASSWORD}
       POSTGRES_DB: OMGDB_db
     volumes:
+      - ./customPostgresql.conf:/etc/postgresql.conf
       - citp_portfolio_project_postgres-data-OMGDB:/var/lib/postgresql/data
     restart: unless-stopped
 

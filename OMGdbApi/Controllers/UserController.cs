@@ -22,11 +22,15 @@ namespace OMGdbApi.Controllers
         private readonly OMGdbContext _context;
         private readonly Hashing _hasing = new();
 
-        public UserController(OMGdbContext context, Hashing hasing)
+        private readonly ValidateIDs _validateIDs = new();
+
+        public UserController(OMGdbContext context, Hashing hasing, ValidateIDs validateIDs)
         {
             _context = context;
 
             _hasing = hasing;
+
+            _validateIDs = validateIDs;
         }
 
         // GET: api/user
@@ -70,23 +74,23 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<ActionResult<UserDTO>> GetUser(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            if (!_validateIDs.ValidateUserId(id))
             {
-                return BadRequest();
+                return BadRequest("Invalid User Id");
             }
 
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User not found");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (token_id != user.Id)
             {
-                return Unauthorized();
+                return Unauthorized("Unauthorized");
             }
 
             return UserDTO(user);
@@ -98,6 +102,11 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<ActionResult<UserDTO>> PutUser(string id, string name, string email)
         {
+            if (!_validateIDs.ValidateUserId(id))
+            {
+                return BadRequest("Invalid User Id");
+            }
+
             if (
                 string.IsNullOrEmpty(name)
                 || string.IsNullOrEmpty(email)
@@ -255,9 +264,9 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            if (!_validateIDs.ValidateUserId(id))
             {
-                return BadRequest();
+                return BadRequest("Invalid User Id");
             }
 
             var user = await _context.Users.FindAsync(id);

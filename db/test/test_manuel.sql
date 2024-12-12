@@ -16,6 +16,8 @@ FROM is_in_series
 WHERE series_id = 'tt20877972'
 ORDER BY cast_order ASC
 
+SELECT *
+FROM public.top_this_week
 
 
 SELECT *
@@ -46,7 +48,27 @@ FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
 WHERE title_type = 'episode'
 ORDER BY title_id DESC
 LIMIT 1;
+--------------test materialized view 
+REFRESH MATERIALIZED VIEW public.top_this_week;
 
+--- test if if there is duplicate
+
+SELECT "type_id_v", count(type_id_v)
+FROM public.top_this_week
+GROUP BY type_id_v
+HAVING count(type_id_v) > 1;
+
+SELECT *
+FROM public.top_this_week
+ORDER BY popularity desc
+
+SELECT *
+FROM public.movie
+ORDER BY popularity desc
+
+INSERT INTO
+    public.recent_view ("user_id", "type_id")
+VALUES ('ur00008023', 'tt16383406');
 
 ----test get user recent view
 SELECT "type_id", max(view_ordering)

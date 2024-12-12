@@ -191,8 +191,9 @@ namespace test.UserTest
                 tokenBody.Token,
                 "https://localhost/api/user/invalid-id"
             );
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.NotNull(response.Content);
+            Assert.Contains("Invalid User Id", response.Content);
             //delet user
             Delet_User();
         }
@@ -239,7 +240,10 @@ namespace test.UserTest
             var tokenBody = Login();
             Assert.NotNull(tokenBody.Token);
             RestResponse response = request.PutFakeApiRequestUser("invalid-id", tokenBody.Token);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            Assert.NotNull(response.Content);
+            Assert.Contains("Invalid User Id", response.Content);
 
             //delet user
             Delet_User();

@@ -11,8 +11,21 @@ using OMGdbApi.Service;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var AllowSpecificOrigins = Environment.GetEnvironmentVariable("OMGDB_AllOWED_ORIGENS") ?? "*";
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins(AllowSpecificOrigins).AllowAnyHeader().AllowAnyMethod();
+            ;
+        }
+    );
+});
 builder.Services.AddControllers();
 builder.Services.AddSingleton(new Hashing());
 builder.Services.AddSingleton(new ValidateIDs());
@@ -90,6 +103,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -12,4 +12,7 @@ public class RecentViewSchema
 
     [JsonPropertyName("viewOrdering")]
     public long? ViewOrdering { get; private set; }
+
+    [JsonPropertyName("createdAt")]
+    public DateTime? CreatedAt { get; private set; }
 }
