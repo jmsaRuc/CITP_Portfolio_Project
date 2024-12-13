@@ -1,13 +1,16 @@
-using System;
+using OMGdbApi.Models;
 
 namespace OMGdbApi.Service;
 
 public class ValidateIDs
 {
+    public GenreAll[]? PossibleGenreNames { get; set; }
+
     // Validate the different IDs that are used in the database
     /// - User id
     /// - Title id
     /// - Person id
+    /// - Genre name
 
     public bool ValidateUserId(string? UserId)
     {
@@ -56,6 +59,25 @@ public class ValidateIDs
         char SplitPersonId2 = PersonId != null ? PersonId[1] : '\0';
 
         if (SplitPersonId1 != 'n' || SplitPersonId2 != 'm')
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool ValidateGenreName(string? GenreName)
+    {
+        if (PossibleGenreNames == null || PossibleGenreNames.Length == 0)
+        {
+            throw new Exception("PossibleGenreNames is not set");
+        }
+
+        if (
+            PossibleGenreNames == null
+            || PossibleGenreNames.Length == 0
+            || !Array.Exists(PossibleGenreNames, e => e.GenreName == GenreName)
+        )
         {
             return false;
         }

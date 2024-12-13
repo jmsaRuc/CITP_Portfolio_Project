@@ -10,10 +10,10 @@ BEGIN
     FOR i IN 1..1000 LOOP
         INSERT INTO public."user" (username, "password", salt, email)
         VALUES (
-            'user' || i,
-            sha256(('user' || i)::bytea),
-            sha256(('user' || i || '@example.com')::bytea),
-            'user' || i || '@example.com'
+            'usr' || i,
+            sha256(('usr' || i)::bytea),
+            sha256(('usr' || i || '@example.com')::bytea),
+            'usr' || i || '@example.com'
         );
     END LOOP;
 END $$;
@@ -35,7 +35,7 @@ BEGIN
     SELECT array_agg("type_id" ORDER BY random()) INTO type_ids FROM public.type;
 
     FOR i IN 1..1000 LOOP
-        new_user_id := (SELECT "user_id" FROM public."user" WHERE username = 'user' || i);
+        new_user_id := (SELECT "user_id" FROM public."user" WHERE username = 'usr' || i);
 
         -- Insert 10 user_movie_watchlist
         FOR j IN 1..10 LOOP
@@ -132,7 +132,7 @@ WHERE
 
 DELETE FROM public."user"
 WHERE
-    username LIKE 'user%';
+    username LIKE 'usr%';
 
 REFRESH MATERIALIZED VIEW public.top_this_week;
 

@@ -26,6 +26,9 @@ public class OMGdbContext : DbContext
 
     public DbSet<Actor> Actor { get; set; } = null!;
 
+    public DbSet<GenreAll> GenreAll { get; set; } = null!;
+    public DbSet<Genre> Genre { get; set; } = null!;
+
     ////// User
     public DbSet<User> Users { get; set; } = null!;
 
@@ -148,8 +151,20 @@ public class OMGdbContext : DbContext
             .HasDatabaseName("ix_person_popularity")
             .IsDescending();
 
-        //Actor
+        //Top_Actor
         modelBuilder.Entity<Actor>(e =>
+        {
+            e.HasNoKey();
+        });
+
+        //GenreAll
+        modelBuilder.Entity<GenreAll>(e =>
+        {
+            e.HasNoKey();
+        });
+
+        //Genre
+        modelBuilder.Entity<Genre>(e =>
         {
             e.HasNoKey();
         });

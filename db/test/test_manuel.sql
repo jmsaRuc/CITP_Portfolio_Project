@@ -68,7 +68,7 @@ FROM public.get_genre('Action');
 SELECT *
 FROM public.get_genre_episodes('Action');
 
-SELECT count(*)::int
+SELECT *
 FROM public.get_genre_movies ('Action')
 
 SELECT *

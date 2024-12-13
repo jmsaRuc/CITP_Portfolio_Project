@@ -51,60 +51,33 @@ $$ LANGUAGE plpgsql;
 
 -----------------------------------------------------------------------episode genre functions-----------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.get_genre_episodes(genre_name_v VARCHAR(256))
-RETURNS TABLE(
-    episode_id_of VARCHAR, title_of VARCHAR, 
-    poster_of VARCHAR, average_r NUMERIC, imdb_r NUMERIC, popularity_of BIGINT
-) AS $$ 
+RETURNS TABLE(LIKE public.episode
+) AS $$
     BEGIN
         RETURN QUERY 
-            SELECT
-                episode_id,
-                title,
-                poster,
-                average_rating,
-                imdb_rating,
-                popularity
-            FROM episode_genre NATURAL JOIN episode
-            WHERE genre_name = genre_name_v;
+            SELECT *
+            FROM (SELECT episode_id FROM episode_genre WHERE genre_name = genre_name_v) NATURAL JOIN episode;
     END;
 $$ LANGUAGE plpgsql;
 
 -----------------------------------------------------------------------movie genre functions-----------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.get_genre_movies(genre_name_v VARCHAR(256))
-RETURNS TABLE(
-    movie_id_of VARCHAR, title_of VARCHAR, 
-    poster_of VARCHAR, average_r NUMERIC, imdb_r NUMERIC, popularity_of BIGINT
+RETURNS TABLE(LIKE public.movie
 ) AS $$
     BEGIN
         RETURN QUERY 
-            SELECT
-                movie_id,
-                title,
-                poster,
-                average_rating,
-                imdb_rating,
-                popularity
-            FROM movie_genre NATURAL JOIN movie
-            WHERE genre_name = genre_name_v;
+            SELECT *
+            FROM (SELECT movie_id FROM movie_genre WHERE genre_name = genre_name_v) NATURAL JOIN movie;
     END;
 $$ LANGUAGE plpgsql;
 
 -----------------------------------------------------------------------series genre functions-----------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.get_genre_series(genre_name_v VARCHAR(256))
-RETURNS TABLE(
-    series_id_of VARCHAR, title_of VARCHAR, 
-    poster_of VARCHAR, average_r NUMERIC, imdb_r NUMERIC, popularity_of BIGINT
+RETURNS TABLE(LIKE public.series
 ) AS $$
     BEGIN
         RETURN QUERY 
-            SELECT
-                series_id,
-                title,
-                poster,
-                average_rating,
-                imdb_rating,
-                popularity
-            FROM series_genre NATURAL JOIN series
-            WHERE genre_name = genre_name_v;
+            SELECT *
+            FROM (SELECT series_id FROM series_genre WHERE genre_name = genre_name_v) NATURAL JOIN series;
     END;
 $$ LANGUAGE plpgsql;
