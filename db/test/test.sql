@@ -9,16 +9,62 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (49);
+SELECT pgtap.plan (54);
 
 ----clean up posibel dummmy users befor
 
 DELETE FROM public."user" WHERE username LIKE 'user%';
 
 --------------------------------------------------------------------------------
--- singel user test
+-- test genre functions
 --------------------------------------------------------------------------------
 
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.get_all_genres ()
+        ) >= 32, 'get_all_genres'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT total_amount
+            FROM public.get_genre ('Action')
+        ) >= 11436, 'get_genre'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)::int
+            FROM public.get_genre_episodes ('Action')
+        ) = (
+            SELECT episode_amount
+            FROM public.get_genre ('Action')
+        ), 'get_genre_episodes'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)::int
+            FROM public.get_genre_movies ('Action')
+        ) = (
+            SELECT movie_amount
+            FROM public.get_genre ('Action')
+        ), 'get_genre_movies'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)::int
+            FROM public.get_genre_series ('Action')
+        ) = (
+            SELECT series_amount
+            FROM public.get_genre ('Action')
+        ), 'get_genre_series'
+    );
+--------------------------------------------------------------------------------
+-- singel user test
+--------------------------------------------------------------------------------
 INSERT INTO
     public."user" (
         username,
@@ -1158,7 +1204,9 @@ WHERE
     );
 
 DELETE FROM public."user" WHERE username LIKE 'user%';
+
 REFRESH MATERIALIZED VIEW public.top_this_week;
+
 SELECT * FROM pgtap.finish ();
 
 END;

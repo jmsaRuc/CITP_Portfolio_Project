@@ -448,6 +448,20 @@ WHERE
     AND titletype != 'tvSeries'
     AND titletype != 'videoGame';
 
+-- movie_genre insert unused types as genres
+INSERT INTO
+    movie_genre (genre_name, movie_id)
+SELECT  titletype AS genre, tconst
+FROM title_basics
+WHERE
+    titletype IS NOT NULL
+    AND titletype != 'movie'
+    AND titletype != 'tvEpisode'
+    AND titletype != 'tvMiniSeries'
+    AND titletype != 'tvSeries'
+    AND titletype != 'videoGame'
+    AND titletype != 'short';
+
 -- series_genre
 INSERT INTO
     series_genre (genre_name, series_id)
@@ -457,6 +471,15 @@ WHERE
     genres IS NOT NULL
     AND titletype = 'tvMiniSeries'
     OR titletype = 'tvSeries';
+
+-- series_genre insert unused types as genres
+INSERT INTO
+    series_genre (genre_name, series_id)
+SELECT  titletype AS genre, tconst
+FROM title_basics
+WHERE
+    titletype IS NOT NULL
+    AND titletype = 'tvMiniSeries';   
 
 -- episode_genre
 INSERT INTO

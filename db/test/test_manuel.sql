@@ -1,5 +1,15 @@
 
 ------- misc test queries -------
+
+SELECT DISTINCT genre_name
+FROM movie_genre;
+
+SELECT DISTINCT genre_name
+FROM episode_genre;
+
+SELECT DISTINCT genre_name
+FROM series_genre;
+
 SELECT person_id
             FROM public.is_in_series
             WHERE
@@ -48,6 +58,23 @@ FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
 WHERE title_type = 'episode'
 ORDER BY title_id DESC
 LIMIT 1;
+---------------test get genre function
+
+SELECT *
+FROM public.get_all_genres();
+SELECT *
+FROM public.get_genre('Action');
+
+SELECT *
+FROM public.get_genre_episodes('Action');
+
+SELECT count(*)::int
+FROM public.get_genre_movies ('Action')
+
+SELECT *
+FROM public.get_genre_series('Action');
+
+
 --------------test materialized view 
 REFRESH MATERIALIZED VIEW public.top_this_week;
 

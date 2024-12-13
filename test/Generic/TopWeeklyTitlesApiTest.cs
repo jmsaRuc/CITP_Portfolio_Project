@@ -11,7 +11,6 @@ namespace test.Generic;
 public class TopWeeklyTitlesApiTest
 {
     private readonly ITestOutputHelper _testOutputHelper;
-
     private readonly UserApiTests userApiTests;
     private readonly RecentViewApiTest recentViewApiTest;
 
