@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using test.GenreTest;
 using Xunit.Abstractions;
 
 namespace test.TitleTest.Series;
@@ -107,6 +108,39 @@ public class SeriesApiTest
     {
         var invalID = "tt1596363";
         var url = $"https://localhost/api/series/{invalID}/actors";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Series dose not exist", restResponse.Content);
+    }
+
+    ///////////////////////////////////////////////////////////////////////series/{id}/genre////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test7_GetSeriesGenre()
+    {
+        var url = $"https://localhost/api/series/tt11247158/genre?pageSize=2&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<GenreSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(2, body.Count);
+        Assert.NotNull(body[0].GenreName);
+        Assert.Contains(body[0].GenreName!, "Action");
+    }
+
+    [Fact]
+    public void Test8_GetSeriesGenreInvalid()
+    {
+        var invalID = "tt23452345";
+        var url = $"https://localhost/api/series/{invalID}/genre";
 
         var restResponse = request.GetRestRequest(url);
 

@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using OMGdbApi.Models.Users;
 using RestSharp;
 using test.UserTest;
 using test.UserTest.RecentViewTest;

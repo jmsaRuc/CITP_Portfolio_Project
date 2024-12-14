@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using test.GenreTest;
 using Xunit.Abstractions;
 
 namespace test.TitleTest.Movie;
@@ -115,5 +116,39 @@ public class MovieApiTest
         Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
         Assert.Contains("Movie does not exist", restResponse.Content);
+    }
+
+    ////////////////////////////////////////////////////////////////////movie/{id}/genre////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test7_GetMovieGenre()
+    {
+        var url = $"https://localhost/api/movie/tt0936501/genre?pageSize=2&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<GenreSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.Equal(2, body.Count);
+        Assert.NotNull(body[0].GenreName);
+        Assert.Contains(body[0].GenreName!, "Action");
+    }
+
+    [Fact]
+    public void Test8_GetMovieGenreInvalid()
+    {
+        var sqlInjec = "tt0936501or1=1";
+        var url = $"https://localhost/api/movie/{sqlInjec}/genre";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid title id", restResponse.Content);
     }
 }

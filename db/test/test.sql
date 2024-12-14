@@ -8,8 +8,8 @@
 SET search_path TO pgtap, public;
 
 BEGIN;
-EXPLAIN (ANALYZE, COSTS OFF, TIMING OFF)
-SELECT pgtap.plan (54);
+
+SELECT pgtap.plan (57);
 
 ----clean up posibel dummmy users befor
 
@@ -60,6 +60,36 @@ SELECT pgtap.ok (
             SELECT series_amount
             FROM public.get_genre ('Action')
         ), 'get_genre_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT genre_name_of
+            FROM public.get_movie_genres('tt0936501')
+            LIMIT 1
+        ),(SELECT genre_name_of
+            FROM public.get_all_genres()
+            LIMIT 1), 'get_movie_genres'
+    ); 
+
+SELECT pgtap.is (
+        (
+            SELECT genre_name_of
+            FROM public.get_series_genres('tt11247158')
+            LIMIT 1
+        ),(SELECT genre_name_of
+            FROM public.get_all_genres()
+            LIMIT 1), 'get_series_genres'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT genre_name_of
+            FROM public.get_episode_genres('tt11753166')
+            LIMIT 1
+        ),(SELECT genre_name_of
+            FROM public.get_all_genres()
+            LIMIT 1), 'get_episode_genres'
     );
 --------------------------------------------------------------------------------
 -- singel user test

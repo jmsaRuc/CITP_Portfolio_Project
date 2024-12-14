@@ -81,3 +81,43 @@ RETURNS TABLE(LIKE public.series
             FROM (SELECT series_id FROM series_genre WHERE genre_name = genre_name_v) NATURAL JOIN series;
     END;
 $$ LANGUAGE plpgsql;
+
+-----------------------------------------------------------------------genres in Title -----------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.get_episode_genres(episode_id_v VARCHAR)
+RETURNS TABLE(
+    genre_name_of VARCHAR(256)
+) AS $$
+    BEGIN
+        RETURN QUERY 
+            SELECT genre_name
+            FROM episode_genre
+            WHERE episode_id = episode_id_v
+            ORDER BY genre_name;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.get_movie_genres(movie_id_v VARCHAR)
+RETURNS TABLE(
+    genre_name_of VARCHAR(256)
+) AS $$
+    BEGIN
+        RETURN QUERY 
+            SELECT genre_name
+            FROM movie_genre
+            WHERE movie_id = movie_id_v
+            ORDER BY genre_name;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.get_series_genres(series_id_v VARCHAR)
+RETURNS TABLE(
+    genre_name_of VARCHAR(256)
+) AS $$
+    BEGIN
+        RETURN QUERY 
+            SELECT genre_name
+            FROM series_genre
+            WHERE series_id = series_id_v
+            ORDER BY genre_name;
+    END;
+$$ LANGUAGE plpgsql;

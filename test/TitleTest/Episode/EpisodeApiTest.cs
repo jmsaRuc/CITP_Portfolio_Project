@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using OMGdbApi.Models;
+using test.GenreTest;
 using Xunit.Abstractions;
 
 namespace test.TitleTest.Episode;
@@ -107,6 +109,40 @@ public class EpisodeApiTest
     {
         var invalID = "tt23452345";
         var url = $"https://localhost/api/episode/{invalID}/actors";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Episode dose not exist", restResponse.Content);
+    }
+
+    ////////////////////////////////////////////////////////////////////episode/{id}/genre////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test7_GetEpisodeGenre()
+    {
+        var url = $"https://localhost/api/episode/tt11753166/genre?pageSize=2&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<GenreSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.Equal(2, body.Count);
+        Assert.NotNull(body[0].GenreName);
+        Assert.Contains(body[0].GenreName!, "Action");
+    }
+
+    [Fact]
+    public void Test8_GetEpisodeGenreInvalid()
+    {
+        var invalID = "tt23452345";
+        var url = $"https://localhost/api/episode/{invalID}/genre";
 
         var restResponse = request.GetRestRequest(url);
 

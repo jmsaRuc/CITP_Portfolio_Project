@@ -208,17 +208,17 @@ namespace OMGdbApi.Controllers
 
             if (user == null || user.Email == null || user.Password == null || user.Salt == null)
             {
-                return NotFound();
+                return NotFound("No user found with this email");
             }
 
-            if (user.Id != null && !UserExists(user.Id))
+            if (_validateIDs.ValidateUserId(user.Id) && !UserExists(user.Id!))
             {
-                return NotFound();
+                return NotFound("No user exists");
             }
 
             if (!_hasing.Verify(loginPassword, user.Password, user.Salt))
             {
-                return Unauthorized();
+                return Unauthorized("Invalid password");
             }
 
             var claims = new List<Claim>();
@@ -230,7 +230,7 @@ namespace OMGdbApi.Controllers
             }
             else
             {
-                return NotFound();
+                return NotFound("No user exists");
             }
 
             var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
@@ -272,7 +272,7 @@ namespace OMGdbApi.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User not found");
             }
 
             var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
