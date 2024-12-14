@@ -156,11 +156,6 @@ namespace OMGdbApi.Controllers
                 return BadRequest("Movie does not exist");
             }
 
-            if (!_validateIDs.ValidateTitleId(id))
-            {
-                return BadRequest("Invalid title id");
-            }
-
             if (pageSize == null || pageSize < 1 || pageSize > 1000)
             {
                 pageSize = 10;
