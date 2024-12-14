@@ -122,7 +122,8 @@ dotnet test
 
 ## Project Structure
 
-```shell-session
+```console
+$ git ls-tree -r --name-only HEAD | tree --fromfile
 .
 ├── .gitignore
 ├── OMGdbApi
