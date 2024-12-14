@@ -1,5 +1,5 @@
+using System.Net;
 using System.Text.Json;
-using OMGdbApi.Models.Users;
 using RestSharp;
 using RestSharp.Authenticators;
 
@@ -85,7 +85,10 @@ public class RequestClassUser
         RestClient client = new RestClient(baseUrl);
         RestRequest restRequest = new RestRequest(baseUrl, Method.Put);
         RestResponse restResponse = client.Execute(restRequest);
-
+        if (restResponse.StatusCode != HttpStatusCode.OK)
+        {
+            return new UserSchema();
+        }
         var body = JsonSerializer.Deserialize<UserSchema>(restResponse.Content!);
         Console.WriteLine(restResponse.Content!);
         return body!;

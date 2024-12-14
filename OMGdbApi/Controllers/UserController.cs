@@ -213,7 +213,7 @@ namespace OMGdbApi.Controllers
 
             if (_validateIDs.ValidateUserId(user.Id) && !UserExists(user.Id!))
             {
-                return NotFound("No user exists");
+                return NotFound("User does not exists");
             }
 
             if (!_hasing.Verify(loginPassword, user.Password, user.Salt))
