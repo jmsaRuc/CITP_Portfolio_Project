@@ -1,26 +1,24 @@
-
 using RestSharp;
 using RestSharp.Authenticators;
 
-namespace test.UserTest;
+namespace test;
 
 public class RequestClass
-{ 
+{
     public RestResponse PostRestRequest(string Url, object body, string? token = null)
     {
         var baseUrl = Url;
         RestClient client = new RestClient(baseUrl);
-        
-        if (!string.IsNullOrEmpty(token))
-            {
-                var Authenticator = new JwtAuthenticator(token);
-                var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
-                client = new RestClient(options);
-            }
 
-        
+        if (!string.IsNullOrEmpty(token))
+        {
+            var Authenticator = new JwtAuthenticator(token);
+            var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
+            client = new RestClient(options);
+        }
+
         RestRequest restRequest = new RestRequest(baseUrl, Method.Post);
-        restRequest.AddBody(body, ContentType.Json); 
+        restRequest.AddBody(body, ContentType.Json);
         RestResponse restResponse = client.Execute(restRequest);
 
         return restResponse;
@@ -32,11 +30,11 @@ public class RequestClass
         RestClient client = new RestClient(baseUrl);
 
         if (!string.IsNullOrEmpty(token))
-            {
-                var Authenticator = new JwtAuthenticator(token);
-                var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
-                client = new RestClient(options);
-            }
+        {
+            var Authenticator = new JwtAuthenticator(token);
+            var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
+            client = new RestClient(options);
+        }
 
         RestRequest restRequest = new RestRequest(baseUrl, Method.Get);
         RestResponse restResponse = client.Execute(restRequest);
@@ -48,20 +46,18 @@ public class RequestClass
     {
         var baseUrl = Url;
         RestClient client = new RestClient(baseUrl);
-        
-        if (!string.IsNullOrEmpty(token))
-            {
-                var Authenticator = new JwtAuthenticator(token);
-                var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
-                client = new RestClient(options);
-            }
 
-        
+        if (!string.IsNullOrEmpty(token))
+        {
+            var Authenticator = new JwtAuthenticator(token);
+            var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
+            client = new RestClient(options);
+        }
+
         RestRequest restRequest = new RestRequest(baseUrl, Method.Put);
         restRequest.AddBody(body, ContentType.Json);
 
         RestResponse restResponse = client.Execute(restRequest);
-
 
         return restResponse;
     }
@@ -70,14 +66,13 @@ public class RequestClass
     {
         var baseUrl = urlDelete;
         RestClient client = new RestClient(baseUrl);
-        
-        if (!string.IsNullOrEmpty(token))
-            {
-                var Authenticator = new JwtAuthenticator(token);
-                var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
-                client = new RestClient(options);
-            }
 
+        if (!string.IsNullOrEmpty(token))
+        {
+            var Authenticator = new JwtAuthenticator(token);
+            var options = new RestClientOptions(baseUrl) { Authenticator = Authenticator };
+            client = new RestClient(options);
+        }
 
         RestRequest restRequest = new RestRequest(baseUrl, Method.Delete);
         restRequest.AddBody(body, ContentType.Json);

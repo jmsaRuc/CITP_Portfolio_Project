@@ -33,6 +33,16 @@ echo "Importing base data to the schema DONE"
 
 echo "\n"
 
+echo "Importing Materialized_views...."
+
+PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/create_materialized_views/create.sql > /dev/null
+
+echo "\n"
+
+echo "Importing Materialized_views DONE"
+
+echo "\n"
+
 echo "Importing triggers...."
 
 PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/create-triggers/type-triggers.sql > /dev/null
@@ -49,6 +59,25 @@ PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOS
 
 PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/user_functions/create.sql > /dev/null
 
+PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/person_functions/create.sql > /dev/null
+
+PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/genre_functions/create.sql > /dev/null
+
+
 echo "\n"
 
 echo "Importing functions DONE"
+
+echo "\n"
+
+echo "Importing indexes...." 
+
+PGUSER=$OMGDB_USER_PG PGDATABASE=$OMGDB_USERDATABASE psql -h $OMGDB_POSTGRES_HOST -p $OMGDB_POSTGRES_PORT -a -f db/script/create_indexs/create.sql > /dev/null
+
+echo "\n"
+
+echo "Importing indexes DONE"
+
+echo "\n"
+
+echo "-----------FINISHED IMPORTING DATABASE"

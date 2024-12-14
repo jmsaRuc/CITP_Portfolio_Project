@@ -1,5 +1,5 @@
-
 using System.ComponentModel.DataAnnotations.Schema;
+
 namespace OMGdbApi.Models.Users.Watchlist;
 
 [Table("user_movie_watchlist")]
@@ -13,5 +13,4 @@ public class WatchlistMovie
 
     [Column("watchlist")]
     public long? Watchlist_order { get; set; }
-
 }

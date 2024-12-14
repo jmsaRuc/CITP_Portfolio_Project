@@ -29,10 +29,10 @@ CREATE TABLE IF NOT EXISTS public.movie (
     poster character varying(180),
     plot TEXT,
     release_date date,
-    average_rating numeric(5, 1),
-    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    average_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT average_rating_check CHECK ((average_rating >= (0)::numeric)),
+    imdb_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating >= (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT popularity_check CHECK ((popularity >= (0)::BIGINT))
 );
@@ -48,10 +48,10 @@ CREATE TABLE IF NOT EXISTS public.episode (
     poster character varying(180),
     plot TEXT,
     relese_date date,
-    average_rating numeric(5, 1),
-    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    average_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT average_rating_check CHECK ((average_rating >= (0)::numeric)),
+    imdb_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating >= (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT popularity_check CHECK ((popularity >= (0)::BIGINT))
 );
@@ -66,10 +66,10 @@ CREATE TABLE IF NOT EXISTS public.series (
     end_year character varying(4),
     poster character varying(180),
     plot TEXT,
-    average_rating numeric(5, 1),
-    CONSTRAINT average_rating_check CHECK ((average_rating > (0)::numeric)),
-    imdb_rating numeric(5, 1),
-    CONSTRAINT imdb_rating_check CHECK ((imdb_rating > (0)::numeric)),
+    average_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT average_rating_check CHECK ((average_rating >= (0)::numeric)),
+    imdb_rating numeric(5, 1) NOT NULL DEFAULT 0,
+    CONSTRAINT imdb_rating_check CHECK ((imdb_rating >= (0)::numeric)),
     popularity BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT popularity_check CHECK ((popularity >= (0)::BIGINT))
 );
@@ -250,7 +250,8 @@ CREATE TABLE IF NOT EXISTS public.recent_view (
     view_ordering bigint GENERATED ALWAYS AS IDENTITY,
     CONSTRAINT view_ordering CHECK (
         (view_ordering > (0)::bigint)
-    )
+    ),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS public.type (
@@ -447,6 +448,20 @@ WHERE
     AND titletype != 'tvSeries'
     AND titletype != 'videoGame';
 
+-- movie_genre insert unused types as genres
+INSERT INTO
+    movie_genre (genre_name, movie_id)
+SELECT  titletype AS genre, tconst
+FROM title_basics
+WHERE
+    titletype IS NOT NULL
+    AND titletype != 'movie'
+    AND titletype != 'tvEpisode'
+    AND titletype != 'tvMiniSeries'
+    AND titletype != 'tvSeries'
+    AND titletype != 'videoGame'
+    AND titletype != 'short';
+
 -- series_genre
 INSERT INTO
     series_genre (genre_name, series_id)
@@ -456,6 +471,15 @@ WHERE
     genres IS NOT NULL
     AND titletype = 'tvMiniSeries'
     OR titletype = 'tvSeries';
+
+-- series_genre insert unused types as genres
+INSERT INTO
+    series_genre (genre_name, series_id)
+SELECT  titletype AS genre, tconst
+FROM title_basics
+WHERE
+    titletype IS NOT NULL
+    AND titletype = 'tvMiniSeries';   
 
 -- episode_genre
 INSERT INTO

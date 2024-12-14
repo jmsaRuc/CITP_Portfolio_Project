@@ -3,10 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace test.UserTest;
 
-public class UserSchema 
+public class UserSchema
 {
     [JsonPropertyName("id")]
     public string? Id { get; set; }
+
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 
@@ -18,8 +19,7 @@ public class UserSchema
 
     [JsonPropertyName("token")]
     public string? Token { get; set; }
-    
+
     [JsonPropertyName("created_at")]
     public DateTime? Created_at { get; set; }
-
 }

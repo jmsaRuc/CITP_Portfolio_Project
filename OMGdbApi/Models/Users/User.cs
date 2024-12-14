@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OMGdbApi.Models.Users;
+
 [Table("user")]
 public class User
-{   
-
+{
     [Column("user_id")]
     public string? Id { get; set; }
 
@@ -24,5 +24,4 @@ public class User
 
     [Column("salt")]
     public byte[]? Salt { get; set; }
-
 }

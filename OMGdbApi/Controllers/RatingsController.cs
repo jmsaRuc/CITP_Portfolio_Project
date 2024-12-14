@@ -1,4 +1,3 @@
-
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -63,9 +62,14 @@ namespace OMGdbApi.Controllers
                 .RatingALL.FromSqlInterpolated($"SELECT * FROM get_user_rating({UserId})")
                 .CountAsync();
 
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }
 
             return await _context
@@ -291,7 +295,7 @@ namespace OMGdbApi.Controllers
         }
 
         ///////////////////////////////////////////////////////////////////rating/movie///////////////////////////////////////////////////////////////////
-        
+
         // GET: api/user/{UserId}/ratings/movie/{MovieId}
         [HttpGet("{UserId}/ratings/movie/{MovieId}")]
         [Authorize]
@@ -546,7 +550,7 @@ namespace OMGdbApi.Controllers
 
             return ratingSeries;
         }
-        
+
         // POST: api/user/ratings/series
         [HttpPost("ratings/series")]
         [Authorize]
@@ -725,7 +729,7 @@ namespace OMGdbApi.Controllers
 
         private bool EpisodeExists(string EpisodeId)
         {
-            return _context.Episodes.Any(e => e.Id == EpisodeId);
+            return _context.Episode.Any(e => e.Id == EpisodeId);
         }
 
         private bool RatingMovieExists(string UserId, string MovieId)

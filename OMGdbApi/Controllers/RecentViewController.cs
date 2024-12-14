@@ -60,12 +60,17 @@ namespace OMGdbApi.Controllers
             }
 
             var totalRecords = await _context
-                .WatchlistAll.FromSqlInterpolated($"SELECT * FROM get_user_recent_view({UserId})")
+                .RecentViewAll.FromSqlInterpolated($"SELECT * FROM get_user_recent_view({UserId})")
                 .CountAsync();
 
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }
 
             return await _context
@@ -153,7 +158,6 @@ namespace OMGdbApi.Controllers
                 return Unauthorized("Unauthorized");
             }
 
-
             if (RecentViewExists(recentView.UserId!, recentView.TypeId!))
             {
                 await DeleteRecentView(recentView.UserId!, recentView.TypeId!);
@@ -179,7 +183,7 @@ namespace OMGdbApi.Controllers
 
             return CreatedAtAction(
                 nameof(GetRecentView),
-                new {recentView.UserId, recentView.TypeId},
+                new { recentView.UserId, recentView.TypeId },
                 recentView
             );
         }
@@ -235,7 +239,7 @@ namespace OMGdbApi.Controllers
 
         private bool typeExists(string TypeId)
         {
-            return _context.Episodes.Any(e => e.Id == TypeId)
+            return _context.Episode.Any(e => e.Id == TypeId)
                 || _context.Movie.Any(e => e.Id == TypeId)
                 || _context.Series.Any(e => e.Id == TypeId)
                 || _context.Person.Any(e => e.Id == TypeId);

@@ -1,9 +1,7 @@
-
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 using OMGdbApi.Models;
 using OMGdbApi.Models.Users.Watchlist;
 using OMGdbApi.Service;
@@ -16,17 +14,17 @@ namespace OMGdbApi.Controllers
     {
         private readonly OMGdbContext _context;
 
-        private readonly ValidateIDs _validateIDs = new(); 
+        private readonly ValidateIDs _validateIDs = new();
 
         public WatchlistController(OMGdbContext context, ValidateIDs validateIDs)
         {
             _context = context;
-            
+
             _validateIDs = validateIDs;
         }
 
         ///////////////////////////////////////////////watchlist/"ALL"////////////////////////////////////////////////////////////////////////////
-        
+
         // GET: api/user/{UserId}/watchlist
         [HttpGet("{UserId}/watchlist")]
         [Authorize]
@@ -64,9 +62,14 @@ namespace OMGdbApi.Controllers
                 .WatchlistAll.FromSqlInterpolated($"SELECT * FROM get_user_watchlist({UserId})")
                 .CountAsync();
 
-            if ((int)((pageNumber - 1) * pageSize) > totalRecords)
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
             {
                 pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
             }
 
             return await _context
@@ -485,7 +488,6 @@ namespace OMGdbApi.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteWatchlistSeries(string UserId, string SeriesId)
         {
-            
             if (!_validateIDs.ValidateUserId(UserId))
             {
                 return BadRequest("Invalid UserId");
@@ -539,7 +541,7 @@ namespace OMGdbApi.Controllers
 
         private bool EpisodeExists(string EpisodeId)
         {
-            return _context.Episodes.Any(e => e.Id == EpisodeId);
+            return _context.Episode.Any(e => e.Id == EpisodeId);
         }
 
         private bool WatchlistMovieExists(string UserId, string MovieId)

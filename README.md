@@ -45,7 +45,7 @@ dotnet dev-certs https --clean
 1.b **Create a self-signed certificate:**
 
 ```sh
-dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p { PASSWORD }
+dotnet dev-certs https -ep "certs\OMGDBapp.pfx" -p <password>
 ```
 
 1.c **Trust the certificate:**
@@ -62,7 +62,7 @@ dotnet dev-certs https --check
 1.d **Set the certificate password in the `.env` file:**
 
 ```sh
-OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password={ PASSWORD }
+OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=<password>
 ```
 
 **Importent: if you change the path or cert name, change it also in compose**
@@ -122,48 +122,153 @@ dotnet test
 
 ## Project Structure
 
-```sh
+```python
+$ git ls-tree -r --name-only HEAD | tree --fromfile
 .
-├── .gitignore     
-├── Dockerfile     
-├── OMGdbApi       
+├── .gitignore
+├── OMGdbApi
 │   ├── Controllers
-│   │   └── OMGdbItemsController.cs
-│   ├── Migrations
-│   │   ├── 20240927142856_OMGdbApiMigration.Designer.cs
-│   │   ├── 20240927142856_OMGdbApiMigration.cs
-│   │   └── OMGdbContextModelSnapshot.cs
+│   │   ├── EpisodeController.cs
+│   │   ├── GenericController.cs
+│   │   ├── GenreController.cs
+│   │   ├── MovieController.cs
+│   │   ├── PersonController.cs
+│   │   ├── RatingsController.cs
+│   │   ├── RecentViewController.cs
+│   │   ├── SeriesController.cs
+│   │   ├── UserController.cs
+│   │   └── WatchlistController.cs
 │   ├── Models
-│   │   ├── OMGdbContext.cd.cs
-│   │   └── OMGdbItem.cs
+│   │   ├── Actor.cs
+│   │   ├── Episode.cs
+│   │   ├── Generic
+│   │   │   └── TopWeeklyTitles.cs
+│   │   ├── Genre.cs
+│   │   ├── GenreAll.cs
+│   │   ├── Movie.cs
+│   │   ├── OMGdbContext.cs
+│   │   ├── Person.cs
+│   │   ├── Series.cs
+│   │   └── Users
+│   │       ├── Ratings
+│   │       │   ├── RatingALL.cs
+│   │       │   ├── RatingEpisode.cs
+│   │       │   ├── RatingMovie.cs
+│   │       │   └── RatingSeries.cs
+│   │       ├── Recent_View
+│   │       │   ├── RecentView.cs
+│   │       │   └── RecentViewAll.cs
+│   │       ├── User.cs
+│   │       ├── UserCreate.cs
+│   │       ├── UserDTO.cs
+│   │       ├── UserLogin.cs
+│   │       └── Watchlist
+│   │           ├── WatchlistAll.cs
+│   │           ├── WatchlistEpisode.cs
+│   │           ├── WatchlistMovie.cs
+│   │           └── WatchlistSeries.cs
 │   ├── OMGdbApi.csproj
-│   ├── OMGdbApi.http
 │   ├── Program.cs
 │   ├── Properties
 │   │   └── launchSettings.json
+│   ├── Service
+│   │   ├── Hashing.cs
+│   │   └── ValidateIDs.cs
 │   ├── appsettings.Development.json
 │   └── appsettings.json
 ├── OMGdbApi.sln
 ├── README.md
 ├── blueprint
+│   ├── ER_Diagram.svg
 │   └── excalidraw
 │       └── main_excali.excalidraw
+├── certs
+├── customPostgresql.conf
 ├── db
 │   ├── import_backup
 │   ├── script
 │   │   ├── create-triggers
+│   │   │   ├── drop_triggers.sql
 │   │   │   └── type-triggers.sql
 │   │   ├── create_db
 │   │   │   ├── create_db_draft1.sql
 │   │   │   ├── create_db_draft2.sql
 │   │   │   ├── create_db_final.sql
+│   │   │   ├── drop_all.sql
 │   │   │   └── import_script.sql
-│   │   └── user_functionality
-│   │       └── user_function.sql
+│   │   ├── create_indexs
+│   │   │   ├── create.sql
+│   │   │   └── drop.sql
+│   │   ├── create_materialized_views
+│   │   │   ├── create.sql
+│   │   │   └── drop.sql
+│   │   ├── genre_functions
+│   │   │   ├── create.sql
+│   │   │   └── drop.sql
+│   │   ├── person_functions
+│   │   │   ├── create.sql
+│   │   │   └── drop.sql
+│   │   ├── search_functionality
+│   │   │   ├── drop_functions.sql
+│   │   │   └── search_functions.sql
+│   │   └── user_functions
+│   │       ├── create.sql
+│   │       └── drop.sql
 │   └── test
-│       └── test_users.sql
+│       ├── manuel_create_dumyUsr.sql
+│       ├── test.sql
+│       └── test_manuel.sql
+├── delete_import.sh
+├── docker-compose.dev.yml
 ├── docker-compose.yml
-└── env_eksambel
+├── env_eksambel
+├── import.sh
+├── init-db.sh
+├── omdb_pg_pgtap.Dockerfile
+├── omddb_pg_test.Dockerfile
+├── omgdb_web_api.Dockerfile
+├── test
+│   ├── Generic
+│   │   ├── TopWeeklyTitlesApiTest.cs
+│   │   └── TopWeeklyTitlesSchema.cs
+│   ├── GenreTest
+│   │   ├── GenreApiTest.cs
+│   │   └── GenreSchema.cs
+│   ├── RequestClass.cs
+│   ├── TitleTest
+│   │   ├── ActorSchema.cs
+│   │   ├── Episode
+│   │   │   ├── EpisodeApiTest.cs
+│   │   │   └── EpisodeSchema.cs
+│   │   ├── Movie
+│   │   │   ├── MovieApiTest.cs
+│   │   │   └── MovieSchema.cs
+│   │   ├── Person
+│   │   │   ├── PersonApiTest.cs
+│   │   │   └── PersonSchema.cs
+│   │   └── Series
+│   │       ├── SeriesApiTest.cs
+│   │       └── SeriesSchema.cs
+│   ├── UserTest
+│   │   ├── RatingsTest
+│   │   │   ├── RatingsApiTest.cs
+│   │   │   ├── RatingsEpisodeSchema.cs
+│   │   │   ├── RatingsMovieSchema.cs
+│   │   │   └── RatingsSeriesSchema.cs
+│   │   ├── RecentViewTest
+│   │   │   ├── RecentViewApiTest.cs
+│   │   │   └── RecentViewSchema.cs
+│   │   ├── RequestClassUser.cs
+│   │   ├── UserApiTest.cs
+│   │   ├── UserSchema.cs
+│   │   └── WatchlistTest
+│   │       ├── WatchlistApiTest.cs
+│   │       ├── WatchlistEpisodeSchema.cs
+│   │       ├── WatchlistMovieSchema.cs
+│   │       └── WatchlistSeriesSchema.cs
+│   ├── test.csproj
+│   └── xunit.runner.json
+└── test.sh
 ```
 
 ## Project Configuration

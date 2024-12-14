@@ -1,11 +1,43 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1
-
-
 
 ------- misc test queries -------
+
+SELECT DISTINCT genre_name
+FROM movie_genre;
+
+SELECT DISTINCT genre_name
+FROM episode_genre;
+
+SELECT DISTINCT genre_name
+FROM series_genre;
+
+SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
+
 SELECT *
-FROM public."movie"
-WHERE average_rating is not NULL and popularity > 0
+FROM public.get_top_actors_in_series('tt20877972');
+
+SELECT *
+FROM is_in_series
+WHERE series_id = 'tt20877972'
+ORDER BY cast_order ASC
+
+SELECT *
+FROM public.top_this_week
+
+
+SELECT *
+FROM get_top_actors_in_series('tt20877972')
+LIMIT 1;
+
+SELECT *
+FROM public.episode
+WHERE popularity is not NULL and popularity > 0
+ORDER BY popularity DESC
 
 
 SELECT *
@@ -26,6 +58,44 @@ FROM public.get_user_rating((SELECT "user_id" FROM public."user" LIMIT 1))
 WHERE title_type = 'episode'
 ORDER BY title_id DESC
 LIMIT 1;
+---------------test get genre function
+
+SELECT *
+FROM public.get_all_genres();
+SELECT *
+FROM public.get_genre('Action');
+
+SELECT *
+FROM public.get_genre_episodes('Action');
+
+SELECT *
+FROM public.get_genre_movies ('Action')
+
+SELECT *
+FROM public.get_genre_series('Action');
+
+
+--------------test materialized view 
+REFRESH MATERIALIZED VIEW public.top_this_week;
+
+--- test if if there is duplicate
+
+SELECT "type_id_v", count(type_id_v)
+FROM public.top_this_week
+GROUP BY type_id_v
+HAVING count(type_id_v) > 1;
+
+SELECT *
+FROM public.top_this_week
+ORDER BY popularity desc
+
+SELECT *
+FROM public.movie
+ORDER BY popularity desc
+
+INSERT INTO
+    public.recent_view ("user_id", "type_id")
+VALUES ('ur00008023', 'tt16383406');
 
 ----test get user recent view
 SELECT "type_id", max(view_ordering)
@@ -57,10 +127,10 @@ LIMIT 1;
 
 
 
-SELECT movie_id
-FROM public."movie"
-WHERE "movie_id" = 'tt0280079'
-GROUP BY movie_id 
+SELECT *
+FROM public.series
+WHERE series_id = 'tt11437568'
+GROUP BY series_id 
 ORDER BY max(average_rating) DESC
 
 -- test get user watchlist

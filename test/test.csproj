@@ -31,4 +31,12 @@
     <ProjectReference Include="..\OMGdbApi\OMGdbApi.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="UserTest\" />
+    <Folder Include="UserTest\RatingsTest\" />
+    <Folder Include="UserTest\RecentViewTest\" />
+    <Folder Include="UserTest\WatchlistTest\" />
+  </ItemGroup>
+
 </Project>

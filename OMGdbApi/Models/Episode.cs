@@ -5,7 +5,7 @@ using System.Numerics;
 namespace OMGdbApi.Models
 {
     [Table("episode")]
-    public class Episodes
+    public class Episode
     {
         [Column("episode_id")]
         public string? Id { get; set; }
@@ -17,30 +17,24 @@ namespace OMGdbApi.Models
         public string? ReleaseYear { get; set; }
 
         [Column("run_time")]
-
         public string? RunTime { get; set; }
 
         [Column("poster")]
         public string? Poster { get; set; }
 
         [Column("plot")]
-
         public string? Plot { get; set; }
 
         [Column("relese_date")]
-
         public DateTime? ReleaseDate { get; set; }
-        
+
         [Column("average_rating")]
-        public decimal? AverageRating { get; set; }
+        public decimal AverageRating { get; set; }
 
         [Column("imdb_rating")]
-
-        public decimal? ImdbRating { get; set; }
+        public decimal ImdbRating { get; set; }
 
         [Column("popularity")]
-
         public long Popularity { get; set; }
-
     }
 }

@@ -14,5 +14,4 @@ public class RatingMovie
 
     [Column("rating")]
     public short? Rating { get; set; }
-
 }

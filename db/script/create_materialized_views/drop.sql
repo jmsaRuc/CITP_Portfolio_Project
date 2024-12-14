@@ -1,0 +1,1 @@
+DROP MATERIALIZED VIEW IF EXISTS public.top_this_week CASCADE; 

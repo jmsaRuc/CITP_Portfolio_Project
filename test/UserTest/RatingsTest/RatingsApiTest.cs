@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using Xunit.Abstractions;
 
-
 namespace test.UserTest.RatingsTest;
 
 public class RatingsApiTest
@@ -272,9 +271,7 @@ public class RatingsApiTest
 
         Assert.Equal(HttpStatusCode.Created, restResponse.StatusCode);
         Assert.NotNull(restResponse.Content);
-        var bodyRatingsMovie = JsonSerializer.Deserialize<RatingsMovieSchema>(
-            restResponse.Content
-        );
+        var bodyRatingsMovie = JsonSerializer.Deserialize<RatingsMovieSchema>(restResponse.Content);
         Assert.NotNull(bodyRatingsMovie);
         Assert.Equal(ratingsMovie.UserId, bodyRatingsMovie.UserId);
 

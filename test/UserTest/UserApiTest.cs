@@ -28,8 +28,9 @@ namespace test.UserTest
             var body = request.GetBearerToken(user);
             return body;
         }
+
         internal void Create_User()
-        {   
+        {
             Delet_User();
 
             string url = "https://localhost/api/user/create";
@@ -43,10 +44,7 @@ namespace test.UserTest
             {
                 return;
             }
-            request.DeleteFakeApiRequest(
-                body.Token!,
-                $"https://localhost/api/user/{body.Id}"
-            );
+            request.DeleteFakeApiRequest(body.Token!, $"https://localhost/api/user/{body.Id}");
         }
 
         [Fact]
@@ -67,7 +65,8 @@ namespace test.UserTest
             Assert.NotNull(body.Id);
 
             //test
-
+            response = request.PostFakeApiRequest(url);
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
 
             //delet user
             user = (UserSchema)RequestClassUser.BuildBodyUser();
@@ -100,7 +99,7 @@ namespace test.UserTest
 
         [Fact]
         public void Test3_GetTokenValid()
-        {   
+        {
             //create user
             Create_User();
 
@@ -146,7 +145,9 @@ namespace test.UserTest
             Assert.NotNull(body.Token);
             RestResponse response = request.GetFakeApiRequest(
                 body.Token,
-                "https://localhost/api/user", 10, 1
+                "https://localhost/api/user",
+                10,
+                1
             );
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(response.Content);
@@ -157,8 +158,7 @@ namespace test.UserTest
 
         [Fact]
         public void Test6_GetUserIdValid()
-        {   
-
+        {
             //create user
             Create_User();
 
@@ -174,14 +174,14 @@ namespace test.UserTest
             var body = JsonSerializer.Deserialize<UserSchema>(response.Content!);
             Assert.NotNull(body);
             Assert.Equal(tokenBody.Id, body.Id);
-            
+
             //delet user
             Delet_User();
         }
 
         [Fact]
         public void Test7_GetUserIdInvalid()
-        {   
+        {
             //create user
             Create_User();
 
@@ -192,15 +192,16 @@ namespace test.UserTest
                 tokenBody.Token,
                 "https://localhost/api/user/invalid-id"
             );
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.NotNull(response.Content);
+            Assert.Contains("Invalid User Id", response.Content);
             //delet user
             Delet_User();
         }
 
         [Fact]
         public void Test8_PutUserValid()
-        {   
+        {
             //create user
             Create_User();
 
@@ -232,7 +233,7 @@ namespace test.UserTest
 
         [Fact]
         public void Test9_PutUserInvalid()
-        {   
+        {
             //create user
             Create_User();
 
@@ -240,7 +241,10 @@ namespace test.UserTest
             var tokenBody = Login();
             Assert.NotNull(tokenBody.Token);
             RestResponse response = request.PutFakeApiRequestUser("invalid-id", tokenBody.Token);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            Assert.NotNull(response.Content);
+            Assert.Contains("Invalid User Id", response.Content);
 
             //delet user
             Delet_User();
@@ -248,7 +252,7 @@ namespace test.UserTest
 
         [Fact]
         public void Test10_DeletUserValid()
-        {   
+        {
             //create user
             Create_User();
 
@@ -268,7 +272,7 @@ namespace test.UserTest
 
         [Fact]
         public void Test11_DeletUserInValid()
-        {   
+        {
             //create user
             Create_User();
 

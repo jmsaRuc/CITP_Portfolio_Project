@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OMGdbApi.Models.Users.Recent_View;
@@ -18,11 +17,11 @@ public class RecentViewAll
     public string? Poster { get; set; }
 
     [Column("average_r")]
-    public decimal? AverageRating { get; set; }
-    
+    public decimal AverageRating { get; set; }
+
     [Column("imdb_r")]
-    public decimal? ImdbRating { get; set; }
+    public decimal ImdbRating { get; set; }
 
     [Column("view_order")]
-    public long? ViewOrdering { get; set; }
+    public long ViewOrdering { get; set; }
 }

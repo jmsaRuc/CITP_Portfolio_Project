@@ -1,5 +1,3 @@
--- Active: 1727253378954@@127.0.0.1@5532@portf_1@public
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Data base test
@@ -11,12 +9,91 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (45);
+SELECT pgtap.plan (57);
 
+----clean up posibel dummmy users befor
+
+DELETE FROM public."user" WHERE username LIKE 'user%';
+
+--------------------------------------------------------------------------------
+-- test genre functions
+--------------------------------------------------------------------------------
+SELECT pgtap.ok (
+        (   
+            SELECT count(*)
+            FROM public.get_all_genres ()
+        ) >= 32, 'get_all_genres'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT total_amount
+            FROM public.get_genre ('Action')
+        ) >= 10000, 'get_genre'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)::int
+            FROM public.get_genre_episodes ('Action')
+        ) = (
+            SELECT episode_amount
+            FROM public.get_genre ('Action')
+        ), 'get_genre_episodes'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)::int
+            FROM public.get_genre_movies ('Action')
+        ) = (
+            SELECT movie_amount
+            FROM public.get_genre ('Action')
+        ), 'get_genre_movies'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)::int
+            FROM public.get_genre_series ('Action')
+        ) = (
+            SELECT series_amount
+            FROM public.get_genre ('Action')
+        ), 'get_genre_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT genre_name_of
+            FROM public.get_movie_genres('tt0936501')
+            LIMIT 1
+        ),(SELECT genre_name_of
+            FROM public.get_all_genres()
+            LIMIT 1), 'get_movie_genres'
+    ); 
+
+SELECT pgtap.is (
+        (
+            SELECT genre_name_of
+            FROM public.get_series_genres('tt11247158')
+            LIMIT 1
+        ),(SELECT genre_name_of
+            FROM public.get_all_genres()
+            LIMIT 1), 'get_series_genres'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT genre_name_of
+            FROM public.get_episode_genres('tt11753166')
+            LIMIT 1
+        ),(SELECT genre_name_of
+            FROM public.get_all_genres()
+            LIMIT 1), 'get_episode_genres'
+    );
 --------------------------------------------------------------------------------
 -- singel user test
 --------------------------------------------------------------------------------
-
 INSERT INTO
     public."user" (
         username,
@@ -76,7 +153,45 @@ SELECT pgtap.is (
         ), 'User creating test'
     );
 
-;
+----- insert dummy movie 
+INSERT INTO
+    public.movie (
+        title,
+        re_year,
+        run_time,
+        poster,
+        plot,
+        release_date,
+        imdb_rating
+    )
+VALUES (
+        'The Rev',
+        2015,
+        '156 m',
+        'https://m.media-amazon.com/images/I/71r8ZLZqjwL._AC_SY679_.jpg',
+        'A frontiersman on a fur trading expedition in the 1820s fights for survival after being mauled by a bear and left for dead by members of his own hunting team.',
+        '2016-01-08',
+        8.0
+    );
+
+----- insert dummy series that is not breaking bad
+INSERT INTO
+    public.series (
+        title,
+        start_year,
+        end_year,
+        poster,
+        plot,
+        imdb_rating
+    )
+VALUES (
+        'Test Series',
+        2021,
+        NULL,
+        'https://example.com/test_series_poster.jpg',
+        'A test series for unit testing.',
+        7.5
+    );
 
 -- test recent view
 INSERT INTO
@@ -87,8 +202,12 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ),
-        'tt18339924'
+        ), (
+            SELECT movie_id
+            FROM public.movie
+            WHERE
+                title = 'The Rev'
+        )
     );
 
 INSERT INTO
@@ -99,8 +218,12 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ),
-        'tt26476058'
+        ), (
+            SELECT series_id
+            FROM public.series
+            WHERE
+                title = 'Test Series'
+        )
     );
 
 -- should be 2
@@ -115,7 +238,12 @@ SELECT pgtap.ok (
                     WHERE
                         username = 'test_user'
                 )
-                AND type_id = 'tt26476058'
+                AND type_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
         ) >= 2, 'Recent view test'
     );
 
@@ -126,7 +254,12 @@ SELECT pgtap.ok (
             SELECT popularity
             FROM public.movie
             WHERE
-                movie_id = 'tt18339924'
+                movie_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
         ) >= 1, 'popularity populated movie test'
     );
 
@@ -135,7 +268,12 @@ SELECT pgtap.ok (
             SELECT popularity
             FROM public.series
             WHERE
-                series_id = 'tt26476058'
+                series_id = (
+                    SELECT series_id
+                    FROM public.series
+                    WHERE
+                        title = 'Test Series'
+                )
         ) >= 1, 'popularity populated series test'
     );
 
@@ -161,7 +299,12 @@ SELECT pgtap.is (
                     WHERE
                         username = 'test_user'
                 )
-                AND type_id = 'tt26476058'
+                AND type_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
         ), NULL, 'User deleted'
     );
 
@@ -170,7 +313,12 @@ SELECT pgtap.ok (
             SELECT popularity
             FROM public.movie
             WHERE
-                movie_id = 'tt18339924'
+                movie_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
         ) = 0, 'popularity delet movie test'
     );
 
@@ -179,7 +327,12 @@ SELECT pgtap.ok (
             SELECT popularity
             FROM public.series
             WHERE
-                series_id = 'tt26476058'
+                series_id = (
+                    SELECT series_id
+                    FROM public.series
+                    WHERE
+                        title = 'Test Series'
+                )
         ) = 0, 'popularity delet series test'
     );
 
@@ -206,7 +359,12 @@ VALUES (
             WHERE
                 username = 'test_user'
         ),
-        'tt18339924'
+        (
+            SELECT movie_id
+            FROM public.movie
+            WHERE
+                title = 'The Rev'
+        )
     );
 
 -- should be 1 higher then the last one
@@ -222,7 +380,12 @@ SELECT pgtap.ok (
                     WHERE
                         username = 'test_user'
                 )
-                AND type_id = 'tt18339924'
+                AND type_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
         ) >= 3, 'Recent view test'
     );
 
@@ -236,7 +399,12 @@ VALUES (
             WHERE
                 username = 'test_user'
         ),
-        'tt18339924'
+        (
+            SELECT movie_id
+            FROM public.movie
+            WHERE
+                title = 'The Rev'
+        )
     );
 
 INSERT INTO
@@ -277,7 +445,12 @@ VALUES (
             WHERE
                 username = 'test_user'
         ),
-        'tt0903747'
+        (
+            SELECT series_id
+            FROM public.series
+            WHERE
+                title = 'Test Series'
+        )
     );
 
 INSERT INTO
@@ -362,7 +535,12 @@ VALUES (
             WHERE
                 username = 'test_user'
         ),
-        'tt18339924',
+        (
+            SELECT movie_id
+            FROM public.movie
+            WHERE
+                title = 'The Rev'
+        ),
         5
     );
 
@@ -375,7 +553,12 @@ VALUES (
             WHERE
                 username = 'test_user'
         ),
-        'tt0903747',
+        (
+            SELECT series_id
+            FROM public.series
+            WHERE
+                title = 'Test Series'
+        ),
         5
     );
 
@@ -404,7 +587,12 @@ SELECT pgtap.ok (
                     WHERE
                         username = 'test_user'
                 )
-                AND movie_id = 'tt18339924'
+                AND movie_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
         ) = 5, 'movie rating test'
     );
 
@@ -420,15 +608,25 @@ WHERE
         WHERE
             username = 'test_user'
     )
-    AND movie_id = 'tt18339924';
+    AND movie_id = (
+        SELECT movie_id
+        FROM public.movie
+        WHERE
+            title = 'The Rev'
+    );
 
 SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.movie
             WHERE
-                movie_id = 'tt18339924'
-        ) = 3, 'movie rating trigger'
+                movie_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
+        ) = 3, 'rating update trigger'
     );
 
 --------------------------------------- delete user test -----------------------------------------
@@ -441,6 +639,7 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public."user"
+            WHERE username LIKE 'user%'
         ) = 0, 'User deleted'
     );
 
@@ -448,6 +647,11 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.recent_view
+            WHERE "user_id" in (
+                    SELECT "user_id"
+                    FROM public."user"
+                    WHERE username LIKE 'user%'
+                )
         ) = 0, 'Recent view deleted'
     );
 
@@ -455,6 +659,11 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_movie_watchlist
+            WHERE "user_id" in (
+                    SELECT "user_id"
+                    FROM public."user"
+                    WHERE username LIKE 'user%'
+                )
         ) = 0, 'movie watchlist deleted'
     );
 
@@ -462,6 +671,11 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_series_watchlist
+            WHERE "user_id" in (
+                    SELECT "user_id"
+                    FROM public."user"
+                    WHERE username LIKE 'user%'
+                )
         ) = 0, 'series watchlist deleted'
     );
 
@@ -469,6 +683,11 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_episode_watchlist
+            WHERE "user_id" in (
+                    SELECT "user_id"
+                    FROM public."user"
+                    WHERE username LIKE 'user%'
+                )
         ) = 0, 'episode watchlist deleted'
     );
 
@@ -476,6 +695,11 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_movie_rating
+            WHERE "user_id" in (
+                    SELECT "user_id"
+                    FROM public."user"
+                    WHERE username LIKE 'user%'
+                )
         ) = 0, 'movie rating deleted'
     );
 
@@ -483,6 +707,11 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_series_rating
+            WHERE "user_id" in (
+                    SELECT "user_id"
+                    FROM public."user"
+                    WHERE username LIKE 'user%'
+                )
         ) = 0, 'series rating deleted'
     );
 
@@ -490,34 +719,106 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_episode_rating
+            WHERE "user_id" in (
+                    SELECT "user_id"
+                    FROM public."user"
+                    WHERE username LIKE 'user%'
+                )
         ) = 0, 'episode rating deleted'
     );
 ------------------------rating delet trigger test --------------------------------------------
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.movie
             WHERE
-                movie_id = 'tt18339924'
-        ), NULL, 'movie rating trigger'
+                movie_id = (
+                    SELECT movie_id
+                    FROM public.movie
+                    WHERE
+                        title = 'The Rev'
+                )
+        ) = 0.0, 'movie rating delet trigger '
     );
 
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.series
             WHERE
-                series_id = 't11437568'
-        ), NULL, 'series rating trigger'
+                series_id = (
+                    SELECT series_id
+                    FROM public.series
+                    WHERE
+                        title = 'Test Series'
+                )
+        ) = 0.0, 'series rating delet trigger '
     );
 
-SELECT pgtap.is (
+SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.episode
             WHERE
                 episode_id = 'tt11437568'
-        ), NULL, 'episode rating trigger'
+        ) = 0.0, 'episode rating delet trigger '
+    );
+
+--- clean up 
+DELETE FROM public.movie WHERE title = 'The Rev';
+
+DELETE FROM public.series WHERE title = 'Test Series';
+------------------------------------------------------------------------------------------
+-- test person functions
+------------------------------------------------------------------------------------------
+
+--------------------------------------------get_top_actors------------------------------------------------------------
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_movie
+            WHERE
+                movie_id = 'tt1596363'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_top_actors_in_movie ('tt1596363')
+            LIMIT 1
+        ), 'get_top_actors_in_movie'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_top_actors_in_series ('tt20877972')
+            LIMIT 1
+        ), 'get_top_actors_in_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_episode
+            WHERE
+                episode_id = 'tt0959621'
+                AND "role" = 'actor'
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_top_actors_in_episode ('tt0959621')
+            LIMIT 1
+        ), 'get_top_actors_in_episode'
     );
 ------------------------------------------------------------------------------------------
 --multi user test
@@ -645,6 +946,7 @@ SELECT pgtap.ok (
         (
             SELECT COUNT(*)
             FROM public."user"
+            WHERE username LIKE 'user%'
         ) = 100, '100 users created'
     );
 
@@ -813,6 +1115,17 @@ SELECT pgtap.is (
             ORDER BY view_order DESC
             LIMIT 1
         ), 'get_user_recent_view'
+    );
+--------------------------------------------test top week (materualized_views) -----------------------------------
+REFRESH MATERIALIZED VIEW CONCURRENTLY public.top_this_week;
+
+SELECT pgtap.ok (
+        (
+            SELECT popularity
+            FROM public.top_this_week
+            ORDER BY popularity ASC
+            LIMIT 1
+        ) >= 1, 'top_this_week'
     );
 -----------------------------------test rating insert triggers when meny --------------------------------------------
 SELECT pgtap.is (
@@ -1091,8 +1404,9 @@ WHERE
             title = 'Chapter One: The Vanishing of Will Byers'
     );
 
-DELETE FROM public."user" WHERE username LIKE 'user%';
 
+REFRESH MATERIALIZED VIEW public.top_this_week;
+DELETE FROM public."user" WHERE username LIKE 'user%';
 SELECT * FROM pgtap.finish ();
 
 END;

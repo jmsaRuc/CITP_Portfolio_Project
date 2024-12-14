@@ -4,7 +4,7 @@
 CREATE OR REPLACE FUNCTION public.create_movie_type_after_insert()
     RETURNS TRIGGER AS $$
     BEGIN
-        INSERT INTO public.type ("type_id", title_type)
+        INSERT INTO public."type" ("type_id", title_type)
         VALUES (NEW.movie_id, 'movie');
         RETURN NEW;
     END; 
@@ -13,7 +13,7 @@ $$ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION public.create_series_type_after_insert()
     RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.type ("type_id", title_type)
+    INSERT INTO public."type" ("type_id", title_type)
     VALUES (NEW.series_id, 'series');
     RETURN NEW;
 END; 
@@ -22,7 +22,7 @@ $$ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION public.create_episode_type_after_insert()
     RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.type ("type_id", title_type)
+    INSERT INTO public."type" ("type_id", title_type)
     VALUES (NEW.episode_id, 'episode');
     RETURN NEW;
 END;
@@ -51,7 +51,7 @@ CREATE OR REPLACE TRIGGER after_insert_episode
 CREATE OR REPLACE FUNCTION public.delete_movie_type_after_delete()
     RETURNS TRIGGER AS $$
 BEGIN
-    DELETE FROM public.type
+    DELETE FROM public."type"
     WHERE "type_id" = OLD.movie_id;
     RETURN OLD;
 END;
@@ -60,7 +60,7 @@ $$ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION public.delete_series_type_after_delete()
     RETURNS TRIGGER AS $$
 BEGIN
-    DELETE FROM public.type
+    DELETE FROM public."type"
     WHERE "type_id" = OLD.series_id;
     RETURN OLD;
 END;
@@ -69,7 +69,7 @@ $$ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION public.delete_episode_type_after_delete()
     RETURNS TRIGGER AS $$
 BEGIN
-    DELETE FROM public.type
+    DELETE FROM public."type"
     WHERE "type_id" = OLD.episode_id;
     RETURN OLD;
 END;
@@ -102,7 +102,7 @@ DECLARE
     pop_count bigint;
 BEGIN
     SELECT title_type INTO what_type
-    FROM public.type
+    FROM public."type"
     WHERE "type_id" = NEW."type_id";
 
     SELECT count(*) INTO pop_count 
@@ -160,7 +160,7 @@ DECLARE
     pop_count bigint;
 BEGIN
     SELECT title_type INTO what_type
-    FROM public.type
+    FROM public."type"
     WHERE "type_id" = OLD."type_id";
 
     SELECT count(*) INTO pop_count 
@@ -213,6 +213,34 @@ CREATE OR REPLACE TRIGGER after_delete_recent_view
     FOR EACH ROW
     EXECUTE FUNCTION public.update_popularity_after_delete();
 
+--------------------------------------------------- refresh materialized view trigger top this week ---------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.refresh_if_new_day()
+    RETURNS TRIGGER AS $$
+BEGIN
+    IF (
+        SELECT count(*)
+        FROM public.top_this_week) <= 0
+    THEN 
+        REFRESH MATERIALIZED VIEW CONCURRENTLY public.top_this_week;
+        RETURN NULL;
+    ELSEIF (
+        SELECT max(pop_created_at)
+        FROM public.top_this_week) <= (now() - INTERVAL '1 day')
+    THEN 
+        REFRESH MATERIALIZED VIEW CONCURRENTLY public.top_this_week;
+        RETURN NULL;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_insert_refresh_top_this_week
+    AFTER INSERT
+    ON public.recent_view
+    FOR EACH ROW
+    EXECUTE FUNCTION public.refresh_if_new_day();
+
 --------------------------------------------------- rating insert or update triggers ---------------------------------------------------
 
 -- movie
@@ -225,6 +253,11 @@ BEGIN
     SELECT avg(rating) INTO rated_average
     FROM public.user_movie_rating
     WHERE movie_id = NEW."movie_id";
+
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
 
     UPDATE public.movie
     SET average_rating = rated_average
@@ -251,6 +284,11 @@ BEGIN
     FROM public.user_episode_rating
     WHERE episode_id = NEW."episode_id";
 
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
+
     UPDATE public.episode
     SET average_rating = rated_average
     WHERE "episode_id" = NEW."episode_id";
@@ -274,6 +312,11 @@ BEGIN
     SELECT avg(rating) INTO rated_average
     FROM public.user_series_rating
     WHERE series_id = NEW."series_id";
+
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
 
     UPDATE public.series
     SET average_rating = rated_average
@@ -299,6 +342,11 @@ BEGIN
     SELECT avg(rating) INTO rated_average
     FROM public.user_movie_rating
     WHERE movie_id = OLD."movie_id";
+
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
     
     UPDATE public.movie
     SET average_rating = rated_average
@@ -324,6 +372,11 @@ BEGIN
     FROM public.user_episode_rating
     WHERE episode_id = OLD."episode_id";
 
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
+
     UPDATE public.episode
     SET average_rating = rated_average
     WHERE "episode_id" = OLD."episode_id";
@@ -348,6 +401,11 @@ BEGIN
     SELECT avg(rating) INTO rated_average
     FROM public.user_series_rating
     WHERE series_id = OLD."series_id";
+
+    IF rated_average IS NULL
+    THEN
+        rated_average := 0;
+    END IF;
 
     UPDATE public.series
     SET average_rating = rated_average
