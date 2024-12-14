@@ -122,7 +122,7 @@ dotnet test
 
 ## Project Structure
 
-```console
+```python
 $ git ls-tree -r --name-only HEAD | tree --fromfile
 .
 ├── .gitignore
