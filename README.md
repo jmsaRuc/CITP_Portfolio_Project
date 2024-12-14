@@ -122,7 +122,7 @@ dotnet test
 
 ## Project Structure
 
-```shellscript
+```shell-session
 .
 ├── .gitignore
 ├── OMGdbApi
