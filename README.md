@@ -122,7 +122,7 @@ dotnet test
 
 ## Project Structure
 
-```console
+```cgi
 .
 ├── .gitignore
 ├── OMGdbApi
