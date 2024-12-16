@@ -1,5 +1,5 @@
 -- Active: 1727253378954@@127.0.0.1@5532@portf_1
-
+--------------------------------------old 
 ----- D2 simple search
 CREATE OR REPLACE FUNCTION "public"."string_search"(S text) 
   RETURNS TABLE(id varchar, title varchar) AS $$ 
@@ -15,6 +15,8 @@ BEGIN
         LOWER(movie.plot) LIKE LOWER('%' || S || '%'); 
 END; 
 $$ LANGUAGE plpgsql;
+
+---------------old 
 
 --- D6
 CREATE OR REPLACE VIEW actorcoplayers AS

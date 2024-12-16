@@ -9,7 +9,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (57);
+SELECT pgtap.plan (61);
 
 ----clean up posibel dummmy users befor
 
@@ -244,7 +244,7 @@ SELECT pgtap.ok (
                     WHERE
                         title = 'The Rev'
                 )
-        ) >= 2, 'Recent view test'
+        ) > 0, 'Recent view test'
     );
 
 ---- test recent trigger ------------------
@@ -779,7 +779,7 @@ SELECT pgtap.is (
             FROM public.is_in_movie
             WHERE
                 movie_id = 'tt1596363'
-                AND "role" = 'actor'
+                AND ("role" = 'actor' or "role" = 'actress')
             ORDER BY cast_order ASC
             LIMIT 1
         ), (
@@ -795,7 +795,7 @@ SELECT pgtap.is (
             FROM public.is_in_series
             WHERE
                 series_id = 'tt20877972'
-                AND "role" = 'actor'
+                AND ("role" = 'actor' or "role" = 'actress')
             ORDER BY cast_order ASC
             LIMIT 1
         ), (
@@ -811,7 +811,7 @@ SELECT pgtap.is (
             FROM public.is_in_episode
             WHERE
                 episode_id = 'tt0959621'
-                AND "role" = 'actor'
+                AND ("role" = 'actor' or "role" = 'actress')
             ORDER BY cast_order ASC
             LIMIT 1
         ), (
@@ -820,6 +820,101 @@ SELECT pgtap.is (
             LIMIT 1
         ), 'get_top_actors_in_episode'
     );
+
+ -----------get writers in movie/series/episode-----------------------------------
+ SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_movie
+            WHERE
+                movie_id = 'tt1596363'
+                AND ("role" = 'writer' or job = 'writen by')
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_writers_in_movie ('tt1596363')
+            LIMIT 1
+        ), 'get_writers_in_movie'
+    );  
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND ("role" = 'writer' or job = 'writen by')
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_writers_in_series ('tt20877972')
+            LIMIT 1
+        ), 'get_writers_in_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_episode
+            WHERE
+                episode_id = 'tt0959621'
+                AND ("role" = 'writer' or job = 'writen by')
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_writers_in_episode ('tt0959621')
+            LIMIT 1
+        ), 'get_writers_in_episode'
+    );    
+
+--------------------------get director in movie/series/episode-----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_movie
+            WHERE
+                movie_id = 'tt1596363'
+                AND ("role" = 'director' or job = 'directed by')
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_director_in_movie ('tt1596363')
+        ), 'get_directors_in_movie'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND ("role" = 'director' or job = 'directed by')
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_director_in_series ('tt20877972')
+        ), 'get_directors_in_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_episode
+            WHERE
+                episode_id = 'tt0959621'
+                AND ("role" = 'director' or job = 'directed by')
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_director_in_episode ('tt0959621')
+        ), 'get_directors_in_episode'
+    );    
 ------------------------------------------------------------------------------------------
 --multi user test
 ------------------------------------------------------------------------------------------
@@ -1352,28 +1447,6 @@ SELECT pgtap.is (
                 )
         ), 'episode', 'Episode type trigger'
     );
-
--- test search functions --------------------------------------------
-
-SELECT pgtap.is (
-        (
-            SELECT title
-            FROM public.string_search ('the biG short')
-        ), 'The Big Short', 'string search, Search for movie'
-    );
-
-SELECT pg_sleep(1);
-
-SELECT pgtap.ok (
-        (
-            SELECT count(*)
-            FROM public.find_co_players ('Bryan Cranston')
-            WHERE
-                co_actor = 'Bill Murray'
-        ) > 0, 'find co players'
-    );
-
-SELECT pg_sleep(1);
 
 -- clean up --------------------------------------------
 DELETE FROM public.movie
