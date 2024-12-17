@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using OMGdbApi.Models;
 using test.GenreTest;
 using Xunit.Abstractions;
 
@@ -118,10 +119,77 @@ public class SeriesApiTest
         Assert.Contains("Series dose not exist", restResponse.Content);
     }
 
+    ///////////////////////////////////////////////////////////////////////series/{id}/creators////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test7_GetSeriesCreators()
+    {
+        var url = $"https://localhost/api/series/tt11247158/creators?pageSize=1&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<CastNotActorSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.NotNull(body[0].PersonId);
+        Assert.NotNull(body[0].Name);
+        Assert.NotNull(body[0].CastOrder);
+    }
+
+    [Fact]
+    public void Test8_GetSeriesCreatorsInvalid()
+    {
+        var invalID = "tt23452345";
+        var url = $"https://localhost/api/series/{invalID}/creators";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Series dose not exist", restResponse.Content);
+    }
+
+    ///////////////////////////////////////////////////////////////////////series/{id}/writers////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test9_GetSeriesWriters()
+    {
+        var url = $"https://localhost/api/series/tt0944947/writers?pageSize=2&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<CastNotActorSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(2, body.Count);
+        Assert.NotNull(body[0].PersonId);
+        Assert.NotNull(body[0].Name);
+        Assert.NotNull(body[0].CastOrder);
+    }
+
+    [Fact]
+    public void Test10_GetSeriesWritersInvalid()
+    {
+        var invalID = "tt23452232";
+        var url = $"https://localhost/api/series/{invalID}/writers";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Series dose not exist", restResponse.Content);
+    }
+
     ///////////////////////////////////////////////////////////////////////series/{id}/genre////////////////////////////////////////////////////
 
     [Fact]
-    public void Test7_GetSeriesGenre()
+    public void Test11_GetSeriesGenre()
     {
         var url = $"https://localhost/api/series/tt11247158/genre?pageSize=2&pageNumber=1";
         var restResponse = request.GetRestRequest(url);
@@ -137,7 +205,7 @@ public class SeriesApiTest
     }
 
     [Fact]
-    public void Test8_GetSeriesGenreInvalid()
+    public void Test12_GetSeriesGenreInvalid()
     {
         var invalID = "tt23452345";
         var url = $"https://localhost/api/series/{invalID}/genre";

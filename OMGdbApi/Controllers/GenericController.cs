@@ -68,10 +68,15 @@ namespace OMGdbApi.Controllers
             switch (sortBy)
             {
                 case "imdbRating":
-                    topWeeklyTitles = topWeeklyTitles.OrderByDescending(e => e.ImdbRating);
+                    topWeeklyTitles = topWeeklyTitles
+                        .OrderByDescending(e => e.ImdbRating)
+                        .ThenByDescending(e => e.Popularity);
+                    ;
                     break;
                 case "averageRating":
-                    topWeeklyTitles = topWeeklyTitles.OrderByDescending(e => e.AverageRating);
+                    topWeeklyTitles = topWeeklyTitles
+                        .OrderByDescending(e => e.AverageRating)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 default:
                     topWeeklyTitles = topWeeklyTitles.OrderByDescending(e => e.Popularity);

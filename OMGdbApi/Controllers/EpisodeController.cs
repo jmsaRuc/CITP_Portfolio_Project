@@ -53,10 +53,20 @@ namespace OMGdbApi.Controllers
             switch (sortBy)
             {
                 case "imdbRating":
-                    episode = episode.OrderByDescending(e => e.ImdbRating);
+                    episode = episode
+                        .OrderByDescending(e => e.ImdbRating)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 case "averageRating":
-                    episode = episode.OrderByDescending(e => e.AverageRating);
+                    episode = episode
+                        .OrderByDescending(e => e.AverageRating)
+                        .ThenByDescending(e => e.Popularity);
+                    break;
+                case "releaseDate":
+                    episode = episode
+                        .OrderByDescending(e => e.ReleaseDate.HasValue)
+                        .ThenByDescending(e => e.ReleaseDate)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 default:
                     episode = episode.OrderByDescending(e => e.Popularity);
@@ -132,6 +142,104 @@ namespace OMGdbApi.Controllers
 
             return await _context
                 .Actor.FromSqlInterpolated($"SELECT * FROM get_top_actors_in_episode({id})")
+                .AsNoTracking()
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .ToListAsync();
+        }
+
+        // GET: api/episode/{id}/directors
+        [HttpGet("{id}/directors")]
+        public async Task<ActionResult<IEnumerable<CastNotActor>>> GetEpisodeDirectors(
+            string id,
+            int? pageSize,
+            int? pageNumber
+        )
+        {
+            if (!_validateIDs.ValidateTitleId(id))
+            {
+                return BadRequest("Invalid title id");
+            }
+
+            if (!EpisodeExists(id))
+            {
+                return BadRequest("Episode dose not exist");
+            }
+
+            if (pageSize == null || pageSize < 1 || pageSize > 1000)
+            {
+                pageSize = 10;
+            }
+
+            if (pageNumber == null || pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            var totalRecords = await _context
+                .Actor.FromSqlInterpolated($"SELECT * FROM get_director_in_episode({id})")
+                .CountAsync();
+
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
+            {
+                pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
+            }
+
+            return await _context
+                .CastNotActor.FromSqlInterpolated($"SELECT * FROM get_director_in_episode({id})")
+                .AsNoTracking()
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .ToListAsync();
+        }
+
+        // GET: api/episode/{id}/writers
+        [HttpGet("{id}/writers")]
+        public async Task<ActionResult<IEnumerable<CastNotActor>>> GetEpisodeWriters(
+            string id,
+            int? pageSize,
+            int? pageNumber
+        )
+        {
+            if (!_validateIDs.ValidateTitleId(id))
+            {
+                return BadRequest("Invalid title id");
+            }
+
+            if (!EpisodeExists(id))
+            {
+                return BadRequest("Episode dose not exist");
+            }
+
+            if (pageSize == null || pageSize < 1 || pageSize > 1000)
+            {
+                pageSize = 10;
+            }
+
+            if (pageNumber == null || pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            var totalRecords = await _context
+                .Actor.FromSqlInterpolated($"SELECT * FROM get_writers_in_episode({id})")
+                .CountAsync();
+
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
+            {
+                pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
+            }
+
+            return await _context
+                .CastNotActor.FromSqlInterpolated($"SELECT * FROM get_writers_in_episode({id})")
                 .AsNoTracking()
                 .Skip((int)((pageNumber - 1) * pageSize))
                 .Take((int)pageSize)

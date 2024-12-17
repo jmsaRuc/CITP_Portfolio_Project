@@ -26,6 +26,7 @@ public class OMGdbContext : DbContext
 
     public DbSet<Actor> Actor { get; set; } = null!;
 
+    public DbSet<CastNotActor> CastNotActor { get; set; } = null!;
     public DbSet<GenreAll> GenreAll { get; set; } = null!;
     public DbSet<Genre> Genre { get; set; } = null!;
 
@@ -81,6 +82,7 @@ public class OMGdbContext : DbContext
                 b.Popularity,
                 b.AverageRating,
                 b.ImdbRating,
+                b.ReleaseDate,
             })
             .HasDatabaseName("ix_episode_pop_avg_and_imdb_rating")
             .IsDescending();
@@ -106,6 +108,7 @@ public class OMGdbContext : DbContext
                 b.Popularity,
                 b.AverageRating,
                 b.ImdbRating,
+                b.ReleaseDate,
             })
             .HasDatabaseName("ix_movie_pop_avg_and_imdb_rating")
             .IsDescending();
@@ -131,6 +134,7 @@ public class OMGdbContext : DbContext
                 b.Popularity,
                 b.AverageRating,
                 b.ImdbRating,
+                b.StartYear,
             })
             .HasDatabaseName("ix_series_pop_avg_and_imdb_rating")
             .IsDescending();
@@ -157,6 +161,11 @@ public class OMGdbContext : DbContext
             e.HasNoKey();
         });
 
+        //Cast
+        modelBuilder.Entity<CastNotActor>(e =>
+        {
+            e.HasNoKey();
+        });
         //GenreAll
         modelBuilder.Entity<GenreAll>(e =>
         {

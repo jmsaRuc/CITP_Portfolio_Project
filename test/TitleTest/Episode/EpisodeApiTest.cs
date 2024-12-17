@@ -90,7 +90,7 @@ public class EpisodeApiTest
     [Fact]
     public void Test5_GetEpisodeActors()
     {
-        var url = $"https://localhost/api/episode/tt0959621/actors?pageSize=3&pageNumber=4";
+        var url = $"https://localhost/api/episode/tt0959621/actors?pageSize=3&pageNumber=1";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
 
@@ -99,7 +99,7 @@ public class EpisodeApiTest
         var body = JsonSerializer.Deserialize<List<ActorSchema>>(restResponse.Content);
 
         Assert.NotNull(body);
-        Assert.Equal(2, body.Count);
+        Assert.Equal(3, body.Count);
         Assert.NotNull(body[0].PersonId);
         Assert.NotNull(body[0].Name);
     }
@@ -119,10 +119,76 @@ public class EpisodeApiTest
         Assert.Contains("Episode dose not exist", restResponse.Content);
     }
 
+    //////////////////////////////////////////////////////////////////////episode/{id}/directors////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test7_GetEpisodeDirectors()
+    {
+        var url = $"https://localhost/api/episode/tt4283088/directors";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<CastNotActorSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.NotNull(body[0].PersonId);
+        Assert.NotNull(body[0].Name);
+        Assert.NotNull(body[0].CastOrder);
+    }
+
+    [Fact]
+    public void Test8_GetEpisodeDirectorsInvalid()
+    {
+        var invalID = "ttasdfasd45";
+        var url = $"https://localhost/api/episode/{invalID}/directors";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid title id", restResponse.Content);
+    }
+
+    //////////////////////////////////////////////////////////////////episode/{id}/writers////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test9_GetEpisodeWriters()
+    {
+        var url = $"https://localhost/api/episode/tt4283088/writers";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<CastNotActorSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.NotNull(body[0].PersonId);
+        Assert.NotNull(body[0].Name);
+        Assert.NotNull(body[0].CastOrder);
+    }
+
+    [Fact]
+    public void Test10_GetEpisodeWritersInvalid()
+    {
+        var invalID = "tt23453andor1241234******2345";
+        var url = $"https://localhost/api/episode/{invalID}/writers";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid title id", restResponse.Content);
+    }
+
     ////////////////////////////////////////////////////////////////////episode/{id}/genre////////////////////////////////////////////////////
 
     [Fact]
-    public void Test7_GetEpisodeGenre()
+    public void Test11_GetEpisodeGenre()
     {
         var url = $"https://localhost/api/episode/tt11753166/genre?pageSize=2&pageNumber=1";
         var restResponse = request.GetRestRequest(url);
@@ -139,7 +205,7 @@ public class EpisodeApiTest
     }
 
     [Fact]
-    public void Test8_GetEpisodeGenreInvalid()
+    public void Test12_GetEpisodeGenreInvalid()
     {
         var invalID = "tt23452345";
         var url = $"https://localhost/api/episode/{invalID}/genre";

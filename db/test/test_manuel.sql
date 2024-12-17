@@ -1,6 +1,10 @@
 SET search_path TO public, pgtap, fuzzy;
 ------- misc test queries -------
 
+SELECT title, release_date
+FROM public.movie
+WHERE release_date IS NOT NULL
+
             SELECT *
             FROM public.get_person_credit('nm0000138');
 

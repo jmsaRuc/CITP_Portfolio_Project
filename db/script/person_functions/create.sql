@@ -196,8 +196,7 @@ BEGIN
     )
     SELECT person_id, "name", "role", job, cast_order
     FROM is_in_with_order NATURAL join public.person
-    ORDER BY cast_order ASC
-    LIMIT 1;
+    ORDER BY cast_order ASC;
 END;
 $$ LANGUAGE plpgsql;
 ---------------------------------------------------------------get creator series----------------------------------------------------------------
@@ -212,8 +211,7 @@ BEGIN
     )
     SELECT person_id, "name", "role", job, cast_order
     FROM is_in_with_order NATURAL join public.person
-    ORDER BY cast_order ASC
-    LIMIT 1;
+    ORDER BY cast_order ASC;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -229,7 +227,6 @@ BEGIN
     )
     SELECT person_id, "name", "role", job, cast_order
     FROM is_in_with_order NATURAL join public.person
-    ORDER BY cast_order ASC
-    LIMIT 1;
+    ORDER BY cast_order ASC;
 END;
 $$ LANGUAGE plpgsql;
