@@ -66,4 +66,40 @@ public class PersonApiTest
         Assert.NotNull(restResponse.Content);
         Assert.Contains("Invalid person id", restResponse.Content);
     }
+
+    /////////////////////////////////////////////get/credit///////////////////////////////////////////////
+    ///
+    [Fact]
+    public void Test4_GetPersonCredit()
+    {
+        var url = $"https://localhost/api/person/nm0000138/credit?pageSize=3&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<PersonCreditSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.Equal(3, body.Count);
+        Assert.NotNull(body[0].TitleId);
+        Assert.NotNull(body[0].Title);
+        Assert.NotNull(body[0].TitleType);
+        Assert.Contains("['Cobb']", body[0].Character);
+    }
+
+    [Fact]
+    public void Test5_GetPersonCreditInvalid()
+    {
+        var invalID = "nm0and0>1";
+        var url = $"https://localhost/api/person/{invalID}/credit?pageSize=3&pageNumber=1";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid person id", restResponse.Content);
+    }
 }
