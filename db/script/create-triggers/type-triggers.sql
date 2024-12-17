@@ -154,6 +154,7 @@ BEGIN
         UPDATE public.episode
         SET popularity = pop_count
         WHERE "episode_id" = NEW."type_id";
+
         
         WITH filte as (
             SELECT person_id, cast_order
@@ -174,7 +175,7 @@ BEGIN
         SET popularity = pop_count
         WHERE "person_id" = NEW."type_id";
         RETURN NEW;
-    END IF;   
+    END IF;  
 END;
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -184,6 +185,72 @@ CREATE OR REPLACE TRIGGER after_insert_recent_view
     FOR EACH ROW
     EXECUTE FUNCTION public.update_popularity_after_insert();
 
+-----------------------------popularity update triggers used for search-----------------------------
+
+CREATE OR REPLACE FUNCTION public.update_search_popularity_after_movie_update()
+    RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.movie_search
+    SET popularity = NEW.popularity
+    WHERE "movie_id" = NEW."movie_id";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION public.update_search_popularity_after_series_update()
+    RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.series_search
+    SET popularity = NEW.popularity
+    WHERE "series_id" = NEW."series_id";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION public.update_search_popularity_after_episode_update()
+    RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.episode_search
+    SET popularity = NEW.popularity
+    WHERE "episode_id" = NEW."episode_id";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION public.update_search_popularity_after_person_update()
+    RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.person_search
+    SET popularity = NEW.popularity
+    WHERE "person_id" = NEW."person_id";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE TRIGGER after_update_movie_search_popularity
+    AFTER UPDATE
+    ON public.movie
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_search_popularity_after_movie_update();
+
+CREATE OR REPLACE TRIGGER after_update_series_search_popularity
+    AFTER UPDATE
+    ON public.series
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_search_popularity_after_series_update();
+
+CREATE OR REPLACE TRIGGER after_update_episode_search_popularity
+    AFTER UPDATE
+    ON public.episode
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_search_popularity_after_episode_update();
+
+
+CREATE OR REPLACE TRIGGER after_update_person_search_popularity
+    AFTER UPDATE
+    ON public.person
+    FOR EACH ROW
+    EXECUTE FUNCTION public.update_search_popularity_after_person_update();    
 
 
 -----------------------------popularity delet triggers-----------------------------
@@ -271,7 +338,8 @@ BEGIN
         SET popularity = pop_count
         WHERE "person_id" = OLD."type_id";
         RETURN OLD;
-    END IF;   
+    END IF;
+    RETURN OLD;   
 END;
 $$ LANGUAGE plpgsql VOLATILE;
 

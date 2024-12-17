@@ -2,7 +2,13 @@
 
 CREATE SCHEMA IF NOT EXISTS pgtap;
 
-SET search_path TO public, pgtap;
+CREATE SCHEMA IF NOT EXISTS fuzzy;
+
+
+SET search_path TO public, pgtap, fuzzy;
+
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA fuzzy CASCADE;
 
 CREATE EXTENSION IF NOT EXISTS pgtap SCHEMA pgtap VERSION "1.3.3" CASCADE;
 
@@ -199,34 +205,6 @@ CREATE TABLE IF NOT EXISTS public.series_genre (
 CREATE TABLE IF NOT EXISTS public.episode_genre (
     genre_name character varying(256) NOT NULL,
     episode_id character varying(10)
-);
-
-CREATE TABLE IF NOT EXISTS public.movie_keywords (
-    movie_id character varying(10),
-    word TEXT NOT NULL,
-    field character varying(1) NOT NULL,
-    lexeme TEXT
-);
-
-CREATE TABLE IF NOT EXISTS public.series_keywords (
-    series_id character varying(10),
-    word TEXT NOT NULL,
-    field character varying(1) NOT NULL,
-    lexeme TEXT
-);
-
-CREATE TABLE IF NOT EXISTS public.episode_keywords (
-    episode_id character varying(10),
-    word TEXT NOT NULL,
-    field character varying(1) NOT NULL,
-    lexeme TEXT
-);
-
-CREATE TABLE IF NOT EXISTS public.person_keywords (
-    person_id character varying(10),
-    word TEXT NOT NULL,
-    field character varying(1) NOT NULL,
-    lexeme TEXT
 );
 
 CREATE TABLE IF NOT EXISTS public.episode_series (
@@ -579,62 +557,6 @@ FROM
     title_principals
     NATURAL JOIN titletype_episode;
 
--- movie_keywords
-
-INSERT INTO
-    movie_keywords (movie_id, word, field, lexeme)
-WITH
-    titletype_episode AS (
-        SELECT tconst
-        FROM title_basics
-        WHERE
-            titletype != 'tvEpisode'
-            AND titletype != 'tvMiniSeries'
-            AND titletype != 'tvSeries'
-            AND titletype != 'videoGame'
-    )
-SELECT wi.tconst, word, field, lexeme
-FROM wi
-    NATURAL JOIN titletype_episode;
-
--- series_keywords
-INSERT INTO
-    series_keywords (
-        series_id,
-        word,
-        field,
-        lexeme
-    )
-WITH
-    titletype_series AS (
-        SELECT tconst
-        FROM title_basics
-        WHERE
-            titletype = 'tvMiniSeries'
-            OR titletype = 'tvSeries'
-    )
-SELECT wi.tconst, word, field, lexeme
-FROM wi
-    NATURAL JOIN titletype_series;
-
--- episode_keywords
-INSERT INTO
-    episode_keywords (
-        episode_id,
-        word,
-        field,
-        lexeme
-    )
-WITH
-    titletype_episode AS (
-        SELECT tconst
-        FROM title_basics
-        WHERE
-            titletype = 'tvEpisode'
-    )
-SELECT wi.tconst, word, field, lexeme
-FROM wi
-    NATURAL JOIN titletype_episode;
 
 -- movie_language
 INSERT INTO
@@ -782,18 +704,6 @@ ADD CONSTRAINT series_genre_pkey PRIMARY KEY (genre_name, series_id);
 ALTER TABLE IF EXISTS public.episode_genre
 ADD CONSTRAINT episode_genre_pkey PRIMARY KEY (genre_name, episode_id);
 
-ALTER TABLE IF EXISTS public.movie_keywords
-ADD CONSTRAINT movie_keywords_pkey PRIMARY KEY (movie_id, word, field);
-
-ALTER TABLE IF EXISTS public.series_keywords
-ADD CONSTRAINT series_keywords_pkey PRIMARY KEY (series_id, word, field);
-
-ALTER TABLE IF EXISTS public.episode_keywords
-ADD CONSTRAINT episode_keywords_pkey PRIMARY KEY (episode_id, word, field);
-
-ALTER TABLE IF EXISTS public.person_keywords
-ADD CONSTRAINT person_keywords_pkey PRIMARY KEY (person_id, word, field);
-
 ALTER TABLE IF EXISTS public.person
 ADD CONSTRAINT person_pkey PRIMARY KEY (person_id);
 
@@ -875,15 +785,6 @@ ADD CONSTRAINT series_genre_series_id_fkey FOREIGN KEY (series_id) REFERENCES pu
 ALTER TABLE IF EXISTS public.episode_genre
 ADD CONSTRAINT episode_genre_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.movie_keywords
-ADD CONSTRAINT movie_keywords_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movie (movie_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE IF EXISTS public.series_keywords
-ADD CONSTRAINT series_keywords_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE IF EXISTS public.episode_keywords
-ADD CONSTRAINT episode_keywords_episode_id_fkey FOREIGN KEY (episode_id) REFERENCES public.episode (episode_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
 ALTER TABLE IF EXISTS public.episode_series
 ADD CONSTRAINT episode_series_series_id_fkey FOREIGN KEY (series_id) REFERENCES public.series (series_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -905,9 +806,6 @@ ADD CONSTRAINT is_in_series_person_id_fkey FOREIGN KEY (person_id) REFERENCES pu
 ALTER TABLE IF EXISTS public.is_in_episode
 ADD CONSTRAINT is_in_episode_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.person_keywords
-ADD CONSTRAINT person_keywords_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.person (person_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
 SELECT SETVAL('public.title_seq',(SELECT RIGHT(max("type_id"), 7) max_val FROM public."type")::bigint);
 
 
@@ -924,8 +822,6 @@ DROP TABLE IF EXISTS public.title_ratings;
 DROP TABLE IF EXISTS public.omdb_data;
 
 DROP TABLE IF EXISTS public.name_basics;
-
-DROP TABLE IF EXISTS public.wi;
 
 DROP TABLE IF EXISTS public.title_akas;
 
