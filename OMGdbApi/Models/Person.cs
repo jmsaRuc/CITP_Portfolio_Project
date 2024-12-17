@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Numerics;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OMGdbApi.Models
 {
