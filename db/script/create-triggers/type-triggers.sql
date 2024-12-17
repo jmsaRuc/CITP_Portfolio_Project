@@ -116,6 +116,17 @@ BEGIN
         UPDATE public.movie
         SET popularity = pop_count
         WHERE "movie_id" = NEW."type_id";
+
+        WITH filte as (
+            SELECT person_id, cast_order
+            FROM public.is_in_movie
+            WHERE movie_id = NEW."type_id"
+        )
+        UPDATE public.person as d
+        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        FROM filte
+        WHERE d.person_id = filte.person_id;
+
         RETURN NEW;
     END IF;  
 
@@ -124,6 +135,17 @@ BEGIN
         UPDATE public.series
         SET popularity = pop_count
         WHERE "series_id" = NEW."type_id";
+
+        WITH filte as (
+            SELECT person_id, cast_order
+            FROM public.is_in_series
+            WHERE series_id = NEW."type_id"
+        )
+        UPDATE public.person as d
+        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        FROM filte
+        WHERE d.person_id = filte.person_id;
+
         RETURN NEW;
     END IF;   
 
@@ -132,6 +154,17 @@ BEGIN
         UPDATE public.episode
         SET popularity = pop_count
         WHERE "episode_id" = NEW."type_id";
+        
+        WITH filte as (
+            SELECT person_id, cast_order
+            FROM public.is_in_episode
+            WHERE episode_id = NEW."type_id"
+        )
+        UPDATE public.person as d
+        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        FROM filte
+        WHERE d.person_id = filte.person_id;
+
         RETURN NEW;
     END IF;
 
@@ -150,6 +183,8 @@ CREATE OR REPLACE TRIGGER after_insert_recent_view
     ON public.recent_view
     FOR EACH ROW
     EXECUTE FUNCTION public.update_popularity_after_insert();
+
+
 
 -----------------------------popularity delet triggers-----------------------------
 
@@ -178,6 +213,17 @@ BEGIN
         UPDATE public.movie
         SET popularity = pop_count
         WHERE "movie_id" = OLD."type_id";
+
+        WITH filte as (
+            SELECT person_id, cast_order
+            FROM public.is_in_movie
+            WHERE movie_id = OLD."type_id"
+        )
+        UPDATE public.person as d
+        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        FROM filte
+        WHERE d.person_id = filte.person_id;
+
         RETURN OLD;
     END IF;  
 
@@ -186,6 +232,17 @@ BEGIN
         UPDATE public.series
         SET popularity = pop_count
         WHERE "series_id" = OLD."type_id";
+
+        WITH filte as (
+            SELECT person_id, cast_order
+            FROM public.is_in_series
+            WHERE series_id = OLD."type_id"
+        )
+        UPDATE public.person as d
+        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        FROM filte
+        WHERE d.person_id = filte.person_id;
+        
         RETURN OLD;
     END IF;   
 
@@ -194,6 +251,17 @@ BEGIN
         UPDATE public.episode
         SET popularity = pop_count
         WHERE "episode_id" = OLD."type_id";
+
+        WITH filte as (
+            SELECT person_id, cast_order
+            FROM public.is_in_episode
+            WHERE episode_id = OLD."type_id"
+        )
+        UPDATE public.person as d
+        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        FROM filte
+        WHERE d.person_id = filte.person_id;
+
         RETURN OLD;
     END IF;
 

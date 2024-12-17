@@ -9,7 +9,7 @@ SET search_path TO pgtap, public;
 
 BEGIN;
 
-SELECT pgtap.plan (61);
+SELECT pgtap.plan (63);
 
 ----clean up posibel dummmy users befor
 
@@ -870,7 +870,7 @@ SELECT pgtap.is (
         ), 'get_writers_in_episode'
     );    
 
---------------------------get director in movie/series/episode-----------------------------------
+--------------------------get director and creator in movie/series/episode-----------------------------------
 SELECT pgtap.is (
         (
             SELECT person_id
@@ -892,12 +892,13 @@ SELECT pgtap.is (
             FROM public.is_in_series
             WHERE
                 series_id = 'tt20877972'
-                AND ("role" = 'director' or job = 'directed by')
+                AND ("role" = 'writer'
+            and job = 'created by')
             ORDER BY cast_order ASC
             LIMIT 1
         ), (
             SELECT person_id_v
-            FROM public.get_director_in_series ('tt20877972')
+            FROM public.get_creator_in_series ('tt20877972')
         ), 'get_directors_in_series'
     );
 
@@ -950,7 +951,7 @@ BEGIN
         new_user_id := (SELECT "user_id" FROM public."user" WHERE username = 'user' || i);
 
         -- Insert 10 user_movie_watchlist
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             INSERT INTO public.user_movie_watchlist("user_id", movie_id) 
             VALUES (
                 new_user_id,
@@ -961,7 +962,7 @@ BEGIN
         END LOOP;
 
         -- Insert 10 user_series_watchlist
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             INSERT INTO public.user_series_watchlist("user_id", series_id)
             VALUES (
                 new_user_id,
@@ -972,7 +973,7 @@ BEGIN
         END LOOP;
 
         -- Insert 10 user_episode_watchlist
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             INSERT INTO public.user_episode_watchlist("user_id", episode_id)
              VALUES (
                 new_user_id,
@@ -983,7 +984,7 @@ BEGIN
         END LOOP;
 
         -- Insert 10 recent_views
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10 * i + j ) + 1)::int;
             INSERT INTO public.recent_view ("user_id", "type_id")
             VALUES (
@@ -994,7 +995,7 @@ BEGIN
                 "type_id" = type_ids[random_int];
         END LOOP;
 
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_movie_rating ("user_id", movie_id, rating)
             VALUES (
@@ -1007,7 +1008,7 @@ BEGIN
                 rating = random_int;
         END LOOP;
 
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_series_rating ("user_id", series_id, rating)
             VALUES (
@@ -1020,7 +1021,7 @@ BEGIN
                 rating = random_int;
         END LOOP;
 
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_episode_rating ("user_id", episode_id, rating)
             VALUES (
@@ -1130,6 +1131,31 @@ SELECT pgtap.is (
                 count(*) > 1
         ), NULL, 'No duplicate entries in user_episode_rating'
     );
+-- test get series episodes -----------------------------------
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.get_episodes_in_series('tt094494', 0)
+        ) = (
+            SELECT count(*)
+            FROM public.episode_series
+            WHERE
+                series_id = 'tt094494'
+        ), 'get_series_episodes'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.get_episodes_in_series('tt094494', 1)
+        ) = (
+            SELECT count(*)
+            FROM public.episode_series
+            WHERE
+                series_id = 'tt094494' AND season_number = 1
+        ), 'get_series_episodes'
+    );
+
 -- test get user watchlist-----------------------------------
 
 SELECT pgtap.ok (

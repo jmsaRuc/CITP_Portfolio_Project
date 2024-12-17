@@ -68,7 +68,7 @@ SELECT *
 FROM public.test_movie_keywords NATURAL JOIN "get"
 
 
-
+'the big s'
 
 
 
@@ -91,11 +91,11 @@ CREATE INDEX IF NOT EXISTS IX_test_movie_rank on public.test_movie_keywords (ran
 
 --first search for the query
 
-SELECT ts_headline('english', q.title, websearch_to_tsquery('english', 'the bigd shor'), 'MaxFragments=3,MaxWords=25,MinWords=2') Highlight, *
+SELECT ts_headline('english', q.title, websearch_to_tsquery('english', 'big short'), 'MaxFragments=3,MaxWords=25,MinWords=2') Highlight, *
 FROM (
-   SELECT ts_rank(f."search", websearch_to_tsquery('english', 'the bigd shor')) 
-       + public.rank_boost_rating(imdb_rating, popularity, 5) + public.get_fuzzy_rank(title, 'the bigd shor') rank, *
-   FROM public.test_movie_keywords f, websearch_to_tsquery('english', 'the bigd shor') as tsq
+   SELECT ts_rank(f."search", websearch_to_tsquery('english', 'big short')) 
+       + public.rank_boost_rating(imdb_rating, popularity, 5) + public.get_fuzzy_rank(title, 'big short') rank, *
+   FROM public.movie_search f, websearch_to_tsquery('english', 'big short') as tsq
    WHERE f."search" @@ to_tsquery('simple', tsq::text || ':*') 
    ORDER BY rank DESC NULLS LAST
 ) q
@@ -107,7 +107,7 @@ WITh ranked_search as (
 SELECT title,
        ts_rank("search", websearch_to_tsquery('english', 'the bigd shor')) 
        + (public.rank_boost_rating(imdb_rating, popularity, 5)) rank
-FROM public.test_movie_keywords
+FROM public.movie_search
 ORDER BY rank DESC NULLS LAST
 LIMIT 1000
 )SELECT ts_headline('english', title, websearch_to_tsquery('english', 'the bigd shor'), 'MaxFragments=3,MaxWords=25,MinWords=2') Highlight, *

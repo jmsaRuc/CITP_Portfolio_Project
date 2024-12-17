@@ -1,3 +1,57 @@
+------------------------------------get person credit------------------------------------
+CREATE OR REPLACE FUNCTION public.get_person_credit(person_id_v VARCHAR(10))
+    RETURNS TABLE (title_id_v VARCHAR, title_v VARCHAR, title_type_v VARCHAR, poster_v VARCHAR, 
+    character_v TEXT, imdb_rating_v NUMERIC, re_year_v VARCHAR, popularity_v BIGINT) AS $$
+    BEGIN
+        RETURN QUERY
+        with filt_in as (
+                SELECT
+                    episode_id AS title_id_v,
+                    title AS title_v,
+                    'episode'::varchar AS title_type_v,
+                    poster as poster_v,
+                    "character" as character_v,
+                    imdb_rating as imdb_rating_v,
+                    re_year as re_year_v,
+                    popularity as popularity_v
+                FROM is_in_episode NATURAL JOIN public.episode
+                WHERE
+                    person_id = person_id_v 
+                    AND cast_order <= 10
+                UNION ALL
+                SELECT
+                    series_id AS title_id_v,
+                    title AS title_v,
+                    'series'::varchar AS title_type_v,
+                    poster as poster_v,
+                    "character" as character_v,
+                    imdb_rating as imdb_rating_v,
+                    start_year as re_year_v,
+                    popularity as popularity_v
+                FROM is_in_series NATURAL JOIN public.series
+                WHERE
+                    person_id = person_id_v 
+                    AND cast_order <= 10
+                UNION ALL
+                SELECT
+                    movie_id AS title_id_v,
+                    title AS title_v,
+                    'movie'::varchar AS title_type_v,
+                    poster as poster_v,
+                    "character" as character_v,
+                    imdb_rating as imdb_rating_v,
+                    re_year as re_year_v,
+                    popularity as popularity_v
+                FROM is_in_movie NATURAL JOIN public.movie
+                WHERE
+                    person_id = person_id_v 
+                    AND cast_order <= 10
+            )
+            SELECT *
+            FROM filt_in;
+    END;
+$$ LANGUAGE plpgsql;
+
 -----------------------------------------------------------------------------------------top_actors-----------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.get_top_actors_in_movie(movie_id_v VARCHAR(10))
     RETURNS TABLE (person_id_v VARCHAR(10), name_v VARCHAR(256), character_v TEXT, cast_order_v BIGINT) AS $$
@@ -146,15 +200,15 @@ BEGIN
     LIMIT 1;
 END;
 $$ LANGUAGE plpgsql;
----------------------------------------------------------------get director series----------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.get_director_in_series(series_id_v VARCHAR(10))
+---------------------------------------------------------------get creator series----------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.get_creator_in_series(series_id_v VARCHAR(10))
     RETURNS TABLE (person_id_v VARCHAR(10), name_v VARCHAR(256), "role_v" VARCHAR(50), job_v TEXT, cast_order_v BIGINT) AS $$
 BEGIN
     RETURN QUERY
         with is_in_with_order as (
         SELECT series_id, person_id, "role", job, "character", cast_order
         FROM is_in_series
-        WHERE series_id = series_id_v and ("role" = 'director' or job = 'directed by')
+        WHERE series_id = series_id_v and ("role" = 'writer' and job = 'created by')
     )
     SELECT person_id, "name", "role", job, cast_order
     FROM is_in_with_order NATURAL join public.person
