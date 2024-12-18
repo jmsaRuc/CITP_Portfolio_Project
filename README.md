@@ -2,7 +2,7 @@
 
 OMGdbApi is a .NET 8.0 web API project that uses PostgreSQL as its database. This project includes Docker support for easy deployment and development.
 
-## LINK FOR FORONT END REPO - [OMGdbFrontend](https://github.com/ChristopherBJ/frontend_omgdb)
+## LINK FOR FRONT END REPO - [OMGdbFrontend](https://github.com/ChristopherBJ/frontend_omgdb)
 ## Installation
 
 ### Prerequisites
