@@ -5,6 +5,22 @@ ALTER ROLE "admin" SET search_path=public, pgtap, fuzzy;
 SELECT *
 FROM public.get_person_credit('nm0000138');
 
+SELECT max(watchlist)
+            FROM public.user_movie_watchlist
+            GROUP BY "user_id"
+            LIMIT 1;
+
+SELECT max(watchlist_order)
+            FROM public.get_user_watchlist (
+                    (
+                        SELECT public."user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            WHERE
+                title_type = 'movie'
+
 SELECT *
 FROM public.search_all('Guardians of ', 'ur00002071' )
     

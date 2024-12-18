@@ -1424,7 +1424,7 @@ SELECT pgtap.is (
 
 -- test get user watchlist-----------------------------------
 
-SELECT pgtap.ok (
+SELECT pgtap.is (
         (
             SELECT max(watchlist)
             FROM public.user_movie_watchlist
@@ -1434,7 +1434,7 @@ SELECT pgtap.ok (
                     FROM public."user"
                     LIMIT 1
                 )
-        ) = (
+        ), (
             SELECT max(watchlist_order)
             FROM public.get_user_watchlist (
                     (

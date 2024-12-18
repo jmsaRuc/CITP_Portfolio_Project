@@ -4,9 +4,8 @@ CREATE SCHEMA IF NOT EXISTS pgtap;
 
 CREATE SCHEMA IF NOT EXISTS fuzzy;
 
-
+ALTER ROLE "admin" SET search_path=public, pgtap, fuzzy;
 SET search_path TO public, pgtap, fuzzy;
-
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA fuzzy CASCADE;
 
