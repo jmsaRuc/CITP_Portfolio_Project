@@ -24,7 +24,7 @@ OMGDB_PGADMIN_DEFAULT_EMAIL=admin@OMGDB.com
 OMGDB_PGADMIN_DEFAULT_PASSWORD=******************************
 #For OMGDB_API
 OMGDB_API_JWT_SECRET='*******************************'
-ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=portf_1;Username=admin;Password=******************************'
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5432;Database=portf_1;Username=cit07;Password=******************************'
 OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=*****
 OMGDB_AllOWED_ORIGENS='http://localhost:3000,http://localhost:8080'
 #The info For the Database the ./import.sh will use to create the database
