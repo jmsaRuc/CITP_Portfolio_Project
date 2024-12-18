@@ -1,8 +1,16 @@
 SET search_path TO public, pgtap, fuzzy;
+
+ALTER ROLE "admin" SET search_path=public, pgtap, fuzzy;
 ------- misc test queries -------
 SELECT *
 FROM public.get_person_credit('nm0000138');
 
+SELECT *
+FROM public.search_all('Guardians of ', 'ur00002071' )
+    
+SELECT *
+FROM public.episode_series
+WHERE series_id = 'tt0944947'
 
 SELECT title, release_date
 FROM public.movie

@@ -218,4 +218,114 @@ public class SeriesApiTest
         Assert.NotNull(restResponse.Content);
         Assert.Contains("Series dose not exist", restResponse.Content);
     }
+
+    ///////////////////////////////////////////////////////////////////////series/{id}/episode////////////////////////////////////////////////////
+    ///
+    [Fact]
+    public void Test13_GetSeriesEpisodeSortSeason_p1()
+    {
+        var url = $"https://localhost/api/series/tt0944947/episode?seasonNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<SeriesEpisodeSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(11, body.Count);
+        Assert.NotNull(body[0].EpisodeId);
+        Assert.NotNull(body[0].Title);
+        Assert.Equal(1, body[0].SeasonNumber);
+        Assert.Equal(0, body[0].EpisodeNumber);
+    }
+
+    [Fact]
+    public void Test14_GetSeriesEpisodeSortSeason_p2()
+    {
+        var url = $"https://localhost/api/series/tt0944947/episode?seasonNumber=7";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<SeriesEpisodeSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(7, body.Count);
+        Assert.NotNull(body[0].EpisodeId);
+        Assert.NotNull(body[0].Title);
+        Assert.Equal(7, body[0].SeasonNumber);
+        Assert.Equal(1, body[0].EpisodeNumber);
+    }
+
+    [Fact]
+    public void Test15_GetSeriesEpisodeSortSeason_p3_testpageConstraints()
+    {
+        var url =
+            $"https://localhost/api/series/tt0944947/episode?pageSize=2&pageNumber=4&seasonNumber=7";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<SeriesEpisodeSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(7, body.Count);
+        Assert.NotNull(body[0].EpisodeId);
+        Assert.NotNull(body[0].Title);
+        Assert.Equal(7, body[0].SeasonNumber);
+        Assert.Equal(1, body[0].EpisodeNumber);
+    }
+
+    [Fact]
+    public void Test16_GetSeriesEpisodeSortSeason_p4_InvalidSeasonNumber()
+    {
+        var url =
+            $"https://localhost/api/series/tt0944947/episode?pageSize=2&pageNumber=1&seasonNumber=20";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.NotFound, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<object>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Contains("This series dose not have this season number", restResponse.Content);
+    }
+
+    [Fact]
+    public void Test17_GetSeriesEpisode()
+    {
+        var url = $"https://localhost/api/series/tt0944947/episode?pageSize=2&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<SeriesEpisodeSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(2, body.Count);
+        Assert.NotNull(body[0].EpisodeId);
+        Assert.NotNull(body[0].Title);
+        Assert.Equal(1, body[0].SeasonNumber);
+        Assert.Equal(0, body[0].EpisodeNumber);
+    }
+
+    [Fact]
+    public void Test18_GetSeriesEpisodeSort()
+    {
+        var url =
+            $"https://localhost/api/series/tt0944947/episode?pageSize=2&pageNumber=1&sortBy=imdbRating";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<SeriesEpisodeSchema>>(restResponse.Content);
+        Assert.NotNull(body);
+        Assert.Equal(2, body.Count);
+        Assert.NotNull(body[0].EpisodeId);
+        Assert.NotNull(body[0].Title);
+        Assert.NotEqual(1, body[0].SeasonNumber);
+        Assert.NotEqual(0, body[0].EpisodeNumber);
+        Assert.Contains("Battle of the Bastards", body[0].Title);
+    }
 }

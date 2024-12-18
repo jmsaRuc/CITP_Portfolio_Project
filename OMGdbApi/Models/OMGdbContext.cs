@@ -22,6 +22,8 @@ public class OMGdbContext : DbContext
 
     public DbSet<Series> Series { get; set; } = null!;
 
+    public DbSet<SeriesEpisode> SeriesEpisode { get; set; } = null!;
+
     // Person
     public DbSet<Person> Person { get; set; } = null!;
 
@@ -64,6 +66,8 @@ public class OMGdbContext : DbContext
     ////// Generic
 
     public DbSet<TopWeeklyTitles> TopWeeklyTitles { get; set; } = null!;
+
+    public DbSet<SearchResult> SearchResult { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -146,6 +150,11 @@ public class OMGdbContext : DbContext
             })
             .HasDatabaseName("ix_series_pop_avg_and_imdb_rating")
             .IsDescending();
+        //SeriesEpisode
+        modelBuilder.Entity<SeriesEpisode>(e =>
+        {
+            e.HasNoKey();
+        });
 
         //Person
         modelBuilder
@@ -300,5 +309,11 @@ public class OMGdbContext : DbContext
             .Entity<TopWeeklyTitles>()
             .HasIndex(b => b.TitleId)
             .HasDatabaseName("ix_t_week_type_id");
+
+        //Search
+        modelBuilder.Entity<SearchResult>(e =>
+        {
+            e.HasNoKey();
+        });
     }
 }
