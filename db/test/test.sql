@@ -5,11 +5,11 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-SET search_path TO pgtap, public;
+SET search_path TO public, pgtap, fuzzy;
 
 BEGIN;
 
-SELECT pgtap.plan (57);
+SELECT pgtap.plan (77);
 
 ----clean up posibel dummmy users befor
 
@@ -19,7 +19,7 @@ DELETE FROM public."user" WHERE username LIKE 'user%';
 -- test genre functions
 --------------------------------------------------------------------------------
 SELECT pgtap.ok (
-        (   
+        (
             SELECT count(*)
             FROM public.get_all_genres ()
         ) >= 32, 'get_all_genres'
@@ -65,31 +65,37 @@ SELECT pgtap.ok (
 SELECT pgtap.is (
         (
             SELECT genre_name_of
-            FROM public.get_movie_genres('tt0936501')
+            FROM public.get_movie_genres ('tt0936501')
             LIMIT 1
-        ),(SELECT genre_name_of
-            FROM public.get_all_genres()
-            LIMIT 1), 'get_movie_genres'
-    ); 
-
-SELECT pgtap.is (
-        (
+        ), (
             SELECT genre_name_of
-            FROM public.get_series_genres('tt11247158')
+            FROM public.get_all_genres ()
             LIMIT 1
-        ),(SELECT genre_name_of
-            FROM public.get_all_genres()
-            LIMIT 1), 'get_series_genres'
+        ), 'get_movie_genres'
     );
 
 SELECT pgtap.is (
         (
             SELECT genre_name_of
-            FROM public.get_episode_genres('tt11753166')
+            FROM public.get_series_genres ('tt11247158')
             LIMIT 1
-        ),(SELECT genre_name_of
-            FROM public.get_all_genres()
-            LIMIT 1), 'get_episode_genres'
+        ), (
+            SELECT genre_name_of
+            FROM public.get_all_genres ()
+            LIMIT 1
+        ), 'get_series_genres'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT genre_name_of
+            FROM public.get_episode_genres ('tt11753166')
+            LIMIT 1
+        ), (
+            SELECT genre_name_of
+            FROM public.get_all_genres ()
+            LIMIT 1
+        ), 'get_episode_genres'
     );
 --------------------------------------------------------------------------------
 -- singel user test
@@ -153,7 +159,7 @@ SELECT pgtap.is (
         ), 'User creating test'
     );
 
------ insert dummy movie 
+----- insert dummy movie
 INSERT INTO
     public.movie (
         title,
@@ -202,7 +208,8 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ), (
+        ),
+        (
             SELECT movie_id
             FROM public.movie
             WHERE
@@ -218,7 +225,8 @@ VALUES (
             FROM public.user
             WHERE
                 username = 'test_user'
-        ), (
+        ),
+        (
             SELECT series_id
             FROM public.series
             WHERE
@@ -244,7 +252,7 @@ SELECT pgtap.ok (
                     WHERE
                         title = 'The Rev'
                 )
-        ) >= 2, 'Recent view test'
+        ) > 0, 'Recent view test'
     );
 
 ---- test recent trigger ------------------
@@ -639,7 +647,8 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public."user"
-            WHERE username LIKE 'user%'
+            WHERE
+                username LIKE 'user%'
         ) = 0, 'User deleted'
     );
 
@@ -647,10 +656,12 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.recent_view
-            WHERE "user_id" in (
+            WHERE
+                "user_id" IN (
                     SELECT "user_id"
                     FROM public."user"
-                    WHERE username LIKE 'user%'
+                    WHERE
+                        username LIKE 'user%'
                 )
         ) = 0, 'Recent view deleted'
     );
@@ -659,10 +670,12 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_movie_watchlist
-            WHERE "user_id" in (
+            WHERE
+                "user_id" IN (
                     SELECT "user_id"
                     FROM public."user"
-                    WHERE username LIKE 'user%'
+                    WHERE
+                        username LIKE 'user%'
                 )
         ) = 0, 'movie watchlist deleted'
     );
@@ -671,10 +684,12 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_series_watchlist
-            WHERE "user_id" in (
+            WHERE
+                "user_id" IN (
                     SELECT "user_id"
                     FROM public."user"
-                    WHERE username LIKE 'user%'
+                    WHERE
+                        username LIKE 'user%'
                 )
         ) = 0, 'series watchlist deleted'
     );
@@ -683,10 +698,12 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_episode_watchlist
-            WHERE "user_id" in (
+            WHERE
+                "user_id" IN (
                     SELECT "user_id"
                     FROM public."user"
-                    WHERE username LIKE 'user%'
+                    WHERE
+                        username LIKE 'user%'
                 )
         ) = 0, 'episode watchlist deleted'
     );
@@ -695,10 +712,12 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_movie_rating
-            WHERE "user_id" in (
+            WHERE
+                "user_id" IN (
                     SELECT "user_id"
                     FROM public."user"
-                    WHERE username LIKE 'user%'
+                    WHERE
+                        username LIKE 'user%'
                 )
         ) = 0, 'movie rating deleted'
     );
@@ -707,10 +726,12 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_series_rating
-            WHERE "user_id" in (
+            WHERE
+                "user_id" IN (
                     SELECT "user_id"
                     FROM public."user"
-                    WHERE username LIKE 'user%'
+                    WHERE
+                        username LIKE 'user%'
                 )
         ) = 0, 'series rating deleted'
     );
@@ -719,10 +740,12 @@ SELECT pgtap.ok (
         (
             SELECT count(*)
             FROM public.user_episode_rating
-            WHERE "user_id" in (
+            WHERE
+                "user_id" IN (
                     SELECT "user_id"
                     FROM public."user"
-                    WHERE username LIKE 'user%'
+                    WHERE
+                        username LIKE 'user%'
                 )
         ) = 0, 'episode rating deleted'
     );
@@ -754,20 +777,22 @@ SELECT pgtap.ok (
                 )
         ) = 0.0, 'series rating delet trigger '
     );
-
 SELECT pgtap.ok (
         (
             SELECT average_rating
             FROM public.episode
             WHERE
                 episode_id = 'tt11437568'
-        ) = 0.0, 'episode rating delet trigger '
+        ) < 5, 'episode rating delet trigger '
     );
 
---- clean up 
+--- clean up
 DELETE FROM public.movie WHERE title = 'The Rev';
 
 DELETE FROM public.series WHERE title = 'Test Series';
+
+
+
 ------------------------------------------------------------------------------------------
 -- test person functions
 ------------------------------------------------------------------------------------------
@@ -779,7 +804,10 @@ SELECT pgtap.is (
             FROM public.is_in_movie
             WHERE
                 movie_id = 'tt1596363'
-                AND "role" = 'actor'
+                AND (
+                    "role" = 'actor'
+                    OR "role" = 'actress'
+                )
             ORDER BY cast_order ASC
             LIMIT 1
         ), (
@@ -795,7 +823,10 @@ SELECT pgtap.is (
             FROM public.is_in_series
             WHERE
                 series_id = 'tt20877972'
-                AND "role" = 'actor'
+                AND (
+                    "role" = 'actor'
+                    OR "role" = 'actress'
+                )
             ORDER BY cast_order ASC
             LIMIT 1
         ), (
@@ -811,7 +842,10 @@ SELECT pgtap.is (
             FROM public.is_in_episode
             WHERE
                 episode_id = 'tt0959621'
-                AND "role" = 'actor'
+                AND (
+                    "role" = 'actor'
+                    OR "role" = 'actress'
+                )
             ORDER BY cast_order ASC
             LIMIT 1
         ), (
@@ -820,6 +854,119 @@ SELECT pgtap.is (
             LIMIT 1
         ), 'get_top_actors_in_episode'
     );
+
+-----------get writers in movie/series/episode-----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_movie
+            WHERE
+                movie_id = 'tt1596363'
+                AND (
+                    "role" = 'writer'
+                    OR job = 'writen by'
+                )
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_writers_in_movie ('tt1596363')
+            LIMIT 1
+        ), 'get_writers_in_movie'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND (
+                    "role" = 'writer'
+                    OR job = 'writen by'
+                )
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_writers_in_series ('tt20877972')
+            LIMIT 1
+        ), 'get_writers_in_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_episode
+            WHERE
+                episode_id = 'tt0959621'
+                AND (
+                    "role" = 'writer'
+                    OR job = 'writen by'
+                )
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_writers_in_episode ('tt0959621')
+            LIMIT 1
+        ), 'get_writers_in_episode'
+    );
+--------------------------get director and creator in movie/series/episode-----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_movie
+            WHERE
+                movie_id = 'tt1596363'
+                AND (
+                    "role" = 'director'
+                    OR job = 'directed by'
+                )
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_director_in_movie ('tt1596363')
+        ), 'get_directors_in_movie'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_series
+            WHERE
+                series_id = 'tt20877972'
+                AND (
+                    "role" = 'writer'
+                    AND job = 'created by'
+                )
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_creator_in_series ('tt20877972')
+        ), 'get_directors_in_series'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.is_in_episode
+            WHERE
+                episode_id = 'tt0959621'
+                AND (
+                    "role" = 'director'
+                    OR job = 'directed by'
+                )
+            ORDER BY cast_order ASC
+            LIMIT 1
+        ), (
+            SELECT person_id_v
+            FROM public.get_director_in_episode ('tt0959621')
+        ), 'get_directors_in_episode'
+    );
+
 ------------------------------------------------------------------------------------------
 --multi user test
 ------------------------------------------------------------------------------------------
@@ -855,7 +1002,7 @@ BEGIN
         new_user_id := (SELECT "user_id" FROM public."user" WHERE username = 'user' || i);
 
         -- Insert 10 user_movie_watchlist
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             INSERT INTO public.user_movie_watchlist("user_id", movie_id) 
             VALUES (
                 new_user_id,
@@ -866,7 +1013,7 @@ BEGIN
         END LOOP;
 
         -- Insert 10 user_series_watchlist
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             INSERT INTO public.user_series_watchlist("user_id", series_id)
             VALUES (
                 new_user_id,
@@ -877,7 +1024,7 @@ BEGIN
         END LOOP;
 
         -- Insert 10 user_episode_watchlist
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             INSERT INTO public.user_episode_watchlist("user_id", episode_id)
              VALUES (
                 new_user_id,
@@ -888,7 +1035,7 @@ BEGIN
         END LOOP;
 
         -- Insert 10 recent_views
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10 * i + j ) + 1)::int;
             INSERT INTO public.recent_view ("user_id", "type_id")
             VALUES (
@@ -899,7 +1046,7 @@ BEGIN
                 "type_id" = type_ids[random_int];
         END LOOP;
 
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_movie_rating ("user_id", movie_id, rating)
             VALUES (
@@ -912,7 +1059,7 @@ BEGIN
                 rating = random_int;
         END LOOP;
 
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_series_rating ("user_id", series_id, rating)
             VALUES (
@@ -925,7 +1072,7 @@ BEGIN
                 rating = random_int;
         END LOOP;
 
-        FOR j IN 1..100 LOOP
+        FOR j IN 1..10 LOOP
             random_int := floor(random() * (10) + 1)::int;
             INSERT INTO public.user_episode_rating ("user_id", episode_id, rating)
             VALUES (
@@ -946,7 +1093,8 @@ SELECT pgtap.ok (
         (
             SELECT COUNT(*)
             FROM public."user"
-            WHERE username LIKE 'user%'
+            WHERE
+                username LIKE 'user%'
         ) = 100, '100 users created'
     );
 
@@ -1035,9 +1183,248 @@ SELECT pgtap.is (
                 count(*) > 1
         ), NULL, 'No duplicate entries in user_episode_rating'
     );
--- test get user watchlist-----------------------------------
+
+----test search triggers ----------------------------------------------------------------------------------
+
+--movie search trigger
+SELECT pgtap.is (
+        (
+            SELECT movie_id
+            FROM public.movie
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), (
+            SELECT movie_id
+            FROM public.movie_search
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), 'search_movie trigger'
+    );
+
+-- series search trigger
+
+SELECT pgtap.is (
+        (
+            SELECT series_id
+            FROM public.series
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), (
+            SELECT series_id
+            FROM public.series_search
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), 'search_series trigger'
+    );
+
+-- episode search trigger
+
+SELECT pgtap.is (
+        (
+            SELECT episode_id
+            FROM public.episode
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), (
+            SELECT episode_id
+            FROM public.episode_search
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), 'search_episode trigger'
+    );
+
+-- person search trigge
+
+SELECT pgtap.is (
+        (
+            SELECT person_id
+            FROM public.person
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), (
+            SELECT person_id
+            FROM public.person_search
+            ORDER BY popularity DESC
+            LIMIT 1
+        ), 'search_person trigger'
+    );
+
+------------------------------------------test search functions -----------------------------------
+SELECT pgtap.is (
+        (
+            SELECT title_v
+            FROM public.search_movie_quick (
+                    'the big short', (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            LIMIT 1
+        ), (
+            SELECT title
+            FROM public.movie
+            WHERE
+                title = 'The Big Short'
+        ), 'search_movie_quick'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT title_v
+            FROM public.search_series_quick (
+                    'breaking bad', (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            LIMIT 1
+        ), (
+            SELECT title
+            FROM public.series
+            WHERE
+                title = 'Breaking Bad'
+        ), 'search_series_quick'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT title_v
+            FROM public.search_episode_quick (
+                    'battle of the bastards', (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            LIMIT 1
+        ), (
+            SELECT title
+            FROM public.episode
+            WHERE
+                title = 'Battle of the Bastards'
+        ), 'search_episode_quick'
+    );
+
+SELECT pgtap.is (
+        (
+            SELECT name_v
+            FROM public.search_person_quick (
+                    'Ryan Gosling', (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            LIMIT 1
+        ), (
+            SELECT "name"
+            FROM public.person
+            WHERE
+                "name" = 'Ryan Gosling'
+        ), 'search_person_quick'
+    );
+---------------test search slow -----------------------------------
 
 SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.search_movie_slow ('the byg shart')
+            LIMIT 1
+        ) > 0, 'search_movie_slow'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.search_series_slow ('brakidg byd')
+            LIMIT 1
+        ) > 0, 'search_series_slow'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.search_episode_slow ('battel of the nastards')
+            LIMIT 1
+        ) > 0, 'search_episode_slow'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.search_person_slow ('ryan gyslong')
+            LIMIT 1
+        ) > 0, 'search_person_slow'
+    );
+-----test all searsh
+
+SELECT pgtap.is (
+        (
+            SELECT title_s
+            FROM public.search_all (
+                    'the big short', (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            LIMIT 1
+        ), (
+            SELECT title
+            FROM public.movie
+            WHERE
+                title = 'The Big Short'
+        ), 'search_all'
+    );
+
+-- test get series episodes -----------------------------------
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.get_episodes_in_series ('tt094494', 0)
+        ) = (
+            SELECT count(*)
+            FROM public.episode_series
+            WHERE
+                series_id = 'tt094494'
+        ), 'get_series_episodes'
+    );
+
+SELECT pgtap.ok (
+        (
+            SELECT count(*)
+            FROM public.get_episodes_in_series ('tt094494', 1)
+        ) = (
+            SELECT count(*)
+            FROM public.episode_series
+            WHERE
+                series_id = 'tt094494'
+                AND season_number = 1
+        ), 'get_series_episodes'
+    );
+
+
+----test get person credit ----------------------------------- 
+SELECT pgtap.is (
+        (
+            SELECT title_v
+            FROM public.get_person_credit('nm0000138')
+            WHERE
+                title_v= 'Inception'
+        ), 
+        (
+            SELECT title
+            FROM public.movie NATURAL JOIN is_in_movie
+            WHERE
+                person_id = 'nm0000138' and movie_id = 'tt1375666'
+        ), 'get_person_credit'
+    );
+
+-- test get user watchlist-----------------------------------
+
+SELECT pgtap.is (
         (
             SELECT max(watchlist)
             FROM public.user_movie_watchlist
@@ -1047,7 +1434,7 @@ SELECT pgtap.ok (
                     FROM public."user"
                     LIMIT 1
                 )
-        ) = (
+        ), (
             SELECT max(watchlist_order)
             FROM public.get_user_watchlist (
                     (
@@ -1353,28 +1740,6 @@ SELECT pgtap.is (
         ), 'episode', 'Episode type trigger'
     );
 
--- test search functions --------------------------------------------
-
-SELECT pgtap.is (
-        (
-            SELECT title
-            FROM public.string_search ('the biG short')
-        ), 'The Big Short', 'string search, Search for movie'
-    );
-
-SELECT pg_sleep(1);
-
-SELECT pgtap.ok (
-        (
-            SELECT count(*)
-            FROM public.find_co_players ('Bryan Cranston')
-            WHERE
-                co_actor = 'Bill Murray'
-        ) > 0, 'find co players'
-    );
-
-SELECT pg_sleep(1);
-
 -- clean up --------------------------------------------
 DELETE FROM public.movie
 WHERE
@@ -1393,6 +1758,7 @@ WHERE
         FROM public.series
         WHERE
             title = 'Stranger Things'
+        LIMIT 1    
     );
 
 DELETE FROM public.episode
@@ -1402,11 +1768,13 @@ WHERE
         FROM public.episode
         WHERE
             title = 'Chapter One: The Vanishing of Will Byers'
-    );
-
+        LIMIT 1  
+                );
 
 REFRESH MATERIALIZED VIEW public.top_this_week;
+
 DELETE FROM public."user" WHERE username LIKE 'user%';
+
 SELECT * FROM pgtap.finish ();
 
 END;

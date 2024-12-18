@@ -1,5 +1,78 @@
+SET search_path TO public, pgtap, fuzzy;
 
+ALTER ROLE "admin" SET search_path=public, pgtap, fuzzy;
 ------- misc test queries -------
+SELECT *
+FROM public.get_person_credit('nm0000138');
+
+SELECT max(watchlist)
+            FROM public.user_movie_watchlist
+            GROUP BY "user_id"
+            LIMIT 1;
+
+SELECT max(watchlist_order)
+            FROM public.get_user_watchlist (
+                    (
+                        SELECT public."user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            WHERE
+                title_type = 'movie'
+
+SELECT *
+FROM public.search_all('Guardians of ', 'ur00002071' )
+    
+SELECT *
+FROM public.episode_series
+WHERE series_id = 'tt0944947'
+
+SELECT title, release_date
+FROM public.movie
+WHERE release_date IS NOT NULL
+
+            SELECT *
+            FROM public.get_person_credit('nm0000138');
+
+            SELECT title
+            FROM public.movie NATURAL JOIN is_in_movie
+            WHERE
+                person_id = 'nm0000138' and movie_id = 'tt1375666'
+
+            SELECT *
+            FROM public.search_movie_quick('the big short', (SELECT "user_id" FROM public."user" LIMIT 1))
+            LIMIT 1;
+
+            SELECT *
+            FROM public.search_series_quick('breaking bad', (SELECT "user_id" FROM public."user" LIMIT 1))
+            LIMIT 1;
+
+            SELECT *
+            FROM public.search_episode_quick (
+                    'battle of the bastards', (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            LIMIT 1;    
+
+                SELECT *
+            FROM public.search_person_quick (
+                    'Ryan Gosling', (
+                        SELECT "user_id"
+                        FROM public."user"
+                        LIMIT 1
+                    )
+                )
+            LIMIT 1;    
+
+
+            SELECT *
+            FROM public.search_movie_slow ('the big snort');
+
+ 
 
 SELECT DISTINCT genre_name
 FROM movie_genre;
@@ -125,7 +198,8 @@ LIMIT 1;
 
 -- test rating trigger
 
-
+SELECT count(*)
+            FROM public.search_movie_quick('the big short', (SELECT "user_id" FROM public."user" LIMIT 1))
 
 SELECT *
 FROM public.series
@@ -492,6 +566,7 @@ VALUES (
 SELECT * FROM type WHERE type_id = 'tt4593118';
 
 SELECT * FROM episode WHERE episode_id = 'tt4593118';
+
 
 ----------------------test user functionality----------------------
 SELECT public.create_user (

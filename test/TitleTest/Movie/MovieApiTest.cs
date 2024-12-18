@@ -89,7 +89,7 @@ public class MovieApiTest
     [Fact]
     public void Test5_GetMovieActors()
     {
-        var url = $"https://localhost/api/movie/tt1596363/actors?pageSize=3&pageNumber=4";
+        var url = $"https://localhost/api/movie/tt1596363/actors?pageSize=3&pageNumber=1";
         var restResponse = request.GetRestRequest(url);
         _testOutputHelper.WriteLine(restResponse.Content);
 
@@ -118,10 +118,79 @@ public class MovieApiTest
         Assert.Contains("Movie does not exist", restResponse.Content);
     }
 
+    //////////////////////////////////////////////////////////////////////movie/{id}/directors////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test7_GetMovieDirectors()
+    {
+        var url = $"https://localhost/api/movie/tt0936501/directors?pageSize=1&pageNumber=2";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<CastNotActorSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.NotNull(body[0].PersonId);
+        Assert.NotNull(body[0].Name);
+        Assert.NotNull(body[0].CastOrder);
+    }
+
+    [Fact]
+    public void Test8_GetMovieDirectorsInvalid()
+    {
+        var sqlInjec = "tt0936501or1=1";
+        var url = $"https://localhost/api/movie/{sqlInjec}/directors";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid title id", restResponse.Content);
+    }
+
+    //////////////////////////////////////////////////////////////////////movie/{id}/writers////////////////////////////////////////////////////
+
+    [Fact]
+    public void Test9_GetMovieWriters()
+    {
+        var url = $"https://localhost/api/movie/tt0468569/writers?pageSize=2&pageNumber=1";
+        var restResponse = request.GetRestRequest(url);
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.OK, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        var body = JsonSerializer.Deserialize<List<CastNotActorSchema>>(restResponse.Content);
+
+        Assert.NotNull(body);
+        Assert.Equal(2, body.Count);
+        Assert.NotNull(body[0].PersonId);
+        Assert.NotNull(body[0].Name);
+        Assert.NotNull(body[0].CastOrder);
+    }
+
+    [Fact]
+    public void Test10_GetMovieWritersInvalid()
+    {
+        var sqlInjec = "tt0936501or1=1";
+        var url = $"https://localhost/api/movie/{sqlInjec}/writers";
+
+        var restResponse = request.GetRestRequest(url);
+
+        _testOutputHelper.WriteLine(restResponse.Content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, restResponse.StatusCode);
+        Assert.NotNull(restResponse.Content);
+        Assert.Contains("Invalid title id", restResponse.Content);
+    }
+
     ////////////////////////////////////////////////////////////////////movie/{id}/genre////////////////////////////////////////////////////
 
     [Fact]
-    public void Test7_GetMovieGenre()
+    public void Test11_GetMovieGenre()
     {
         var url = $"https://localhost/api/movie/tt0936501/genre?pageSize=2&pageNumber=1";
         var restResponse = request.GetRestRequest(url);
@@ -138,7 +207,7 @@ public class MovieApiTest
     }
 
     [Fact]
-    public void Test8_GetMovieGenreInvalid()
+    public void Test12_GetMovieGenreInvalid()
     {
         var sqlInjec = "tt0936501or1=1";
         var url = $"https://localhost/api/movie/{sqlInjec}/genre";

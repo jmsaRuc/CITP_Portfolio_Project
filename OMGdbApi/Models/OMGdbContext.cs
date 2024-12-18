@@ -22,16 +22,25 @@ public class OMGdbContext : DbContext
 
     public DbSet<Series> Series { get; set; } = null!;
 
+    public DbSet<SeriesEpisode> SeriesEpisode { get; set; } = null!;
+
+    // Person
     public DbSet<Person> Person { get; set; } = null!;
 
     public DbSet<Actor> Actor { get; set; } = null!;
 
+    public DbSet<CastNotActor> CastNotActor { get; set; } = null!;
+
+    public DbSet<PersonCredit> PersonCredit { get; set; } = null!;
+
     public DbSet<GenreAll> GenreAll { get; set; } = null!;
+
     public DbSet<Genre> Genre { get; set; } = null!;
 
     ////// User
     public DbSet<User> Users { get; set; } = null!;
 
+    // Watchlist
     public DbSet<WatchlistAll> WatchlistAll { get; set; } = null!;
 
     public DbSet<WatchlistEpisode> WatchlistEpisode { get; set; } = null!;
@@ -40,6 +49,7 @@ public class OMGdbContext : DbContext
 
     public DbSet<WatchlistSeries> WatchlistSeries { get; set; } = null!;
 
+    // Rating
     public DbSet<RatingALL> RatingALL { get; set; } = null!;
 
     public DbSet<RatingEpisode> RatingEpisode { get; set; } = null!;
@@ -48,6 +58,7 @@ public class OMGdbContext : DbContext
 
     public DbSet<RatingSeries> RatingSeries { get; set; } = null!;
 
+    // RecentView
     public DbSet<RecentViewAll> RecentViewAll { get; set; } = null!;
 
     public DbSet<RecentView> RecentView { get; set; } = null!;
@@ -55,6 +66,8 @@ public class OMGdbContext : DbContext
     ////// Generic
 
     public DbSet<TopWeeklyTitles> TopWeeklyTitles { get; set; } = null!;
+
+    public DbSet<SearchResult> SearchResult { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -81,6 +94,7 @@ public class OMGdbContext : DbContext
                 b.Popularity,
                 b.AverageRating,
                 b.ImdbRating,
+                b.ReleaseDate,
             })
             .HasDatabaseName("ix_episode_pop_avg_and_imdb_rating")
             .IsDescending();
@@ -106,6 +120,7 @@ public class OMGdbContext : DbContext
                 b.Popularity,
                 b.AverageRating,
                 b.ImdbRating,
+                b.ReleaseDate,
             })
             .HasDatabaseName("ix_movie_pop_avg_and_imdb_rating")
             .IsDescending();
@@ -131,9 +146,15 @@ public class OMGdbContext : DbContext
                 b.Popularity,
                 b.AverageRating,
                 b.ImdbRating,
+                b.StartYear,
             })
             .HasDatabaseName("ix_series_pop_avg_and_imdb_rating")
             .IsDescending();
+        //SeriesEpisode
+        modelBuilder.Entity<SeriesEpisode>(e =>
+        {
+            e.HasNoKey();
+        });
 
         //Person
         modelBuilder
@@ -153,6 +174,18 @@ public class OMGdbContext : DbContext
 
         //Top_Actor
         modelBuilder.Entity<Actor>(e =>
+        {
+            e.HasNoKey();
+        });
+
+        //CastNoActor
+        modelBuilder.Entity<CastNotActor>(e =>
+        {
+            e.HasNoKey();
+        });
+
+        //PersonCredit
+        modelBuilder.Entity<PersonCredit>(e =>
         {
             e.HasNoKey();
         });
@@ -276,5 +309,11 @@ public class OMGdbContext : DbContext
             .Entity<TopWeeklyTitles>()
             .HasIndex(b => b.TitleId)
             .HasDatabaseName("ix_t_week_type_id");
+
+        //Search
+        modelBuilder.Entity<SearchResult>(e =>
+        {
+            e.HasNoKey();
+        });
     }
 }

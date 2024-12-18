@@ -1,7 +1,10 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMGdbApi.Models;
 using OMGdbApi.Models.Generic;
+using OMGdbApi.Service;
 
 namespace OMGdbApi.Controllers
 {
@@ -14,9 +17,13 @@ namespace OMGdbApi.Controllers
     {
         private readonly OMGdbContext _context;
 
-        public GenericController(OMGdbContext context)
+        private readonly ValidateIDs _validateIDs = new();
+
+        public GenericController(OMGdbContext context, ValidateIDs validateIDs)
         {
             _context = context;
+
+            _validateIDs = validateIDs;
         }
 
         ////////////////////////////////////////////////////////TopWeeklyTitles/////////////////////////////////////////////////////////
@@ -51,6 +58,7 @@ namespace OMGdbApi.Controllers
             {
                 pageNumber = 1;
             }
+
             var totalRecords = await _context.TopWeeklyTitles.CountAsync();
 
             if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
@@ -68,10 +76,15 @@ namespace OMGdbApi.Controllers
             switch (sortBy)
             {
                 case "imdbRating":
-                    topWeeklyTitles = topWeeklyTitles.OrderByDescending(e => e.ImdbRating);
+                    topWeeklyTitles = topWeeklyTitles
+                        .OrderByDescending(e => e.ImdbRating)
+                        .ThenByDescending(e => e.Popularity);
+                    ;
                     break;
                 case "averageRating":
-                    topWeeklyTitles = topWeeklyTitles.OrderByDescending(e => e.AverageRating);
+                    topWeeklyTitles = topWeeklyTitles
+                        .OrderByDescending(e => e.AverageRating)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 default:
                     topWeeklyTitles = topWeeklyTitles.OrderByDescending(e => e.Popularity);
@@ -83,6 +96,88 @@ namespace OMGdbApi.Controllers
                 .Skip(((int)pageNumber - 1) * (int)pageSize)
                 .Take((int)pageSize)
                 .ToListAsync();
+        }
+
+        ////////////////////////////////////////////////////////search/////////////////////////////////////////////////////////
+
+        //GET: api/search
+        [HttpPut("search")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<SearchResult>>> GetSearch(
+            Search search,
+            int? pageSize,
+            int? pageNumber
+        )
+        {
+            if (string.IsNullOrEmpty(search.UserId) || string.IsNullOrEmpty(search.SearchQuery))
+            {
+                return BadRequest("User id or search query is missing");
+            }
+
+            if (!_validateIDs.ValidateUserId(search.UserId))
+            {
+                return BadRequest("Invalid UserId");
+            }
+
+            if (!UserExists(search.UserId))
+            {
+                return BadRequest("User dose not exist");
+            }
+
+            if (!_validateIDs.ValidateSearchQuery(search.SearchQuery))
+            {
+                return BadRequest("Invalid search query");
+            }
+
+            var token_id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (token_id != search.UserId)
+            {
+                return Unauthorized("Unauthorized");
+            }
+
+            string searchQuery = search.SearchQuery;
+            string UserId = search.UserId;
+
+            if (pageSize == null || pageSize < 1 || pageSize > 100)
+            {
+                pageSize = 10;
+            }
+            if (pageNumber == null || pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            var totalRecords = await _context
+                .SearchResult.FromSqlInterpolated(
+                    $"SELECT * FROM search_all({searchQuery}, {UserId})"
+                )
+                .CountAsync();
+
+            if ((int)((pageNumber - 1) * pageSize) >= totalRecords)
+            {
+                pageNumber = (int)Math.Ceiling((double)totalRecords / (double)pageSize);
+
+                if (pageNumber <= 0)
+                {
+                    pageNumber = 1;
+                }
+            }
+
+            return await _context
+                .SearchResult.FromSqlInterpolated(
+                    $"SELECT * FROM search_all({searchQuery}, {UserId})"
+                )
+                .AsNoTracking()
+                .OrderByDescending(x => x.Rank)
+                .Skip((int)((pageNumber - 1) * pageSize))
+                .Take((int)pageSize)
+                .ToListAsync();
+        }
+
+        private bool UserExists(string id)
+        {
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

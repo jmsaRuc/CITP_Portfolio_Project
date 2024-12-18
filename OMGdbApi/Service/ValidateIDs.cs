@@ -85,6 +85,35 @@ public class ValidateIDs
         return true;
     }
 
+    public bool ValidateSearchQuery(string? query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return false;
+        }
+
+        // Define acceptable characters (e.g., letters, digits, spaces)
+        foreach (char c in query)
+        {
+            if (!char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c))
+            {
+                return false;
+            }
+        }
+
+        // Check for SQL injection patterns
+        string[] sqlInjectionPatterns = { "--", ";--", ";", "/*", "*/", "@@", "@", "'", "\"" };
+
+        foreach (string pattern in sqlInjectionPatterns)
+        {
+            if (query.Contains(pattern))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // General validation for all IDs
     private static bool GeneralValidate(string? Id)
     {

@@ -137,10 +137,20 @@ namespace OMGdbApi.Controllers
             switch (sortBy)
             {
                 case "imdbRating":
-                    movie = movie.OrderByDescending(e => e.ImdbRating);
+                    movie = movie
+                        .OrderByDescending(e => e.ImdbRating)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 case "averageRating":
-                    movie = movie.OrderByDescending(e => e.AverageRating);
+                    movie = movie
+                        .OrderByDescending(e => e.AverageRating)
+                        .ThenByDescending(e => e.Popularity);
+                    break;
+                case "releaseDate":
+                    movie = movie
+                        .OrderByDescending(e => e.ReleaseDate.HasValue)
+                        .ThenByDescending(e => e.ReleaseDate)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 default:
                     movie = movie.OrderByDescending(e => e.Popularity);
@@ -203,10 +213,20 @@ namespace OMGdbApi.Controllers
             switch (sortBy)
             {
                 case "imdbRating":
-                    series = series.OrderByDescending(e => e.ImdbRating);
+                    series = series
+                        .OrderByDescending(e => e.ImdbRating)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 case "averageRating":
-                    series = series.OrderByDescending(e => e.AverageRating);
+                    series = series
+                        .OrderByDescending(e => e.AverageRating)
+                        .ThenByDescending(e => e.Popularity);
+                    break;
+                case "releaseDate":
+                    series = series
+                        .OrderByDescending(e => e.StartYear == null)
+                        .ThenByDescending(e => e.StartYear)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 default:
                     series = series.OrderByDescending(e => e.Popularity);
@@ -271,10 +291,20 @@ namespace OMGdbApi.Controllers
             switch (sortBy)
             {
                 case "imdbRating":
-                    episode = episode.OrderByDescending(e => e.ImdbRating);
+                    episode = episode
+                        .OrderByDescending(e => e.ImdbRating)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 case "averageRating":
-                    episode = episode.OrderByDescending(e => e.AverageRating);
+                    episode = episode
+                        .OrderByDescending(e => e.AverageRating)
+                        .ThenByDescending(e => e.Popularity);
+                    break;
+                case "releaseDate":
+                    episode = episode
+                        .OrderByDescending(e => e.ReleaseDate.HasValue)
+                        .ThenByDescending(e => e.ReleaseDate)
+                        .ThenByDescending(e => e.Popularity);
                     break;
                 default:
                     episode = episode.OrderByDescending(e => e.Popularity);

@@ -61,3 +61,22 @@ DROP FUNCTION IF EXISTS update_movie_average_rating_after_update CASCADE;
 DROP FUNCTION IF EXISTS public.refresh_if_new_day CASCADE;
 
 DROP TRIGGER IF EXISTS after_insert_refresh_top_this_week ON public.recent_view; 
+
+DROP FUNCTION IF EXISTS update_search_popularity_after_movie_update CASCADE;
+
+DROP FUNCTION IF EXISTS update_search_popularity_after_series_update CASCADE;
+
+DROP FUNCTION IF EXISTS update_search_popularity_after_episode_update CASCADE;
+
+DROP FUNCTION if EXISTS update_search_popularity_after_person_update CASCADE;
+
+DROP TRIGGER IF EXISTS after_update_movie_search_popularity ON public.movie;
+
+DROP TRIGGER IF EXISTS after_update_series_search_popularity ON public.series;
+
+DROP TRIGGER IF EXISTS after_update_episode_search_popularity ON public.episode;
+
+DROP TRIGGER IF EXISTS after_update_person_search_popularity ON public.person;
+
+
+
