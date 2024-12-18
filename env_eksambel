@@ -1,14 +1,16 @@
+#For Creating the Database locally with docker
 OMGDB_POSTGRES_USER=admin
-OMGDB_POSTGRES_PASSWORD=***********
+OMGDB_POSTGRES_PASSWORD=******************************
 OMGDB_PGADMIN_DEFAULT_EMAIL=admin@OMGDB.com
-OMGDB_PGADMIN_DEFAULT_PASSWORD=***********
+OMGDB_PGADMIN_DEFAULT_PASSWORD=******************************
 #For OMGDB_API
-OMGDB_API_JWT_SECRET=*********
-ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=portf_1;Username=admin;Password=***********'
-OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=***********
-#for import script both in local, docker and external
-OMGDB_POSTGRES_HOST=127.0.0.1
+OMGDB_API_JWT_SECRET='*******************************'
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=portf_1;Username=admin;Password=******************************'
+OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=*****
+OMGDB_AllOWED_ORIGENS='http://localhost:3000,http://localhost:8080'
+#The info For the Database the ./import.sh will use to create the database
+OMGDB_POSTGRES_HOST=cit.ruc.dk
 OMGDB_POSTGRES_PORT=5432
-OMGDB_USERDATABASE=portf_1
-OMGDB_USER_PG=admin
-PGPASSWORD=***********
+OMGDB_USERDATABASE=cit07
+OMGDB_USER_PG=cit07
+PGPASSWORD=****

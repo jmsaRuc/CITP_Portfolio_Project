@@ -8,6 +8,7 @@ OMGdbApi is a .NET 8.0 web API project that uses PostgreSQL as its database. Thi
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ### Environment Variables
 
@@ -15,20 +16,22 @@ Create a `.env` file in the root directory with the following content:
 
 ./env_eksambel
 ```sh
+#For Creating the Database locally with docker
 OMGDB_POSTGRES_USER=admin
-OMGDB_POSTGRES_PASSWORD=***********
+OMGDB_POSTGRES_PASSWORD=******************************
 OMGDB_PGADMIN_DEFAULT_EMAIL=admin@OMGDB.com
-OMGDB_PGADMIN_DEFAULT_PASSWORD=***********
+OMGDB_PGADMIN_DEFAULT_PASSWORD=******************************
 #For OMGDB_API
-OMGDB_API_JWT_SECRET=*********
-ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=portf_1;Username=admin;Password=***********'
-OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=***********
-#for import script both in local, docker and external
-OMGDB_POSTGRES_HOST=127.0.0.1
+OMGDB_API_JWT_SECRET='*******************************'
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=portf_1;Username=admin;Password=******************************'
+OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=*****
+OMGDB_AllOWED_ORIGENS='http://localhost:3000,http://localhost:8080'
+#The info For the Database the ./import.sh will use to create the database
+OMGDB_POSTGRES_HOST=cit.ruc.dk
 OMGDB_POSTGRES_PORT=5432
-OMGDB_USERDATABASE=portf_1
-OMGDB_USER_PG=admin
-PGPASSWORD=***********
+OMGDB_USERDATABASE=cit07
+OMGDB_USER_PG=cit07
+PGPASSWORD=****
 ```
 
 
@@ -81,7 +84,7 @@ docker compose --env-file .env up -d
 
 3. **Access the API:**
 
-The API will be available at `http://localhost:8080`.
+The API will be available at `https://localhost/api/docs/index.html`.
 
 4. **Access pgAdmin:**
 
@@ -130,9 +133,9 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 │   ├── Controllers
 │   │   ├── EpisodeController.cs
 │   │   ├── GenericController.cs
-│   │   ├── GenreController.cs
-│   │   ├── MovieController.cs
-│   │   ├── PersonController.cs
+│   │   ├── GenreController.cs  
+│   │   ├── MovieController.cs  
+│   │   ├── PersonController.cs 
 │   │   ├── RatingsController.cs
 │   │   ├── RecentViewController.cs
 │   │   ├── SeriesController.cs
@@ -140,15 +143,20 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 │   │   └── WatchlistController.cs
 │   ├── Models
 │   │   ├── Actor.cs
+│   │   ├── CastNotActor.cs
 │   │   ├── Episode.cs
 │   │   ├── Generic
+│   │   │   ├── Search.cs
+│   │   │   ├── SearchResult.cs
 │   │   │   └── TopWeeklyTitles.cs
 │   │   ├── Genre.cs
 │   │   ├── GenreAll.cs
 │   │   ├── Movie.cs
 │   │   ├── OMGdbContext.cs
 │   │   ├── Person.cs
+│   │   ├── PersonCredit.cs
 │   │   ├── Series.cs
+│   │   ├── SeriesEpisode.cs
 │   │   └── Users
 │   │       ├── Ratings
 │   │       │   ├── RatingALL.cs
@@ -183,6 +191,7 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 │   └── excalidraw
 │       └── main_excali.excalidraw
 ├── certs
+├── create_dummy_users.sh
 ├── customPostgresql.conf
 ├── db
 │   ├── import_backup
@@ -191,11 +200,9 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 │   │   │   ├── drop_triggers.sql
 │   │   │   └── type-triggers.sql
 │   │   ├── create_db
-│   │   │   ├── create_db_draft1.sql
-│   │   │   ├── create_db_draft2.sql
 │   │   │   ├── create_db_final.sql
-│   │   │   ├── drop_all.sql
-│   │   │   └── import_script.sql
+│   │   │   ├── create_search_tabels.sql
+│   │   │   └── drop_all.sql
 │   │   ├── create_indexs
 │   │   │   ├── create.sql
 │   │   │   └── drop.sql
@@ -209,13 +216,19 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 │   │   │   ├── create.sql
 │   │   │   └── drop.sql
 │   │   ├── search_functionality
-│   │   │   ├── drop_functions.sql
-│   │   │   └── search_functions.sql
+│   │   │   ├── create.sql
+│   │   │   └── drop.sql
+│   │   ├── series_functions
+│   │   │   ├── create.sql
+│   │   │   └── drop.sql
 │   │   └── user_functions
 │   │       ├── create.sql
 │   │       └── drop.sql
 │   └── test
-│       ├── manuel_create_dumyUsr.sql
+│       ├── create_dummy_users
+│       │   ├── create.sql
+│       │   └── drop.sql
+│       ├── temp.sql
 │       ├── test.sql
 │       └── test_manuel.sql
 ├── delete_import.sh
@@ -237,6 +250,7 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 │   ├── RequestClass.cs
 │   ├── TitleTest
 │   │   ├── ActorSchema.cs
+│   │   ├── CastNotActorSchema.cs
 │   │   ├── Episode
 │   │   │   ├── EpisodeApiTest.cs
 │   │   │   └── EpisodeSchema.cs
@@ -245,9 +259,11 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 │   │   │   └── MovieSchema.cs
 │   │   ├── Person
 │   │   │   ├── PersonApiTest.cs
+│   │   │   ├── PersonCreditSchema.cs
 │   │   │   └── PersonSchema.cs
 │   │   └── Series
 │   │       ├── SeriesApiTest.cs
+│   │       ├── SeriesEpisodeSchema.cs
 │   │       └── SeriesSchema.cs
 │   ├── UserTest
 │   │   ├── RatingsTest
@@ -302,10 +318,6 @@ $ git ls-tree -r --name-only HEAD | tree --fromfile
 - **POST /api/OMGdbItems:** Add an item to the database.
 - **PUT /api/OMGdbItems/{id}:** Update an item by ID in the database.
 - **DELETE /api/OMGdbItems/{id}:** Delete an item by ID from the database.
-
-## Database Schema
-![alt text](./blueprint/ER_Diagram.svg)
-<img srec ="./blueprint/ER_Diagram.svg">
 
 
 ## Technologies
