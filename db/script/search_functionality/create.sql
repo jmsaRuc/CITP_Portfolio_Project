@@ -487,7 +487,7 @@ BEGIN
     IF EXISTS(
             SELECT true
             FROM public.search_movie_quick(search_query, user_id_v)
-            WHERE rank_v > 1
+            WHERE rank_v > 1.5
             LIMIT 1
         )
     THEN 
@@ -498,7 +498,7 @@ BEGIN
     ELSEIF EXISTS(
             SELECT true
             FROM public.search_series_quick(search_query, user_id_v)
-            WHERE rank_v > 1
+            WHERE rank_v > 1.5
             LIMIT 1
         )
     THEN 
@@ -509,7 +509,7 @@ BEGIN
     ELSEIF EXISTS(
             SELECT true
             FROM public.search_episode_quick(search_query, user_id_v)
-            WHERE rank_v > 1
+            WHERE rank_v > 1.5
             LIMIT 1
         )
     THEN 
@@ -521,7 +521,7 @@ BEGIN
         SELECT
             true
         FROM public.search_person_quick(search_query, user_id_v)
-        WHERE rank_v > 1
+        WHERE rank_v > 1.5
         LIMIT 1
     )
     THEN
