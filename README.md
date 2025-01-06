@@ -2,7 +2,9 @@
 
 OMGdbApi is a .NET 8.0 web API project that uses PostgreSQL as its database. This project includes Docker support for easy deployment and development.
 
-## LINK FOR FRONT END REPO - [OMGdbFrontend](https://github.com/ChristopherBJ/frontend_omgdb)
+
+## LINK TO FRONT END REPO - [OMGdbFrontend](https://github.com/ChristopherBJ/frontend_omgdb)
+
 ## Installation
 
 ### Prerequisites
@@ -24,7 +26,7 @@ OMGDB_PGADMIN_DEFAULT_EMAIL=admin@OMGDB.com
 OMGDB_PGADMIN_DEFAULT_PASSWORD=******************************
 #For OMGDB_API
 OMGDB_API_JWT_SECRET='*******************************'
-ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5432;Database=portf_1;Username=cit07;Password=******************************'
+ASPNETCORE_ConnectionStrings_DefaultConnection='Host=host.docker.internal;Port=5532;Database=portf_1;Username=admin;Password=******************************'
 OMGDB_ASPNETCORE_Kestrel__Certificates__Default__Password=*****
 OMGDB_AllOWED_ORIGENS='http://localhost:3000,http://localhost:8080'
 #The info For the Database the ./import.sh will use to create the database
