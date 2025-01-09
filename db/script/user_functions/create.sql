@@ -250,8 +250,8 @@ BEGIN
                     person_id AS type_id_v,
                     "name" AS title,
                     NULL AS poster,
-                    NULL AS average_rating,
-                    NULL AS imdb_rating,
+                    0::NUMERIC AS average_rating,
+                    0::NUMERIC AS imdb_rating,
                     'person'::varchar AS title_type_v
                 FROM person
                 WHERE

@@ -85,18 +85,18 @@ $$ LANGUAGE SQL STABLE STRICT;
 -----------------------------------------------------------------------------------------
 --create dummy users
 
-DO $$
-BEGIN
-    FOR i IN 1..1000 LOOP
-        INSERT INTO public."user" (username, "password", salt, email)
-        VALUES (
-            'usr' || i,
-            sha256(('usr' || i)::bytea),
-            sha256(('usr' || i || '@example.com')::bytea),
-            'usr' || i || '@example.com'
-        );
-    END LOOP;
-END $$;
+#DO $$
+#BEGIN
+#    FOR i IN 1..1000 LOOP
+#        INSERT INTO public."user" (username, "password", salt, email)
+#        VALUES (
+#            'usr' || i,
+#            sha256(('usr' || i)::bytea),
+#            sha256(('usr' || i || '@example.com')::bytea),
+#            'usr' || i || '@example.com'
+#        );
+#    END LOOP;
+#END $$;
 
 DO $$
 DECLARE

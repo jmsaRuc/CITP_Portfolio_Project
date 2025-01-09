@@ -1,6 +1,5 @@
 ---------------------------type insert triggers-----------------------------
 
-
 CREATE OR REPLACE FUNCTION public.create_movie_type_after_insert()
     RETURNS TRIGGER AS $$
     BEGIN
@@ -123,7 +122,7 @@ BEGIN
             WHERE movie_id = NEW."type_id"
         )
         UPDATE public.person as d
-        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        SET popularity = (1/(cast_order::NUMERIC)*pop_count)::BIGINT + (d.popularity-((1/(cast_order::NUMERIC)*pop_count)::BIGINT-1))::BIGINT
         FROM filte
         WHERE d.person_id = filte.person_id;
 
@@ -142,7 +141,7 @@ BEGIN
             WHERE series_id = NEW."type_id"
         )
         UPDATE public.person as d
-        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        SET popularity = (1/(cast_order::NUMERIC)*pop_count)::BIGINT + (d.popularity-((1/(cast_order::NUMERIC)*pop_count)::BIGINT-1))::BIGINT
         FROM filte
         WHERE d.person_id = filte.person_id;
 
@@ -162,7 +161,7 @@ BEGIN
             WHERE episode_id = NEW."type_id"
         )
         UPDATE public.person as d
-        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        SET popularity = (1/(cast_order::NUMERIC)*pop_count)::BIGINT + (d.popularity-((1/(cast_order::NUMERIC)*pop_count)::BIGINT-1))::BIGINT
         FROM filte
         WHERE d.person_id = filte.person_id;
 
@@ -171,9 +170,9 @@ BEGIN
 
     IF what_type = 'person' 
     THEN
-        UPDATE public.person
-        SET popularity = pop_count
-        WHERE "person_id" = NEW."type_id";
+        UPDATE public.person as d
+        SET popularity = pop_count + (d.popularity - (pop_count - 1))
+        WHERE d.person_id = NEW."type_id"; 
         RETURN NEW;
     END IF;  
 END;
@@ -245,13 +244,11 @@ CREATE OR REPLACE TRIGGER after_update_episode_search_popularity
     FOR EACH ROW
     EXECUTE FUNCTION public.update_search_popularity_after_episode_update();
 
-
 CREATE OR REPLACE TRIGGER after_update_person_search_popularity
     AFTER UPDATE
     ON public.person
     FOR EACH ROW
-    EXECUTE FUNCTION public.update_search_popularity_after_person_update();    
-
+    EXECUTE FUNCTION public.update_search_popularity_after_person_update();
 
 -----------------------------popularity delet triggers-----------------------------
 
@@ -287,7 +284,7 @@ BEGIN
             WHERE movie_id = OLD."type_id"
         )
         UPDATE public.person as d
-        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        SET popularity = (1/(cast_order::NUMERIC)*pop_count)::BIGINT + (d.popularity-((1/(cast_order::NUMERIC)*pop_count)::BIGINT+1))::BIGINT
         FROM filte
         WHERE d.person_id = filte.person_id;
 
@@ -306,7 +303,7 @@ BEGIN
             WHERE series_id = OLD."type_id"
         )
         UPDATE public.person as d
-        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        SET popularity = (1/(cast_order::NUMERIC)*pop_count)::BIGINT + (d.popularity-((1/(cast_order::NUMERIC)*pop_count)::BIGINT+1))::BIGINT
         FROM filte
         WHERE d.person_id = filte.person_id;
         
@@ -325,7 +322,7 @@ BEGIN
             WHERE episode_id = OLD."type_id"
         )
         UPDATE public.person as d
-        SET popularity = ((1/cast_order::NUMERIC)*pop_count)::BIGINT
+        SET popularity = (1/(cast_order::NUMERIC)*pop_count)::BIGINT + (d.popularity-((1/(cast_order::NUMERIC)*pop_count)::BIGINT+1))::BIGINT
         FROM filte
         WHERE d.person_id = filte.person_id;
 
@@ -334,9 +331,9 @@ BEGIN
 
     IF what_type = 'person' 
     THEN
-        UPDATE public.person
-        SET popularity = pop_count
-        WHERE "person_id" = OLD."type_id";
+        UPDATE public.person as d
+        SET popularity = pop_count + (d.popularity - (pop_count + 1))
+        WHERE d.person_id = OLD."type_id";
         RETURN OLD;
     END IF;
     RETURN OLD;   
@@ -467,7 +464,7 @@ CREATE OR REPLACE TRIGGER after_insert_series_rating
     FOR EACH ROW
     EXECUTE FUNCTION public.update_series_average_rating_after_insert();
 
---------------------------------------------------- rating insert triggers on delet ---------------------------------------------------    
+--------------------------------------------------- rating insert triggers on delet ---------------------------------------------------
 
 -- movie
 CREATE OR REPLACE FUNCTION public.update_movie_average_rating_after_delete()

@@ -2,6 +2,22 @@ SET search_path TO public, pgtap, fuzzy;
 
 ALTER ROLE "admin" SET search_path=public, pgtap, fuzzy;
 ------- misc test queries -------
+
+SELECT (1/('1'::NUMERIC)*(20/((3+1))-1))::BIGINT;
+
+SELECT (1/('1'::NUMERIC)*21)::BIGINT;
+SELECT 3 - (1/('4'::NUMERIC)*(4+1))::BIGINT;
+
+SELECT 1 + (1/('1'::NUMERIC)*0)::BIGINT;
+SELECT '2'::BIGINT - (1/('1'::NUMERIC)*'1'::BIGINT)::BIGINT;
+
+
+SELECT 20+('20'::BIGINT-'5'::BIGINT - 1 )::BIGINT;
+
+UPDATE public.person
+SET popularity = 0
+WHERE person_id = 'nm0000880';
+
 SELECT *
 FROM public.get_person_credit('nm0000138');
 
